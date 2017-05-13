@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using RexBot2.Data;
+using RexBot2.Utils;
 
 namespace RexBot2.Modules
 {
@@ -19,7 +19,7 @@ namespace RexBot2.Modules
         public async Task testCmd(string s = "zzz")
         {
             
-            await Context.Channel.SendMessageAsync(DataMaster.getAlias(s));
+            await Context.Channel.SendMessageAsync(AliasUtils.getAlias(s));
         }
 
         [Command("repeat")]
@@ -29,16 +29,7 @@ namespace RexBot2.Modules
             await Context.Channel.SendMessageAsync(input);
         }
 
-        [Command("help")]
-        public async Task helpCmd()
-        {
-            string res = string.Empty;
-            foreach(CommandInfo c in _commandService.Commands)
-            {
-                res += $"{c.Name} : {c.Summary}\n";
-            }
-            await Context.Channel.SendMessageAsync(res);
-        }
+
 
     }
 }

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using System.Diagnostics;
-using RexBot2.Data;
+using RexBot2.Utils;
 
 namespace RexBot2
 {
@@ -23,7 +23,7 @@ namespace RexBot2
             _client = new DiscordSocketClient();
 
             new CommandHandler();
-            new DataMaster();
+            new DataUtils();
 
             await _client.LoginAsync(TokenType.Bot, "MzEyNzM5MzQ3MzYxNDMxNTYy.C_fcug.4MF5L2T8z0yz5Y5SH8KqNWV5uNs");
 
