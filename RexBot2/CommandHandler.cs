@@ -41,6 +41,10 @@ namespace RexBot2
                 {
 
                 }
+            } else
+            {
+                if(!msg.Author.IsBot)
+                    await context.Channel.SendMessageAsync("herro");
             }
         }
     }
