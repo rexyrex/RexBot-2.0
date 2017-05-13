@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using RexBot2.Utils;
+using System.Linq;
 
 namespace RexBot2.Modules
 {
@@ -36,5 +37,46 @@ namespace RexBot2.Modules
             }
             
         }
+
+        [Command("report")]
+        [Summary("report a fool")]
+        public async Task reportCmd(string name)
+        {
+
+            string user = Context.User.ToString();
+
+            if (AliasUtils.getAliasKey(name).Contains("None"))
+            {
+                await Context.Channel.SendMessageAsync("You're trying to report an unregistered user!");
+            }
+            else
+            {
+                name = DataUtils.aliases[AliasUtils.getAliasKey(name)];
+                if (DataUtils.reports.ContainsKey(name))
+                {
+                    DataUtils.reports[name]++;
+                }
+                else
+                {
+                    DataUtils.reports[name] = 1;
+                }
+                await Context.Channel.SendMessageAsync("Report successful");
+
+            }
+        }
+
+        [Command("reports")]
+        [Summary("show all reports")]
+        public async Task reportsCmd()
+        {
+            string res = string.Empty;
+            foreach (KeyValuePair<string, int> kv in DataUtils.reports)
+            {
+                res += "User " + kv.Key + ", reported " + kv.Value + " times!\n";
+            }
+
+            await Context.Channel.SendMessageAsync(res);
+        }
+
     }
 }

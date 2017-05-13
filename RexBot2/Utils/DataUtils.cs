@@ -156,7 +156,7 @@ namespace RexBot2.Utils
             }
         }
 
-        public string listRexDB(string username)
+        public static string listRexDB(string username)
         {
             string res = string.Empty;
             res += "```Markdown\n";
@@ -168,7 +168,7 @@ namespace RexBot2.Utils
             return res;
         }
 
-        public void loadRexDB()
+        public static void loadRexDB()
         {
             //Usernameㄱidㄱcontent
             string line;
@@ -207,7 +207,7 @@ namespace RexBot2.Utils
         }
 
         //return content from dictionary
-        public string getFromRexDB(string username, string id)
+        public static string getFromRexDB(string username, string id)
         {
             string res = string.Empty;
             if (rexDB.ContainsKey(username) && rexDB[username].ContainsKey(id))
@@ -224,7 +224,7 @@ namespace RexBot2.Utils
         //Add line to file + update current dictionary
         //File wont delete existing id's
         //Load process will simply overwrite so most recent pair survives
-        public void writeToRexDB(string userName, string id, string content)
+        public static void writeToRexDB(string userName, string id, string content)
         {
             if (UtilMaster.ContainsAny(content, new string[] { "!meme" }) && content.Count(x => x == '(') == 3)
             {

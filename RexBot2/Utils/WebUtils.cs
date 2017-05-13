@@ -44,5 +44,27 @@ namespace RexBot2.Utils
             return received;
         }
 
+        public static async Task<string> httpRequest(string url, bool forImgur)
+        {
+            Uri uri = new Uri(url);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+            string received;
+            request.Headers["Authorization"] = "Client-ID 1a8e14c14351c3b";
+
+            using (var response = (HttpWebResponse)(await Task<WebResponse>.Factory.FromAsync(request.BeginGetResponse, request.EndGetResponse, null)))
+            {
+                using (var responseStream = response.GetResponseStream())
+                {
+                    using (var sr = new StreamReader(responseStream))
+                    {
+
+                        received = await sr.ReadToEndAsync();
+                    }
+                }
+            }
+
+            return received;
+        }
+
     }
 }

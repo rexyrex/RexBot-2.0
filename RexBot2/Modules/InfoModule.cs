@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using RexBot2.Utils;
 
 namespace RexBot2.Modules
 {
@@ -32,6 +33,20 @@ namespace RexBot2.Modules
         {
 
             await Context.Channel.SendMessageAsync("coming soon");
+        }
+
+        [Command("aka")]
+        [Summary("Get alias(es)")]
+        public async Task akaCmd(string name = "empty")
+        {
+            if (name == "empty")
+            {
+                await Context.Channel.SendMessageAsync(AliasUtils.getAliases());
+            } else
+            {
+                await Context.Channel.SendMessageAsync(AliasUtils.getAlias(name));
+            }
+            
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using RexBot2.Utils;
+using Discord;
 
 namespace RexBot2.Modules
 {
@@ -26,17 +27,17 @@ namespace RexBot2.Modules
 
         [Command("purge")]
         [Summary("Delete Messages")]
-        public async Task purgeCmd(int msgToDel = 2)
+        public async Task purgeCmd(int msgToDel = 1)
         {
-            if (UtilMaster.ContainsAny(Context.User.ToString(), new string[] { "Rexyrex#5838" }))
+            string userName = Context.User.ToString();
+            if (userName == "Rexyrex#5838")
             {
-                await Context.Channel.SendMessageAsync("I am going down for maintenance! brb...");
-                System.Threading.Thread.Sleep(1000);
-                System.Environment.Exit(1);
+                var messages = await Context.Channel.GetMessagesAsync(((int)msgToDel+1)).Flatten();
+                await Context.Channel.DeleteMessagesAsync(messages);
             }
             else
             {
-                await Context.Channel.SendMessageAsync("Nice try " + UtilMaster.stripName(Context.User.ToString()));
+                await Context.Channel.SendMessageAsync("Not implemented");
             }
         }
 

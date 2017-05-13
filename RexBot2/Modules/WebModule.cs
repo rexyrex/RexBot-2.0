@@ -98,5 +98,28 @@ namespace RexBot2.Modules
 
             await Context.Channel.SendMessageAsync(UtilMaster.getWord(urls));
         }
+
+        [Command("img")]
+        [Summary("Search for image on imgur")]
+        public async Task imgCmd(string query = "dota2")
+        {
+            List<string> urls = new List<string>();
+
+
+            string t = await WebUtils.httpRequest("https://api.imgur.com/3/gallery/search/?q=" + query,true);
+
+
+            dynamic dynObj = JsonConvert.DeserializeObject(t);
+
+            foreach (var data in dynObj.data)
+            {
+                string dt = data.link;
+                urls.Add(dt);
+            }
+
+            await Context.Channel.SendMessageAsync(UtilMaster.getWord(urls));
+        }
+
+
     }
 }
