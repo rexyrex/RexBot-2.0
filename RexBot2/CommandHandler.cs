@@ -5,6 +5,8 @@ using System.Text;
 using Discord.Commands;
 using System.Reflection;
 using System.Threading.Tasks;
+using RexBot2.Utils;
+using System.Linq;
 
 namespace RexBot2
 {
@@ -42,9 +44,47 @@ namespace RexBot2
 
                 }
             } else
+            {               
+                
+            }
+            if (!msg.Author.IsBot && DataUtils.modes[DataUtils.mode].hasPermission("functions"))
             {
-                if(!msg.Author.IsBot)
-                    await context.Channel.SendMessageAsync("herro");
+                string stz = msg.Content;
+                Console.WriteLine("in1");
+                if (UtilMaster.ContainsAny(stz, new string[] { "!meme" }) && stz.Count(x => x == '(') == 3)
+                {
+                    Console.WriteLine("in2");
+                    int bracketCount = 0;
+                    string type = string.Empty;
+                    string topText = string.Empty;
+                    string botText = string.Empty;
+
+                    for (int i = 0; i < stz.Length; i++)
+                    {
+                        if (stz[i] == '(' || stz[i] == ')')
+                        {
+                            bracketCount++;
+                        }
+                        if (bracketCount == 3)
+                        {
+                            if (stz[i] != '(')
+                                topText += stz[i];
+                        }
+                        if (bracketCount == 5)
+                        {
+                            if (stz[i] != '(')
+                                botText += stz[i];
+                        }
+                        if (bracketCount == 1)
+                        {
+                            if (stz[i] != ')' && stz[i] != '(')
+                                type += stz[i];
+                        }
+                    }
+                    topText = UtilMaster.processTextForMeme(topText);
+                    botText = UtilMaster.processTextForMeme(botText);
+                    await context.Channel.SendMessageAsync("https://memegen.link/" + type + "/" + topText + "/" + botText + ".jpg");
+                }
             }
         }
     }

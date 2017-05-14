@@ -8,8 +8,10 @@ using RexBot2.Timers;
 
 namespace RexBot2
 {
+
     public class Program
     {
+        //https://discordapp.com/api/oauth2/authorize?client_id=312739347361431562&scope=bot&permissions=0
 
         static void Main(string[] args)
         => new Program().StartAsync().GetAwaiter().GetResult();
