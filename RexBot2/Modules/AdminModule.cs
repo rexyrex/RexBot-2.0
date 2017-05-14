@@ -16,13 +16,13 @@ namespace RexBot2.Modules
         [Summary("Repeats what you said")]
         public async Task offCmd()
         {
-            if(UtilMaster.ContainsAny(Context.User.ToString(), new string[] { "Rexyrex#5838" })){
+            if(MasterUtils.ContainsAny(Context.User.ToString(), new string[] { "Rexyrex#5838" })){
                 await Context.Channel.SendMessageAsync("I am going down for maintenance! brb...");
                 System.Threading.Thread.Sleep(1000);
                 System.Environment.Exit(1);
             } else
             {
-                await Context.Channel.SendMessageAsync("Nice try " + UtilMaster.stripName(Context.User.ToString()));
+                await Context.Channel.SendMessageAsync("Nice try " + MasterUtils.stripName(Context.User.ToString()));
             }            
         }
 
@@ -48,20 +48,20 @@ namespace RexBot2.Modules
         [Summary("Change mode")]
         public async Task modeCmd(string reqMode="invalid"  )
         {
-            if (UtilMaster.ContainsAny(Context.User.ToString(), new string[] { "Rexyrex#5838" }))
+            if (MasterUtils.ContainsAny(Context.User.ToString(), new string[] { "Rexyrex#5838" }))
             {
-                if (UtilMaster.isMode(reqMode))
+                if (MasterUtils.isMode(reqMode))
                 {
                     DataUtils.mode = reqMode;
                     await Context.Channel.SendMessageAsync("RexBot mode changed to " + reqMode);
                 }
                 else if (reqMode == "help" || reqMode == "")
                 {
-                    await Context.Channel.SendMessageAsync(UtilMaster.getAllModesInfo());
+                    await Context.Channel.SendMessageAsync(MasterUtils.getAllModesInfo());
                 }
                 else
                 {
-                    await Context.Channel.SendMessageAsync("***You input an invalid mode!***\n\n*Available modes*:\n" + UtilMaster.getAllModesInfo());
+                    await Context.Channel.SendMessageAsync("***You input an invalid mode!***\n\n*Available modes*:\n" + MasterUtils.getAllModesInfo());
                 }
             }
             else

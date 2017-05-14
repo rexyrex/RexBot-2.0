@@ -33,8 +33,8 @@ namespace RexBot2.Modules
             {
                 int randInt = DataUtils.rnd.Next(1, 11);
                 int randInt2 = DataUtils.rnd.Next(1, 11);
-                string res = UtilMaster.stripName(username) + " rolled " + randInt + " when s/he should have rolled " + randInt2;
-                res += "\nNo W's for you today " + UtilMaster.stripName(Context.User.ToString()) + "!";
+                string res = MasterUtils.stripName(username) + " rolled " + randInt + " when s/he should have rolled " + randInt2;
+                res += "\nNo W's for you today " + MasterUtils.stripName(Context.User.ToString()) + "!";
                 if (randInt != randInt2)
                 {
                     await Context.Channel.SendMessageAsync(res);

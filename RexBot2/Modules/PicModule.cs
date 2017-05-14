@@ -51,11 +51,11 @@ namespace RexBot2.Modules
         [Summary("Random doge meme")]
         public async Task dogeCmd()
         {
-            string topText = "wow! such " + UtilMaster.getWord(DataUtils.adjList);
-            string botText = "much " + UtilMaster.getWord(DataUtils.nounList);
-            topText = UtilMaster.processTextForMeme(topText);
-            botText = UtilMaster.processTextForMeme(botText);
-            await Context.Channel.SendFileAsync(picPath + "Kappahd.png");
+            string topText = "wow! such " + MasterUtils.getWord(DataUtils.adjList);
+            string botText = "much " + MasterUtils.getWord(DataUtils.nounList);
+            topText = MasterUtils.processTextForMeme(topText);
+            botText = MasterUtils.processTextForMeme(botText);
+            await Context.Channel.SendMessageAsync("https://memegen.link/" + "doge" + "/" + topText + "/" + botText + ".jpg");
         }
 
         [Command("sup")]
@@ -66,7 +66,7 @@ namespace RexBot2.Modules
             int r = DataUtils.rnd.Next(DataUtils.picNames.Count);
             string picToString = DataUtils.picNames[r];
             await Context.Channel.SendFileAsync("Data/friendpics/" + picToString);
-            await Context.Channel.SendMessageAsync(UtilMaster.commentOnPic(),true);
+            await Context.Channel.SendMessageAsync(MasterUtils.commentOnPic(),true);
 
         }
 

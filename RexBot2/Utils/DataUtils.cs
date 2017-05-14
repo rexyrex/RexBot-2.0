@@ -159,12 +159,18 @@ namespace RexBot2.Utils
         public static string listRexDB(string username)
         {
             string res = string.Empty;
+            int count = 0;
             res += "```Markdown\n";
             foreach (string s in rexDB[username].Keys)
             {
+                count++;
                 res += "id: <" + s + "> contents: <" + rexDB[username][s] + ">\n";
             }
             res += "```";
+            if (count == 0)
+            {
+                res = "You have nothing stored under your username!";
+            }
             return res;
         }
 
@@ -226,7 +232,7 @@ namespace RexBot2.Utils
         //Load process will simply overwrite so most recent pair survives
         public static void writeToRexDB(string userName, string id, string content)
         {
-            if (UtilMaster.ContainsAny(content, new string[] { "!meme" }) && content.Count(x => x == '(') == 3)
+            if (MasterUtils.ContainsAny(content, new string[] { "!meme" }) && content.Count(x => x == '(') == 3)
             {
 
                 int bracketCount = 0;
@@ -257,8 +263,8 @@ namespace RexBot2.Utils
                             type += content[i];
                     }
                 }
-                topText = UtilMaster.processTextForMeme(topText);
-                botText = UtilMaster.processTextForMeme(botText);
+                topText = MasterUtils.processTextForMeme(topText);
+                botText = MasterUtils.processTextForMeme(botText);
                 string final = "https://memegen.link/" + type + "/" + topText + "/" + botText + ".jpg";
                 content = final;
             }

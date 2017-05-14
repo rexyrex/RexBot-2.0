@@ -5,7 +5,7 @@ using RexBot2.Objects;
 
 namespace RexBot2.Utils
 {
-    public class UtilMaster
+    public class MasterUtils
     {
         public static string getAllModesInfo()
         {

@@ -196,5 +196,29 @@ namespace RexBot2.Modules
         {
             await Context.Channel.SendMessageAsync(RexTimers.getCds(Context.User.ToString()));
         }
+
+        [Command("meme")]
+        [Remarks("meme builder")]
+        [Summary("!meme (<type>) (<toptext>) (<bottetxt>), type !meme help to get list of meme types")]
+        public async Task memeCmd(string help)
+        {
+            string res = string.Empty;
+            if (MasterUtils.ContainsAny(help, new string[] {"help","list","show" }))
+            {                
+                res += "** - Meme Creation - **\n";
+                res += "```MarkDown\n" + "!meme (type) (Top Line) (Bottom Line)\n```";
+                res += "\n** - Meme Types - **\n" + "```";
+                foreach (string memeType in DataUtils.memeTypesList)
+                {
+                    res += memeType + ", ";
+                }
+                res += "```";
+            } else
+            {
+                res = "invalid command";
+            }
+            
+            await Context.Channel.SendMessageAsync(res);
+        }
     }
 }

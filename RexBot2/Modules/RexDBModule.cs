@@ -32,7 +32,7 @@ namespace RexBot2.Modules
         public async Task listCmd()
         {
             string user = Context.User.ToString();
-            await Context.Channel.SendMessageAsync("**Key Value Pairs for " + UtilMaster.stripName(user) + "...**\n" + DataUtils.listRexDB(user));
+            await Context.Channel.SendMessageAsync("**Key Value Pairs for " + MasterUtils.stripName(user) + "...**\n" + DataUtils.listRexDB(user));
         }
 
 

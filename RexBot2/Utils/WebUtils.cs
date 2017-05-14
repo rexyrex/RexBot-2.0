@@ -66,8 +66,8 @@ namespace RexBot2.Utils
             //Console.WriteLine(String.Format("Videos:\n{0}\n", string.Join("\n", videos)));
             //Console.WriteLine(String.Format("Channels:\n{0}\n", string.Join("\n", channels)));
             //Console.WriteLine(String.Format("Playlists:\n{0}\n", string.Join("\n", playlists)));
-            string vidurl = UtilMaster.getWord(videos);
-            string vidID = UtilMaster.reverse(extractVideoID(UtilMaster.reverse(vidurl)));
+            string vidurl = MasterUtils.getWord(videos);
+            string vidID = MasterUtils.reverse(extractVideoID(MasterUtils.reverse(vidurl)));
             //Console.WriteLine(vids);
             //Console.WriteLine(vidID);
             return $"https://www.youtube.com/watch?v={vidID}";
@@ -111,7 +111,6 @@ namespace RexBot2.Utils
                 {
                     using (var sr = new StreamReader(responseStream))
                     {
-
                         received = await sr.ReadToEndAsync();
                     }
                 }

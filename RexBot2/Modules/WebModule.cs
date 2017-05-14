@@ -76,7 +76,7 @@ namespace RexBot2.Modules
                 string urlStr = data.definition;
                 urls.Add(urlStr);
             }
-            await Context.Channel.SendMessageAsync(UtilMaster.getWord(urls));
+            await Context.Channel.SendMessageAsync(MasterUtils.getWord(urls));
         }
 
         [Command("gif")]
@@ -107,7 +107,7 @@ namespace RexBot2.Modules
                 }
             }
 
-            await Context.Channel.SendMessageAsync(UtilMaster.getWord(urls));
+            await Context.Channel.SendMessageAsync(MasterUtils.getWord(urls));
         }
 
         [Command("img")]
@@ -129,7 +129,7 @@ namespace RexBot2.Modules
                 urls.Add(dt);
             }
 
-            await Context.Channel.SendMessageAsync(UtilMaster.getWord(urls));
+            await Context.Channel.SendMessageAsync(MasterUtils.getWord(urls));
         }
 
         [Command("youtube")]
@@ -141,6 +141,25 @@ namespace RexBot2.Modules
 
             Console.WriteLine(res);
             await Context.Channel.SendMessageAsync(res);
+        }
+
+        [Command("today")]
+        [Remarks("web")]
+        [Summary("What happened today in the past?")]
+        public async Task todayCmd()
+        {
+            string jsonStr = await WebUtils.httpRequest("http://history.muffinlabs.com/date");
+            dynamic dynObj = JsonConvert.DeserializeObject(jsonStr);
+            string date = dynObj.date;
+            List<string> results = new List<string>();
+            foreach (var data in dynObj.data.Events)
+            {
+                string year = data.year;
+                string text = data.text;
+                results.Add("Year " + year + ", " + date + " : " + text);
+            }
+
+            await Context.Channel.SendMessageAsync(MasterUtils.getWord(results));
         }
 
 

@@ -23,7 +23,11 @@ namespace RexBot2
         public async Task StartAsync()
         {
             var sw = Stopwatch.StartNew();
-            _client = new DiscordSocketClient();
+            _client = new DiscordSocketClient(new DiscordSocketConfig()
+            {
+                MessageCacheSize = 20,
+                AlwaysDownloadUsers = true,
+            });
 
             new CommandHandler();
             new DataUtils();
@@ -38,6 +42,7 @@ namespace RexBot2
 
             await _handler.InitializeAsync(_client);
             sw.Stop();
+
             Console.WriteLine("Connected in " + sw.Elapsed.TotalSeconds.ToString("F2") + " seconds");
             await Task.Delay(-1);
             
