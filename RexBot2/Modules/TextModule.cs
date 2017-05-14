@@ -13,7 +13,7 @@ namespace RexBot2.Modules
         [Command("play")]
         [Remarks("text")]
         [Summary("(Dota2) Tells you what hero and role you should play")]
-        public async Task playCmd(string player = "You")
+        public async Task playCmd([Remainder] string player = "You")
         {
             if(player == "You")
             {

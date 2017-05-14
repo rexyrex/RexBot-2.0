@@ -102,7 +102,7 @@ namespace RexBot2.Timers
                 {
                     waitStr = Math.Round(wait,2).ToString();
                 }
-                res += kv.Key + " : " + waitStr;
+                res += "`" + kv.Key + "` : **" + waitStr + "**\n";
             }
             if (res == string.Empty)
             {

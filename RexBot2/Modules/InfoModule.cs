@@ -89,12 +89,15 @@ namespace RexBot2.Modules
                 //emb.AddField(efb4);
 
             }
-            else
+            else if (cmdName.Contains("meme"))
+            {
+                res = MasterUtils.getMemeHelp();
+            } else
             {
                 
                 foreach (CommandInfo c in _commandService.Commands)
                 {
-                    if (cmdName == c.Name)
+                    if (cmdName.Contains(c.Name))
                     {
                         string aliasesStr = string.Empty;
                         string parametersStr = string.Empty;
@@ -166,9 +169,10 @@ namespace RexBot2.Modules
         }
 
         [Command("aka")]
+        [Alias("alias", "aliases")]
         [Remarks("info")]
         [Summary("Get alias(es)")]
-        public async Task akaCmd(string name = "empty")
+        public async Task akaCmd([Remainder] string name = "empty")
         {
             if (name == "empty")
             {
@@ -204,15 +208,8 @@ namespace RexBot2.Modules
         {
             string res = string.Empty;
             if (MasterUtils.ContainsAny(help, new string[] {"help","list","show" }))
-            {                
-                res += "** - Meme Creation - **\n";
-                res += "```MarkDown\n" + "!meme (type) (Top Line) (Bottom Line)\n```";
-                res += "\n** - Meme Types - **\n" + "```";
-                foreach (string memeType in DataUtils.memeTypesList)
-                {
-                    res += memeType + ", ";
-                }
-                res += "```";
+            {
+                res = MasterUtils.getMemeHelp();
             } else
             {
                 res = "invalid command";

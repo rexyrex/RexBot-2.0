@@ -127,5 +127,19 @@ namespace RexBot2.Utils
 
         }
 
+        public static string getMemeHelp()
+        {
+            string res = string.Empty;
+            res += "** - Meme Creation - **\n";
+            res += "```MarkDown\n" + "!meme (type) (Top Line) (Bottom Line)\n```";
+            res += "\n** - Meme Types - **\n" + "```";
+            foreach (string memeType in DataUtils.memeTypesList)
+            {
+                res += memeType + ", ";
+            }
+            res += "```";
+            return res;
+        }
+
     }
 }

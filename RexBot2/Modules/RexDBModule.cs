@@ -12,7 +12,7 @@ namespace RexBot2.Modules
         [Command("save")]
         [Remarks("rexdb")]
         [Summary("save <id> <string> - Save line in rex db")]
-        public async Task saveCmd(string id, string content)
+        public async Task saveCmd(string id, [Remainder] string content)
         {
             DataUtils.writeToRexDB(Context.User.ToString(), id, content);
             await Context.Channel.SendMessageAsync("Save successful");

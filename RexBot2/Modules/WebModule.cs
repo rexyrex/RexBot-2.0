@@ -56,7 +56,7 @@ namespace RexBot2.Modules
         [Command("twitter")]
         [Remarks("web")]
         [Summary("Search for term on twitter")]
-        public async Task twitterCmd(string term = "dota2")
+        public async Task twitterCmd([Remainder] string term = "dota2")
         {
             await Context.Channel.SendMessageAsync(WebUtils.getTweet(term));
         }
@@ -64,11 +64,9 @@ namespace RexBot2.Modules
         [Command("urban")]
         [Remarks("web")]
         [Summary("Definition from urban dictionary")]
-        public async Task urbanCmd(string term = "dota2")
+        public async Task urbanCmd([Remainder] string term = "dota2")
         {
-            string users = Context.User.ToString();
-
-            string jsonStr = await WebUtils.httpRequest("http://api.urbandictionary.com/v0/define?term=" + users);
+            string jsonStr = await WebUtils.httpRequest("http://api.urbandictionary.com/v0/define?term=" + term);
             dynamic dynObj = JsonConvert.DeserializeObject(jsonStr);
             List<string> urls = new List<string>();
             foreach (var data in dynObj.list)
@@ -82,7 +80,7 @@ namespace RexBot2.Modules
         [Command("gif")]
         [Remarks("web")]
         [Summary("Search for a gif (default:dota2)")]
-        public async Task gifCmd(string term = "dota2")
+        public async Task gifCmd([Remainder] string term = "dota2")
         {
             string query = term;
             string jsonStr = string.Empty;
@@ -113,7 +111,7 @@ namespace RexBot2.Modules
         [Command("img")]
         [Remarks("web")]
         [Summary("Search for image on imgur")]
-        public async Task imgCmd(string query = "dota2")
+        public async Task imgCmd([Remainder] string query = "dota2")
         {
             List<string> urls = new List<string>();
 
@@ -135,7 +133,7 @@ namespace RexBot2.Modules
         [Command("youtube")]
         [Remarks("web")]
         [Summary("Search for video on youtube")]
-        public async Task youtubeCmd(string query = "dota2")
+        public async Task youtubeCmd([Remainder] string query = "dota2")
         {
             string res = await WebUtils.YoutubeTest(query);
 

@@ -53,7 +53,7 @@ namespace RexBot2.Modules
         [Command("report")]
         [Remarks("troll")]
         [Summary("report a fool")]
-        public async Task reportCmd(string name)
+        public async Task reportCmd([Remainder] string name)
         {
             string username = Context.User.ToString();
             if (RexTimers.canRunCmd(username, "report"))
@@ -91,6 +91,10 @@ namespace RexBot2.Modules
             foreach (KeyValuePair<string, int> kv in DataUtils.reports)
             {
                 res += "User " + kv.Key + ", reported " + kv.Value + " times!\n";
+            }
+            if (res == string.Empty)
+            {
+                res += "Nobody has been reported! YET...";
             }
 
             await Context.Channel.SendMessageAsync(res);
