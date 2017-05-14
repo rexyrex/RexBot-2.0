@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using Tweetinvi;
+using System.Linq;
 
 namespace RexBot2.Utils
 {
@@ -21,6 +24,79 @@ namespace RexBot2.Utils
                     finalTweet = item.ToString();
             }
             return finalTweet;
+        }
+
+        public static async Task<string> YoutubeTest(string term)
+        {
+            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            {
+                ApiKey = "AIzaSyD1zmi4hoHLA3KqH7E07Bn27GElo9Gne7g",
+                //ApplicationName = this.GetType().ToString()
+            });
+
+            var searchListRequest = youtubeService.Search.List("snippet");
+            searchListRequest.Q = term;
+            searchListRequest.MaxResults = 5;
+
+            // Call the search.list method to retrieve results matching the specified query term.
+            var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            List<string> videos = new List<string>();
+            List<string> channels = new List<string>();
+            List<string> playlists = new List<string>();
+
+            foreach (var searchResult in searchListResponse.Items)
+            {
+                switch (searchResult.Id.Kind)
+                {
+                    case "youtube#video":
+                        videos.Add(String.Format("{0} ({1})", searchResult.Snippet.Title, searchResult.Id.VideoId));
+                        break;
+
+                    //case "youtube#channel":
+                    //    channels.Add(String.Format("{0} ({1})", searchResult.Snippet.Title, searchResult.Id.ChannelId));
+                    //    break;
+
+                    //case "youtube#playlist":
+                    //    playlists.Add(String.Format("{0} ({1})", searchResult.Snippet.Title, searchResult.Id.PlaylistId));
+                    //    break;
+                }
+            }
+
+            //Console.WriteLine(String.Format("Videos:\n{0}\n", string.Join("\n", videos)));
+            //Console.WriteLine(String.Format("Channels:\n{0}\n", string.Join("\n", channels)));
+            //Console.WriteLine(String.Format("Playlists:\n{0}\n", string.Join("\n", playlists)));
+            string vidurl = UtilMaster.getWord(videos);
+            string vidID = UtilMaster.reverse(extractVideoID(UtilMaster.reverse(vidurl)));
+            //Console.WriteLine(vids);
+            //Console.WriteLine(vidID);
+            return $"https://www.youtube.com/watch?v={vidID}";
+        }
+
+        public static string extractVideoID(string title)
+        {
+            if(title.Count(x => x == '(') == 1 && title.Count(x => x == ')') == 1)
+            {
+                string res = string.Empty;
+                bool isID = true;
+                //bracket detection swapped for reverse string
+                for(int i=0; i<title.Length; i++)
+                {
+                    if (isID && title[i]!='(' && title[i] != ')')
+                    {
+                        res += title[i];
+                    }
+                    if(title[i] == '(')
+                    {
+                            isID = false;
+                    }
+                }
+                return res;
+            }
+            else
+            {
+                return "Not a valid video";
+            }
         }
 
         public static async Task<string> httpRequest(string url)
@@ -65,6 +141,7 @@ namespace RexBot2.Utils
 
             return received;
         }
+
 
     }
 }

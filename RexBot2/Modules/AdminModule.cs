@@ -11,6 +11,7 @@ namespace RexBot2.Modules
     public class AdminModule : ModuleBase<SocketCommandContext>
     {
         [Command("off")]
+        [Remarks("admin")]
         [Alias("exit","quit")]
         [Summary("Repeats what you said")]
         public async Task offCmd()
@@ -26,6 +27,7 @@ namespace RexBot2.Modules
         }
 
         [Command("purge")]
+        [Remarks("admin")]
         [Summary("Delete Messages")]
         public async Task purgeCmd(int msgToDel = 1)
         {
@@ -42,6 +44,7 @@ namespace RexBot2.Modules
         }
 
         [Command("mode")]
+        [Remarks("admin")]
         [Summary("Change mode")]
         public async Task modeCmd(string reqMode="invalid"  )
         {

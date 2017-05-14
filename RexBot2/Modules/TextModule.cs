@@ -11,6 +11,7 @@ namespace RexBot2.Modules
     public class TextModule : ModuleBase<SocketCommandContext>
     {
         [Command("play")]
+        [Remarks("text")]
         [Summary("(Dota2) Tells you what hero and role you should play")]
         public async Task playCmd(string player = "You")
         {
@@ -22,6 +23,7 @@ namespace RexBot2.Modules
         }
 
         [Command("hero")]
+        [Remarks("text")]
         [Summary("(Dota2) Display a random hero")]
         public async Task heroCmd()
         {
@@ -29,6 +31,7 @@ namespace RexBot2.Modules
         }
 
         [Command("roll")]
+        [Remarks("text")]
         [Summary("roll <min> <max> (default 0-100)")]
         public async Task rollCmd(int n1=0, int n2=100)
         {
@@ -46,6 +49,7 @@ namespace RexBot2.Modules
         }
 
         [Command("flip")]
+        [Remarks("text")]
         [Summary("flip a dino coin")]
         public async Task flipCmd()
         {
@@ -62,6 +66,7 @@ namespace RexBot2.Modules
         }
 
         [Command("calc")]
+        [Remarks("text")]
         [Summary("Calculate the given math equation")]
         public async Task calcCmd(string eq)
         {

@@ -36,7 +36,6 @@ namespace RexBot2.Utils
         public static string getAlias(string username)
         {
             string res = string.Empty;
-            res += "Aliases...\n";
 
             if (getAliasKey(username).Contains("None"))
             {
@@ -47,7 +46,7 @@ namespace RexBot2.Utils
                 res += DataUtils.aliases[getAliasKey(username)] + " : ";
                 foreach (string als in getAliasKey(username))
                 {
-                    res += als + ", ";
+                    res += als + "\n";
                 }
             }
 

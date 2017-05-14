@@ -4,6 +4,7 @@ using Discord;
 using Discord.WebSocket;
 using System.Diagnostics;
 using RexBot2.Utils;
+using RexBot2.Timers;
 
 namespace RexBot2
 {
@@ -24,6 +25,7 @@ namespace RexBot2
 
             new CommandHandler();
             new DataUtils();
+            new RexTimers();
 
             await _client.LoginAsync(TokenType.Bot, "MzEyNzM5MzQ3MzYxNDMxNTYy.C_fcug.4MF5L2T8z0yz5Y5SH8KqNWV5uNs");
 
@@ -36,6 +38,7 @@ namespace RexBot2
             sw.Stop();
             Console.WriteLine("Connected in " + sw.Elapsed.TotalSeconds.ToString("F2") + " seconds");
             await Task.Delay(-1);
+            
         }
 
         private Task Log(LogMessage msg)

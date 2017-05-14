@@ -115,5 +115,17 @@ namespace RexBot2.Utils
             }
             return false;
         }
+
+        public static string reverse(string str)
+        {
+            string res = string.Empty;
+            for(int i=0; i<str.Length; i++)
+            {
+                res += str[str.Length - i - 1];
+            }
+            return res;
+
+        }
+
     }
 }

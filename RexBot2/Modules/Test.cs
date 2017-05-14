@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using RexBot2.Utils;
+using RexBot2.Timers;
 
 namespace RexBot2.Modules
 {
@@ -15,18 +16,23 @@ namespace RexBot2.Modules
             _commandService = commandService;
         }
 
-        [Command("test")]
-        public async Task testCmd(string s = "zzz")
-        {
-            
-            await Context.Channel.SendMessageAsync(AliasUtils.getAlias(s));
-        }
-
         [Command("repeat")]
+        [Remarks("test")]
         [Summary("Repeats what you said")]
         public async Task rpCmd(string input)
         {
             await Context.Channel.SendMessageAsync(input);
+        }
+
+        [Command("sw")]
+        [Remarks("test")]
+        [Summary("sw")]
+        public async Task swCmd()
+        {
+
+            string elapsedTime = RexTimers.getTime(RexTimers.systemRunClock);
+            Console.WriteLine(elapsedTime);
+            await Context.Channel.SendMessageAsync(elapsedTime);
         }
 
 

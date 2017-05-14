@@ -13,6 +13,7 @@ namespace RexBot2.Modules
         private string picPath = "Data/pics/";
 
         [Command("kappa")]
+        [Remarks("pic")]
         [Summary("Kappa face")]
         public async Task kappaCmd()
         {
@@ -21,6 +22,7 @@ namespace RexBot2.Modules
         }
 
         [Command("feelsgood")]
+        [Remarks("pic")]
         [Summary("feels good man!")]
         public async Task fgmCmd()
         {
@@ -28,6 +30,7 @@ namespace RexBot2.Modules
         }
 
         [Command("feelsbad")]
+        [Remarks("pic")]
         [Summary("feels bad man!")]
         public async Task fbmCmd()
         {
@@ -35,6 +38,7 @@ namespace RexBot2.Modules
         }
 
         [Command("choo")]
+        [Remarks("pic")]
         [Alias("choochoo","conductor")]
         [Summary("feels bad man!")]
         public async Task chooCmd()
@@ -43,6 +47,7 @@ namespace RexBot2.Modules
         }
 
         [Command("doge")]
+        [Remarks("pic")]
         [Summary("Random doge meme")]
         public async Task dogeCmd()
         {
@@ -54,6 +59,7 @@ namespace RexBot2.Modules
         }
 
         [Command("sup")]
+        [Remarks("pic")]
         [Summary("Get a pic with an appropriate description")]
         public async Task supCmd()
         {

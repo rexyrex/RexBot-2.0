@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using RexBot2.Utils;
 using Newtonsoft.Json;
-
+using Discord;
 
 namespace RexBot2.Modules
 {
     public class WebModule : ModuleBase<SocketCommandContext>
     {
         [Command("dog")]
+        [Remarks("web")]
         [Summary("Get a random dog pic")]
         public async Task dogCmd()
         {
@@ -22,6 +23,7 @@ namespace RexBot2.Modules
         }
 
         [Command("cat")]
+        [Remarks("web")]
         [Summary("Get a random cat pic")]
         public async Task catCmd()
         {
@@ -32,6 +34,7 @@ namespace RexBot2.Modules
         }
 
         [Command("rather")]
+        [Remarks("web")]
         [Summary("What would you rather do?")]
         public async Task ratherCmd()
         {
@@ -42,10 +45,16 @@ namespace RexBot2.Modules
             string choiceA = dynObj.choicea;
             string choiceB = dynObj.choiceb;
             string votes = dynObj.votes;
-            await Context.Channel.SendMessageAsync("```" + question + "\nA. " + choiceA + "\nB. " + choiceB + "\n\n" + votes + " people voted on this question\n\n```" + "Click here to find out what dino option they chose : " + urlStr);
+
+            EmbedBuilder emb = new EmbedBuilder();
+            emb.Color = new Color(196, 09, 155);
+            emb.Description = question + "\nA. " + choiceA + "\nB. " + choiceB + "\n\n" + votes + " people voted on this question\n\n" + "Link : " + urlStr;
+
+            await Context.Channel.SendMessageAsync("",false,emb);
         }
 
         [Command("twitter")]
+        [Remarks("web")]
         [Summary("Search for term on twitter")]
         public async Task twitterCmd(string term = "dota2")
         {
@@ -53,6 +62,7 @@ namespace RexBot2.Modules
         }
 
         [Command("urban")]
+        [Remarks("web")]
         [Summary("Definition from urban dictionary")]
         public async Task urbanCmd(string term = "dota2")
         {
@@ -70,6 +80,7 @@ namespace RexBot2.Modules
         }
 
         [Command("gif")]
+        [Remarks("web")]
         [Summary("Search for a gif (default:dota2)")]
         public async Task gifCmd(string term = "dota2")
         {
@@ -100,6 +111,7 @@ namespace RexBot2.Modules
         }
 
         [Command("img")]
+        [Remarks("web")]
         [Summary("Search for image on imgur")]
         public async Task imgCmd(string query = "dota2")
         {
@@ -118,6 +130,17 @@ namespace RexBot2.Modules
             }
 
             await Context.Channel.SendMessageAsync(UtilMaster.getWord(urls));
+        }
+
+        [Command("youtube")]
+        [Remarks("web")]
+        [Summary("Search for video on youtube")]
+        public async Task youtubeCmd(string query = "dota2")
+        {
+            string res = await WebUtils.YoutubeTest(query);
+
+            Console.WriteLine(res);
+            await Context.Channel.SendMessageAsync(res);
         }
 
 

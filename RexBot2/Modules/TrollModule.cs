@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using RexBot2.Utils;
 using System.Linq;
+using RexBot2.Timers;
+using System.Diagnostics;
 
 namespace RexBot2.Modules
 {
@@ -13,6 +15,7 @@ namespace RexBot2.Modules
         private string picPath = "Data/pics/";
 
         [Command("eminem")]
+        [Remarks("troll")]
         [Summary("Rap God")]
         public async Task eminemCmd()
         {
@@ -21,51 +24,66 @@ namespace RexBot2.Modules
         }
 
         [Command("w")]
+        [Remarks("troll")]
         [Summary("A chance to be annoying")]
         public async Task wCmd()
         {
-            int randInt = DataUtils.rnd.Next(1, 11);
-            int randInt2 = DataUtils.rnd.Next(1, 11);
-            string res = "you rolled " + randInt + " when you should have rolled " + randInt2;
-            res += "\nNo W's for you today " + UtilMaster.stripName(Context.User.ToString()) + "!";
-            if(randInt != randInt2)
+            string username = Context.User.ToString();
+            if (RexTimers.canRunCmd(username, "w"))
             {
-                await Context.Channel.SendMessageAsync(res);
+                int randInt = DataUtils.rnd.Next(1, 11);
+                int randInt2 = DataUtils.rnd.Next(1, 11);
+                string res = UtilMaster.stripName(username) + " rolled " + randInt + " when s/he should have rolled " + randInt2;
+                res += "\nNo W's for you today " + UtilMaster.stripName(Context.User.ToString()) + "!";
+                if (randInt != randInt2)
+                {
+                    await Context.Channel.SendMessageAsync(res);
+                }
+                else
+                {                    
+                    await Context.Channel.SendMessageAsync("W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W, W", true);
+                }
+                RexTimers.resetTimer(username, "w");
             } else
             {
-                await Context.Channel.SendMessageAsync("W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W, W", true);
+                await Context.Channel.SendMessageAsync(RexTimers.getWaitMsg(username, "w"));
             }
-            
         }
 
         [Command("report")]
+        [Remarks("troll")]
         [Summary("report a fool")]
         public async Task reportCmd(string name)
         {
-
-            string user = Context.User.ToString();
-
-            if (AliasUtils.getAliasKey(name).Contains("None"))
+            string username = Context.User.ToString();
+            if (RexTimers.canRunCmd(username, "report"))
             {
-                await Context.Channel.SendMessageAsync("You're trying to report an unregistered user!");
-            }
-            else
-            {
-                name = DataUtils.aliases[AliasUtils.getAliasKey(name)];
-                if (DataUtils.reports.ContainsKey(name))
+                if (AliasUtils.getAliasKey(name).Contains("None"))
                 {
-                    DataUtils.reports[name]++;
+                    await Context.Channel.SendMessageAsync("You're trying to report an unregistered user!");
                 }
                 else
                 {
-                    DataUtils.reports[name] = 1;
+                    name = DataUtils.aliases[AliasUtils.getAliasKey(name)];
+                    if (DataUtils.reports.ContainsKey(name))
+                    {
+                        DataUtils.reports[name]++;
+                    }
+                    else
+                    {
+                        DataUtils.reports[name] = 1;
+                    }
+                    await Context.Channel.SendMessageAsync("Report successful");
+                    RexTimers.resetTimer(username, "report");
                 }
-                await Context.Channel.SendMessageAsync("Report successful");
-
+            } else
+            {
+                await Context.Channel.SendMessageAsync(RexTimers.getWaitMsg(username,"report"));
             }
         }
 
         [Command("reports")]
+        [Remarks("troll")]
         [Summary("show all reports")]
         public async Task reportsCmd()
         {
