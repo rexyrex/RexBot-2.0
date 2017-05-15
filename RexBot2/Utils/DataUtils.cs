@@ -24,6 +24,8 @@ namespace RexBot2.Utils
         public static List<string> positionList;
         public static List<string> memeTypesList;
 
+        public static string bingAuthStr = "";
+
         public static string textPath = "Data/texts/";
 
         public static Dictionary<string[], string> aliases;

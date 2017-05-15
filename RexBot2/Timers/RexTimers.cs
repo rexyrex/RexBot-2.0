@@ -13,6 +13,7 @@ namespace RexBot2.Timers
         //if (RexTimers.canRunCmd(username, cmd)) { ...  RexTimers.resetTimer(username, cmd); } else {  }
         public static Stopwatch wClock;
         public static Stopwatch systemRunClock;
+        public static Stopwatch bingAuthClock;
         public static Dictionary<string, Dictionary<string, Stopwatch>> userCdDict;
         public static Dictionary<string, double> cmdCdDict;
         public RexTimers(DiscordSocketClient _client)
@@ -26,7 +27,9 @@ namespace RexBot2.Timers
             cmdCdDict.Add("report", 30);
             systemRunClock = new Stopwatch();
             wClock = new Stopwatch();
+            bingAuthClock = new Stopwatch();
 
+            bingAuthClock.Start();
             systemRunClock.Start();
         }
 

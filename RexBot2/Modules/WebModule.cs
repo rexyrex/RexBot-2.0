@@ -161,6 +161,27 @@ namespace RexBot2.Modules
             await Context.Channel.SendMessageAsync(MasterUtils.getWord(results));
         }
 
+        [Command("translate")]
+        [Remarks("web")]
+        [Summary("Translate given text")]
+        public async Task translateCmd([Remainder] string input)
+        {
+            Console.WriteLine("cmd call");
+            string res = await WebUtils.TranslateText(input);
+            Console.WriteLine("done translate");
+            await Context.Channel.SendMessageAsync(res);
+        }
+
+        [Command("auth")]
+        [Remarks("web")]
+        [Summary("Generate auth token")]
+        public async Task authCmd()
+        {
+            Console.WriteLine("auth call");
+            string res = await WebUtils.getAuthToken();
+            Console.WriteLine("auth done");
+            await Context.Channel.SendMessageAsync(res);
+        }
 
     }
 }
