@@ -72,10 +72,6 @@ namespace RexBot2.Modules
         {
             //Expression e;
             await Context.Channel.SendMessageAsync("Can't with NET Core atm...");            
-        }
-
-
-
-
+        }        
     }
 }

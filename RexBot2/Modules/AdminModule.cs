@@ -16,8 +16,14 @@ namespace RexBot2.Modules
         [Summary("Repeats what you said")]
         public async Task offCmd()
         {
-            if(MasterUtils.ContainsAny(Context.User.ToString(), new string[] { "Rexyrex#5838" })){
-                await Context.Channel.SendMessageAsync("I am going down for maintenance! brb...");
+            EmbedBuilder emb = new EmbedBuilder();
+            emb.Color = new Color(196, 09, 155);
+            //emb.Title = "`HELP!`";
+            emb.Timestamp = new DateTimeOffset(DateTime.Now);            
+
+            if (MasterUtils.ContainsAny(Context.User.ToString(), new string[] { "Rexyrex#5838" })){
+                emb.Description = "**I am going down for maintenance! brb...**";
+                await Context.Channel.SendMessageAsync("",false,emb);
                 System.Threading.Thread.Sleep(1000);
                 System.Environment.Exit(1);
             } else

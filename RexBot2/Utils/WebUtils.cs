@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using Google.Apis.Translate;
 
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,12 @@ namespace RexBot2.Utils
                     finalTweet = item.ToString();
             }
             return finalTweet;
+        }
+
+        public static async Task<string> TranslateToEng(string originalStr)
+        {
+
+            return originalStr;
         }
 
         public static async Task<string> YoutubeTest(string term)

@@ -25,13 +25,13 @@ namespace RexBot2
             var sw = Stopwatch.StartNew();
             _client = new DiscordSocketClient(new DiscordSocketConfig()
             {
-                MessageCacheSize = 20,
+                MessageCacheSize = 200,
                 AlwaysDownloadUsers = true,
             });
-
+            
             new CommandHandler();
             new DataUtils();
-            new RexTimers();
+            new RexTimers(_client);
 
             await _client.LoginAsync(TokenType.Bot, "MzEyNzM5MzQ3MzYxNDMxNTYy.C_fcug.4MF5L2T8z0yz5Y5SH8KqNWV5uNs");
 

@@ -8,8 +8,10 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="1.0.0-rc2" />
     <PackageReference Include="Google.Apis" Version="1.25.0" />
+    <PackageReference Include="Google.Apis.Translate.v2" Version="1.25.0.543" />
     <PackageReference Include="Google.Apis.YouTUbe.v3" Version="1.25.0.760" />
     <PackageReference Include="TweetinviAPI" Version="1.2.0.1" />
+    <PackageReference Include="xunit" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>

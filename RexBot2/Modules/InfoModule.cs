@@ -26,10 +26,8 @@ namespace RexBot2.Modules
         {
             EmbedBuilder emb = new EmbedBuilder();
             emb.Color = new Color(196, 09, 155);
-            emb.Timestamp = new DateTimeOffset(DateTime.Now);
             EmbedFooterBuilder efb = new EmbedFooterBuilder();
-            efb.Text = "RexBot 2.0";
-            emb.Footer = efb;
+            
             string res = string.Empty;
 
             if (cmdName == "null")
@@ -60,7 +58,8 @@ namespace RexBot2.Modules
                     res += "\n";
                 }
                 emb.Description = res;
-
+                efb.Text = "Type \"!help <command>\" for more info";
+                emb.Footer = efb;
                 //emb.ImageUrl = "Data/pics/Kappahd.png";
                 //EmbedAuthorBuilder embAuth = new EmbedAuthorBuilder();
                 //embAuth.Name = "Rexyrex";
@@ -92,13 +91,13 @@ namespace RexBot2.Modules
             else if (cmdName.Contains("meme"))
             {
                 res = MasterUtils.getMemeHelp();
-            } else
+            } else // SIngle command info
             {
                 
                 foreach (CommandInfo c in _commandService.Commands)
                 {
                     if (cmdName.Contains(c.Name))
-                    {
+                    {                        
                         string aliasesStr = string.Empty;
                         string parametersStr = string.Empty;
                         foreach (string s in c.Aliases)
@@ -213,8 +212,7 @@ namespace RexBot2.Modules
             } else
             {
                 res = "invalid command";
-            }
-            
+            }            
             await Context.Channel.SendMessageAsync(res);
         }
     }

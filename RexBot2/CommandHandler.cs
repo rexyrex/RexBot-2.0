@@ -1,7 +1,6 @@
 ﻿using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Discord.Commands;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -30,6 +29,9 @@ namespace RexBot2
             _client.MessageDeleted += HandleMsgDel;
             _client.MessageUpdated += MessageUpdated;
             _client.ReactionAdded += ReactionUpdated;
+
+            
+            // _client.
             Console.WriteLine("latency:" + _client.Latency);
         }
 
@@ -45,8 +47,8 @@ namespace RexBot2
             
             var message = await before.GetOrDownloadAsync();
             string author = message.Author.ToString();
-            if(!message.Author.IsBot)
-                await channel.SendMessageAsync($"{author} changed his/her message from `{message}` to `{after}`");
+            if(!message.Author.IsBot)// && message.Embeds == null)
+                await channel.SendMessageAsync($"{author} changed his/her message from ```{message}``` to ```{after}```");
         }
 
         private async Task HandleMsgDel(Cacheable <Discord.IMessage, ulong> c, ISocketMessageChannel smc)
@@ -83,13 +85,17 @@ namespace RexBot2
             
             var context = new SocketCommandContext(_client, msg);
 
-
-            //await msg.AddReactionAsync((IEmote)ee);
+            if (MasterUtils.roll(30))
+            {                
+                await msg.AddReactionAsync(EmojiUtils.getEmoji());
+            }
 
             int argPos = 0;
             if (msg.HasCharPrefix('!', ref argPos))
             {
                 var result = await _service.ExecuteAsync(context, argPos);
+
+                
 
                 if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
                 {

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Discord;
+using Discord.WebSocket;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -13,8 +15,11 @@ namespace RexBot2.Timers
         public static Stopwatch systemRunClock;
         public static Dictionary<string, Dictionary<string, Stopwatch>> userCdDict;
         public static Dictionary<string, double> cmdCdDict;
-        public RexTimers()
+        public RexTimers(DiscordSocketClient _client)
         {
+            //List<SocketGuild> ie = new List<SocketGuild>();
+            //ie.Add(_client.GetGuild(34));
+            //_client.DownloadUsersAsync(ie);
             userCdDict = new Dictionary<string, Dictionary<string, Stopwatch>>();
             cmdCdDict = new Dictionary<string, double>();
             cmdCdDict.Add("w", 30);//in seconds
@@ -36,7 +41,7 @@ namespace RexBot2.Timers
         public static Stopwatch getTimerForCmd(string username,string cmd)
         {
             Stopwatch sw;
-            if (userCdDict.ContainsKey(username) && userCdDict[username].ContainsKey("w"))
+            if (userCdDict.ContainsKey(username) && userCdDict[username].ContainsKey(cmd))
             {
                 sw = userCdDict[username][cmd];
             }

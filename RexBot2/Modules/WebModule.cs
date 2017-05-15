@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using RexBot2.Utils;
 using Newtonsoft.Json;
 using Discord;
+using Google.Apis.Translate;
 
 namespace RexBot2.Modules
 {

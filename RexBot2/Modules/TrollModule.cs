@@ -7,6 +7,8 @@ using RexBot2.Utils;
 using System.Linq;
 using RexBot2.Timers;
 using System.Diagnostics;
+using Discord;
+using Discord.WebSocket;
 
 namespace RexBot2.Modules
 {
@@ -78,6 +80,7 @@ namespace RexBot2.Modules
                 }
             } else
             {
+                Console.WriteLine("should be on cd");
                 await Context.Channel.SendMessageAsync(RexTimers.getWaitMsg(username,"report"));
             }
         }
@@ -98,6 +101,20 @@ namespace RexBot2.Modules
             }
 
             await Context.Channel.SendMessageAsync(res);
+        }
+
+        [Command("emoji")]
+        [Remarks("troll")]
+        [Summary("add an emote to many msgs")]
+        public async Task emoteCmd()
+        {
+            Emoji ej = new Emoji("😀");
+            
+            var messages = await Context.Channel.GetMessagesAsync((3)).Flatten();
+            foreach(SocketUserMessage msg in messages)
+            {
+                await msg.AddReactionAsync(ej);
+            }
         }
 
     }
