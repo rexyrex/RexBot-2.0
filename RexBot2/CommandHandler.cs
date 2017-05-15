@@ -85,7 +85,7 @@ namespace RexBot2
             
             var context = new SocketCommandContext(_client, msg);
 
-            if (MasterUtils.roll(30))
+            if (MasterUtils.roll(17))
             {                
                 await msg.AddReactionAsync(EmojiUtils.getEmoji());
             }

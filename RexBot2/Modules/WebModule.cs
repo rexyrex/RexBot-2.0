@@ -162,25 +162,26 @@ namespace RexBot2.Modules
         }
 
         [Command("translate")]
+        [Alias("t")]
         [Remarks("web")]
-        [Summary("Translate given text")]
+        [Summary("Translate given text from English to Korean")]
         public async Task translateCmd([Remainder] string input)
         {
-            Console.WriteLine("cmd call");
+            //Console.WriteLine("translate call");
             string res = await WebUtils.TranslateText(input);
-            Console.WriteLine("done translate");
+            //Console.WriteLine("done translate");
             await Context.Channel.SendMessageAsync(res);
         }
 
         [Command("auth")]
         [Remarks("web")]
-        [Summary("Generate auth token")]
+        [Summary("Generate auth token for bing translate")]
         public async Task authCmd()
         {
             Console.WriteLine("auth call");
             string res = await WebUtils.getAuthToken();
             Console.WriteLine("auth done");
-            await Context.Channel.SendMessageAsync(res);
+            await Context.Channel.SendMessageAsync("Success! Token:" + res);
         }
 
     }

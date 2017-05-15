@@ -108,12 +108,15 @@ namespace RexBot2.Modules
         [Summary("add an emote to many msgs")]
         public async Task emoteCmd()
         {
-            Emoji ej = new Emoji("😀");
             
-            var messages = await Context.Channel.GetMessagesAsync((3)).Flatten();
+            var messages = await Context.Channel.GetMessagesAsync((2)).Flatten();
             foreach(SocketUserMessage msg in messages)
             {
-                await msg.AddReactionAsync(ej);
+                int count = DataUtils.rnd.Next(1, 4);
+                for(int i=0; i < count; i++)
+                {
+                    await msg.AddReactionAsync(EmojiUtils.getEmoji());
+                }                
             }
         }
 
