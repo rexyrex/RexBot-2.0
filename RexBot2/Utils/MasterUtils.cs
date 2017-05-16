@@ -49,7 +49,13 @@ namespace RexBot2.Utils
         public static string getWord(List<string> l)
         {
             int r = DataUtils.rnd.Next(l.Count);
-            return (string)l[r];
+            return l[r];
+        }
+
+        public static string getWord(string[] l)
+        {
+            int r = DataUtils.rnd.Next(l.Length);
+            return l[r];
         }
 
         public static string commentOnPic()
@@ -95,6 +101,10 @@ namespace RexBot2.Utils
 
         public static bool ContainsAny(string haystack, params string[] needles)
         {
+            if (needles == null)
+            {
+                return false;
+            }
             foreach (string needle in needles)
             {
                 if (haystack.Contains(needle))

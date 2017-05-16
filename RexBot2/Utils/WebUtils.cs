@@ -49,7 +49,7 @@ namespace RexBot2.Utils
         //secret: xRi60OBVa+tfqDmqwDpVDmHoXwO+yci5WhbR8MSIZBg=
         //scope: http://api.microsofttranslator.com
         // grant_type = client_credentials
-        public static async Task<string> TranslateText(string input)
+        public static async Task<string> TranslateText(string input, string inlang, string outlang)
         {
             //First check if auth token is valid
             //if first time calling this function or 8minutes passed since auth token update
@@ -61,10 +61,10 @@ namespace RexBot2.Utils
 
 
             string processed = input;//uriEncode(input);
-            string fromlanguage = "en";//from language you can change this as your requirement
+            string fromlanguage = inlang;//from language you can change this as your requirement
             string translatedText = "";//collect result here
             string texttotranslate = processed;//what to be translated?
-            string tolanguage = "ko";//in which language?
+            string tolanguage = outlang;//in which language?
                                                                    //preparing url with all four parameter
             string uri = "http://api.microsofttranslator.com/v2/Http.svc/Translate?" + "text=" + texttotranslate + "&from=" + fromlanguage + "&to=" + tolanguage;
             //making web request to url

@@ -39,11 +39,13 @@ namespace RexBot2.Modules
 
         [Command("choo")]
         [Remarks("pic")]
-        [Alias("choochoo","conductor")]
+        [Alias("choochoo","conductor","train")]
         [Summary("feels bad man!")]
         public async Task chooCmd()
-        {
+        {            
+            string phrase = MasterUtils.getWord(DataUtils.trainPhrases1) + " " + MasterUtils.getWord(DataUtils.trainPhrases2) + " " + MasterUtils.getWord(DataUtils.trainPhrases3);
             await Context.Channel.SendFileAsync(picPath + "choochooz.png");
+            await Context.Channel.SendMessageAsync(phrase);
         }
 
         [Command("doge")]
@@ -60,6 +62,7 @@ namespace RexBot2.Modules
 
         [Command("sup")]
         [Remarks("pic")]
+        [Alias("pic")]
         [Summary("Get a pic with an appropriate description")]
         public async Task supCmd()
         {

@@ -35,8 +35,8 @@ namespace RexBot2.Modules
             {
                 int randInt = DataUtils.rnd.Next(1, 11);
                 int randInt2 = DataUtils.rnd.Next(1, 11);
-                string res = MasterUtils.stripName(username) + " rolled " + randInt + " when s/he should have rolled " + randInt2;
-                res += "\nNo W's for you today " + MasterUtils.stripName(Context.User.ToString()) + "!";
+                string res = "`" + MasterUtils.stripName(username) + " rolled " + randInt + " when s/he should have rolled " + randInt2 + "`";
+                res += "\n`No W's for you today " + MasterUtils.stripName(Context.User.ToString()) + "!`";
                 if (randInt != randInt2)
                 {
                     await Context.Channel.SendMessageAsync(res);
@@ -48,7 +48,7 @@ namespace RexBot2.Modules
                 RexTimers.resetTimer(username, "w");
             } else
             {
-                await Context.Channel.SendMessageAsync(RexTimers.getWaitMsg(username, "w"));
+                await Context.Channel.SendMessageAsync("`" + RexTimers.getWaitMsg(username, "w")+ "`");
             }
         }
 

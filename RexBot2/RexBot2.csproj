@@ -175,6 +175,9 @@
     <None Update="Data\friendpics\xanderface.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\music\rsong.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\pics\choochooz.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

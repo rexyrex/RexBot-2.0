@@ -8,6 +8,7 @@ using RexBot2.Utils;
 using System.Linq;
 using Newtonsoft.Json;
 using Discord;
+using RexBot2.Timers;
 
 namespace RexBot2
 {
@@ -29,8 +30,8 @@ namespace RexBot2
             _client.MessageDeleted += HandleMsgDel;
             _client.MessageUpdated += MessageUpdated;
             _client.ReactionAdded += ReactionUpdated;
-
             
+
             // _client.
             Console.WriteLine("latency:" + _client.Latency);
         }
@@ -57,7 +58,6 @@ namespace RexBot2
             IUser user = msg.Author;
             string time = msg.CreatedAt.ToString();
             string content = msg.Content.ToString();
-            IDisposable ds = smc.EnterTypingState();
             string res = string.Empty;
             res += "**Someone deleted a message!**\n";
             res += "```\n";
@@ -65,7 +65,6 @@ namespace RexBot2
             res += "Message Timestamp: " + time + "\n";
             res += "Message Content: " + content + "\n```";
             await smc.SendMessageAsync(res);
-            ds.Dispose();
         }
         private async Task HandleUserUpdate(SocketUser userbefore,SocketUser userafter)
         {            
@@ -85,9 +84,15 @@ namespace RexBot2
             
             var context = new SocketCommandContext(_client, msg);
 
-            if (MasterUtils.roll(17))
+            if (MasterUtils.roll(12) && !msg.Author.IsBot)
             {                
                 await msg.AddReactionAsync(EmojiUtils.getEmoji());
+            }
+
+            if (MasterUtils.roll(27) && RexTimers.gameChangeClock.Elapsed.TotalSeconds>47)
+            {
+                RexTimers.gameChangeClock.Restart();
+                await _client.SetGameAsync(MasterUtils.getWord(DataUtils.games), "https://www.twitch.tv/ryannoob", StreamType.NotStreaming);
             }
 
             int argPos = 0;

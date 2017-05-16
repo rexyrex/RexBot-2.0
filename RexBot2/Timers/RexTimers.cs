@@ -14,6 +14,7 @@ namespace RexBot2.Timers
         public static Stopwatch wClock;
         public static Stopwatch systemRunClock;
         public static Stopwatch bingAuthClock;
+        public static Stopwatch gameChangeClock;
         public static Dictionary<string, Dictionary<string, Stopwatch>> userCdDict;
         public static Dictionary<string, double> cmdCdDict;
         public RexTimers(DiscordSocketClient _client)
@@ -28,7 +29,9 @@ namespace RexBot2.Timers
             systemRunClock = new Stopwatch();
             wClock = new Stopwatch();
             bingAuthClock = new Stopwatch();
+            gameChangeClock = new Stopwatch();
 
+            gameChangeClock.Start();
             bingAuthClock.Start();
             systemRunClock.Start();
         }

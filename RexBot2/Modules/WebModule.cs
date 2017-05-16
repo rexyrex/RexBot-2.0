@@ -168,7 +168,20 @@ namespace RexBot2.Modules
         public async Task translateCmd([Remainder] string input)
         {
             //Console.WriteLine("translate call");
-            string res = await WebUtils.TranslateText(input);
+            string res = await WebUtils.TranslateText(input,"en","ko");
+            //Console.WriteLine("done translate");
+            await Context.Channel.SendMessageAsync(res);
+        }
+
+        [Command("sillyt")]
+        [Alias("st")]
+        [Remarks("web")]
+        [Summary("Translate given text from English to Korean then back to English. Results in silly text.")]
+        public async Task stranslateCmd([Remainder] string input)
+        {
+            //Console.WriteLine("translate call");
+            string res = await WebUtils.TranslateText(input,"en","ko");
+            res = await WebUtils.TranslateText(res,"ko","en");
             //Console.WriteLine("done translate");
             await Context.Channel.SendMessageAsync(res);
         }

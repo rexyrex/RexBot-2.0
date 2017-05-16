@@ -33,12 +33,13 @@ namespace RexBot2
             new DataUtils();
             new RexTimers(_client);
             new EmojiUtils();
+
             WebUtils.updateBingAuthToken();
 
             await _client.LoginAsync(TokenType.Bot, "MzEyNzM5MzQ3MzYxNDMxNTYy.C_fcug.4MF5L2T8z0yz5Y5SH8KqNWV5uNs");
 
             await _client.StartAsync();
-
+            
             _handler = new CommandHandler();
             
 
@@ -46,6 +47,7 @@ namespace RexBot2
             sw.Stop();
 
             Console.WriteLine("Connected in " + sw.Elapsed.TotalSeconds.ToString("F2") + " seconds");
+            
             await Task.Delay(-1);
             
         }

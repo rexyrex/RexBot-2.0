@@ -34,7 +34,6 @@ namespace RexBot2.Modules
             {
                 foreach (CommandInfo c in _commandService.Commands)
                 {
-
                     if (cmdDict.ContainsKey(c.Remarks))
                     {
                         cmdDict[c.Remarks].Add(c.Name);
@@ -59,8 +58,11 @@ namespace RexBot2.Modules
                 }
                 emb.Description = res;
                 efb.Text = "Type \"!help <command>\" for more info";
+                efb.IconUrl = "http://clipartall.com/subimg/get-help-clipart-help-clip-art-300_300.png";
                 emb.Footer = efb;
-                //emb.ImageUrl = "Data/pics/Kappahd.png";
+                //emb.ImageUrl = "https://blogs-images.forbes.com/markhughes/files/2016/01/Terminator-2-1200x873.jpg?width=960";
+                emb.ThumbnailUrl = "http://clipartall.com/subimg/get-help-clipart-help-clip-art-300_300.png";
+                
                 //EmbedAuthorBuilder embAuth = new EmbedAuthorBuilder();
                 //embAuth.Name = "Rexyrex";
                 //embAuth.Url = "www.google.com";
@@ -96,8 +98,15 @@ namespace RexBot2.Modules
                 
                 foreach (CommandInfo c in _commandService.Commands)
                 {
-                    if (cmdName.Contains(c.Name))
-                    {                        
+                    string[] ali = new string[c.Aliases.Count];
+                    int count = 0;
+                    foreach(string alia in c.Aliases)
+                    {
+                        ali[count] = alia;
+                        count++;
+                    }
+                    if (cmdName.Contains(c.Name) || (c.Aliases.Count>0 && MasterUtils.ContainsAny(cmdName,ali)))
+                    {
                         string aliasesStr = string.Empty;
                         string parametersStr = string.Empty;
                         foreach (string s in c.Aliases)
@@ -130,6 +139,7 @@ namespace RexBot2.Modules
             EmbedBuilder emb = new EmbedBuilder();
             emb.Color = new Color(196, 09, 155);
             //emb.Title = "`HELP!`";
+            emb.ThumbnailUrl = "http://silhouettesfree.com/machines/robots/robot-silhouette-image.png";
             emb.Timestamp = new DateTimeOffset(DateTime.Now);
             emb.Title = "**-- Status --**";
 
@@ -138,32 +148,37 @@ namespace RexBot2.Modules
             emb.Footer = efb;
 
             EmbedFieldBuilder efb1 = new EmbedFieldBuilder();
-            efb1.Name = "Mode";
+            efb1.Name = "➺Mode";
             efb1.Value = DataUtils.mode;
             efb1.IsInline = true;
             EmbedFieldBuilder efb2 = new EmbedFieldBuilder();
-            efb2.Name = "Age";
+            efb2.Name = "➺Age";
             efb2.Value = Math.Round((DateTime.Now - dateTime).TotalDays, 2) + " days" + "\n";
             efb2.IsInline = true;
             EmbedFieldBuilder efb4 = new EmbedFieldBuilder();
-            efb4.Name = "Channel";
+            efb4.Name = "➺Channel";
             efb4.Value = Context.Channel.Name;
             efb4.IsInline = true;
             EmbedFieldBuilder efb5 = new EmbedFieldBuilder();
-            efb5.Name = "UpTime";
+            efb5.Name = "➺UpTime";
             efb5.Value = RexTimers.getTime(RexTimers.systemRunClock);
             efb5.IsInline = true;
             EmbedFieldBuilder efb3 = new EmbedFieldBuilder();
-            efb3.Name = "GitHub";
+            efb3.Name = "➺GitHub";
             efb3.Value = "https://github.com/rexyrex/RexBot-2.0";
             efb3.IsInline = false;
+
+            EmbedFieldBuilder efb6 = new EmbedFieldBuilder();
+            efb6.Name = "➺Special Thanks To";
+            efb6.Value = "GeoffDB";
+            efb6.IsInline = false;
 
             emb.AddField(efb1);
             emb.AddField(efb2);
             emb.AddField(efb4);
             emb.AddField(efb5);
             emb.AddField(efb3);
-            
+            emb.AddField(efb6);
             await Context.Channel.SendMessageAsync("",false,emb);
         }
 

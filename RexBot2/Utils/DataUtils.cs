@@ -24,6 +24,10 @@ namespace RexBot2.Utils
         public static List<string> positionList;
         public static List<string> memeTypesList;
 
+        public static List<string> trainPhrases1;
+        public static List<string> trainPhrases2;
+        public static List<string> trainPhrases3;
+
         public static string bingAuthStr = "";
 
         public static string textPath = "Data/texts/";
@@ -35,11 +39,14 @@ namespace RexBot2.Utils
         public static Dictionary<string, Dictionary<string, string>> rexDB;
 
         public static Dictionary<string, int> reports;
+        public static string[] games = { "Dota 2","Alien Swarm : Reactive Drop", "GTA V", "Stellaris", "The W Spam Game", "Maplestory","The Binding of Isaac: Rebirth",
+        "Dota 3","League of Losers"};
 
         //public static VideoSearch youtubeSearcher;
 
-        public static string mode = "jamie";
+        public static string mode = "quiet";
 
+        public static AudioService rexAS;
 
         public static Random rnd;
 
@@ -54,6 +61,8 @@ namespace RexBot2.Utils
             var zuser = Tweetinvi.User.GetAuthenticatedUser();
             Console.WriteLine("Twitter initializing: " + zuser);
 
+            rexAS = new AudioService();
+
             rnd = new Random();
             picNames = new List<string>();
             adjList = new List<string>();
@@ -65,13 +74,18 @@ namespace RexBot2.Utils
             heroList = new List<string>();
             positionList = new List<string>();
             memeTypesList = new List<string>();
+
+            trainPhrases1 = new List<string>();
+            trainPhrases2 = new List<string>();
+            trainPhrases3 = new List<string>();
+
             aliases = new Dictionary<string[], string>();
             responses = new Dictionary<string, string[]>();
             modes = new Dictionary<string, RexMode>();
             rexDB = new Dictionary<string, Dictionary<string, string>>();
             reports = new Dictionary<string, int>();
 
-            modes.Add("jamie", new RexMode("jamie", "No auto triggers. No status updates. All functions online.", new string[] { "functions" }));
+            modes.Add("jamie", new RexMode("quiet", "No auto triggers. No status updates. All functions online.", new string[] { "functions" }));
             modes.Add("active", new RexMode("active", "Occasional auto triggers.", new string[] { "functions", "trigger 30" }));
             modes.Add("loud", new RexMode("loud", "Many auto triggers. Status changes.", new string[] { "functions", "trigger 60", "status" }));
             modes.Add("tooloud", new RexMode("tooloud", "RexBot on Steroids", new string[] { "functions", "trigger 100", "status" }));
@@ -87,6 +101,9 @@ namespace RexBot2.Utils
             populate(heroList, "heros.txt");
             populate(positionList, "position.txt");
             populate(memeTypesList, "memeType.txt");
+            populate(trainPhrases1, "trainphrases1.txt");
+            populate(trainPhrases2, "trainphrases2.txt");
+            populate(trainPhrases3, "trainphrases3.txt");
             populateResponses();
             populatePicFileNames();
             AliasUtils.ParseAliases();
