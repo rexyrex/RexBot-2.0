@@ -13,7 +13,7 @@ namespace RexBot2.Utils
 
             foreach (KeyValuePair<string, RexMode> kv in DataUtils.modes)
             {
-                res += "`" + getModeInfo(kv.Value) + "`\n";
+                res += getModeInfo(kv.Value) + "\n";
             }
 
             return res;
@@ -23,12 +23,12 @@ namespace RexBot2.Utils
         {
             string info = string.Empty;
 
-            info += "**" + rm.getName() + "** - " + rm.getDescription() + " { ";
+            info += "**" + rm.getName() + "** - `" + rm.getDescription() + " { ";
             foreach (string perm in rm.getPermissions())
             {
                 info += perm + " ";
             }
-            info += "}";
+            info += "}`";
 
             return info;
         }

@@ -10,6 +10,7 @@ namespace RexBot2.Modules
     public class RexDBModule : ModuleBase<SocketCommandContext>
     {
         [Command("save")]
+        [Alias("s")]
         [Remarks("rexdb")]
         [Summary("save <id> <string> - Save line in rex db")]
         public async Task saveCmd(string id, [Remainder] string content)
@@ -19,6 +20,7 @@ namespace RexBot2.Modules
         }
 
         [Command("load")]
+        [Alias("l")]
         [Remarks("rexdb")]
         [Summary("load <id> - Loads your string saved in <id>")]
         public async Task loadCmd(string id)

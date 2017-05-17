@@ -41,8 +41,8 @@ namespace RexBot2.Utils
         public static Dictionary<string, Dictionary<string, string>> rexDB;
 
         public static Dictionary<string, int> reports;
-        public static string[] games = { "Dota 2","Alien Swarm : Reactive Drop", "GTA W", "Stellaris", "The W Spam Game", "Maplestory","The Binding of Isaac: Rebirth",
-        "WODOTA","League of Losers"};
+        public static string[] games = { "Dota 2 : Cyka Expansion","Starcraft", "GTA W","InterStellaris", "The W Spam Game", "Maplestory","The Binding of John: Rebirth",
+        "WODOTA","League of Losers","Feed Train Simulator"};
 
         //public static VideoSearch youtubeSearcher;
 

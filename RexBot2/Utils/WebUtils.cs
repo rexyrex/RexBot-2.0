@@ -26,9 +26,13 @@ namespace RexBot2.Utils
 
             foreach (var item in tweetTest)
             {
+                Console.WriteLine(item.ToString());
                 if (!(item.ToString().Contains("@")))
+                {
                     finalTweet = item.ToString();
-            }
+                    //Search.SearchRepliesTo(item, false);
+                }                    
+            }            
             return finalTweet;
         }
 
@@ -365,6 +369,23 @@ namespace RexBot2.Utils
             //res = res.Replace("#", "~h");
             //res = res.Replace("/", "~s");
             return res;
+        }
+
+        public static async Task<string> getImgurUrl(string searchTerm)
+        {
+            List<string> urls = new List<string>();
+
+            string t = await WebUtils.httpRequest("https://api.imgur.com/3/gallery/search/?q=" + searchTerm, true);
+
+            dynamic dynObj = JsonConvert.DeserializeObject(t);
+
+            foreach (var data in dynObj.data)
+            {
+                string dt = data.link;
+                urls.Add(dt);
+            }
+
+            return MasterUtils.getWord(urls);
         }
 
         public static async Task<string> httpRequest(string url)

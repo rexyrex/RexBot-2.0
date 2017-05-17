@@ -62,32 +62,7 @@ namespace RexBot2.Modules
                 emb.Footer = efb;
                 //emb.ImageUrl = "https://blogs-images.forbes.com/markhughes/files/2016/01/Terminator-2-1200x873.jpg?width=960";
                 //emb.ThumbnailUrl = "http://clipartall.com/subimg/get-help-clipart-help-clip-art-300_300.png";
-                
-                //EmbedAuthorBuilder embAuth = new EmbedAuthorBuilder();
-                //embAuth.Name = "Rexyrex";
-                //embAuth.Url = "www.google.com";
-                //emb.Author = embAuth;
-                //EmbedFieldBuilder efb1 = new EmbedFieldBuilder();
-                //efb1.Name = "field1";
-                //efb1.Value = DataUtils.adjList;
-                //efb1.IsInline = true;
-                //EmbedFieldBuilder efb2 = new EmbedFieldBuilder();
-                //efb2.Name = "field2";
-                //efb2.Value = "value 2";
-                //efb2.IsInline = true;
-                //EmbedFieldBuilder efb3 = new EmbedFieldBuilder();
-                //efb3.Name = "field2";
-                //efb3.Value = "value 2";
-                //efb3.IsInline = true;
-                //EmbedFieldBuilder efb4 = new EmbedFieldBuilder();
-                //efb4.Name = "field2";
-                //efb4.Value = "value 2";
-                //efb4.IsInline = true;
 
-                //emb.AddField(efb1);
-                //emb.AddField(efb2);
-                //emb.AddField(efb3);
-                //emb.AddField(efb4);
 
             }
             else if (cmdName.Trim('!') == "meme")
@@ -123,12 +98,13 @@ namespace RexBot2.Modules
                         res += "\n**Category:** " + c.Remarks;
                         res += "\n**Description:** " + c.Summary;
                         res += "\n**Parameters:** " + parametersStr;
+                        //string imgurl = await WebUtils.getImgurUrl(c.Remarks);
+                        //emb.ImageUrl = imgurl;
                     }                    
                 }
             }
             emb.Description = res;
             await Context.Channel.SendMessageAsync("", false, emb);
-
         }
 
         [Command("stats")]
@@ -145,7 +121,7 @@ namespace RexBot2.Modules
             emb.Timestamp = new DateTimeOffset(DateTime.Now);
             emb.Title = "**📈 Stats 📉**\n";
             emb.Url = "https://www.youtube.com/watch?v=4YpTLy6dn5c";
-            emb.Description = "Stats of this Sesh";
+            emb.Description = "[title](google.com \"I hate ryan\")";
 
             EmbedFieldBuilder topReportsField = new EmbedFieldBuilder();
             topReportsField.Name = "Most Reported";
@@ -205,8 +181,8 @@ namespace RexBot2.Modules
             emb.Color = new Color(196, 09, 155);
             emb.ThumbnailUrl = "http://silhouettesfree.com/machines/robots/robot-silhouette-image.png";
 
-            emb.Title = "**🤜 RexBot 2.0 🤛**\n";
-            emb.Url = "https://www.youtube.com/watch?v=4YpTLy6dn5c";
+            emb.Title = "**🤜 RexBot 2.0 by Rexyrex 🤛**\n";
+
             try
             {
                 string joke = await WebUtils.getOneLiner();
@@ -214,24 +190,31 @@ namespace RexBot2.Modules
             } catch(Exception e)
             {
                 Console.WriteLine(e.ToString());
-            }     
-
+            }
+            emb.Description = "**Github** : [RexBot 2.0](https://github.com/rexyrex/RexBot-2.0 \"ALL\")\n"
+                + "**Support Rexyrex** : [Newgrounds](http://rexyrex.newgrounds.com/audio/ \"ABOARD\")"
+                + ", [Youtube](https://www.youtube.com/channel/UCq3yY-SCoglG8xm6Z1_udaw \"CHOO CHOO\")";
             EmbedFieldBuilder modeField = new EmbedFieldBuilder();
             modeField.Name = "Mode";
             modeField.Value = DataUtils.mode;
             modeField.IsInline = true;
             EmbedFieldBuilder ageField = new EmbedFieldBuilder();
             ageField.Name = "Age";
-            ageField.Value = Math.Round((DateTime.Now - dateTime).TotalDays, 2) + " days" + "\n";
+            ageField.Value = Math.Round((DateTime.Now - dateTime).TotalDays, 2) + " days";
             ageField.IsInline = true;
             EmbedFieldBuilder upTimeField = new EmbedFieldBuilder();
             upTimeField.Name = "UpTime";
             upTimeField.Value = RexTimers.getTime(RexTimers.systemRunClock);
-            upTimeField.IsInline = true;            
-            EmbedFieldBuilder githubLinkField = new EmbedFieldBuilder();
-            githubLinkField.Name = "GitHub";
-            githubLinkField.Value = "https://github.com/rexyrex/RexBot-2.0";
-            githubLinkField.IsInline = false;
+            upTimeField.IsInline = true;
+            string cmdCountStr = Stats.getCommandCount(_commandService).ToString();
+            EmbedFieldBuilder cmdCountField = new EmbedFieldBuilder();
+            cmdCountField.Name = "Command Count";
+            cmdCountField.Value = cmdCountStr;
+            cmdCountField.IsInline = true;
+            //EmbedFieldBuilder cmdRunField = new EmbedFieldBuilder();
+            //cmdRunField.Name = "Commands Run";
+            //cmdRunField.Value = Stats.CommandsRun;
+            //cmdRunField.IsInline = true;
 
             EmbedFieldBuilder efb6 = new EmbedFieldBuilder();
             efb6.Name = "❤️ Special Thanks To ❤️";
@@ -239,9 +222,10 @@ namespace RexBot2.Modules
             efb6.IsInline = false;
 
             emb.AddField(modeField);
+            emb.AddField(cmdCountField);
             emb.AddField(ageField);
             emb.AddField(upTimeField);
-            emb.AddField(githubLinkField);
+            
             emb.AddField(efb6);
             await Context.Channel.SendMessageAsync("",false,emb);
         }

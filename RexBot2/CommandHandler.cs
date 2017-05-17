@@ -60,8 +60,9 @@ namespace RexBot2
         }
 
         private async Task ReactionUpdated(Cacheable<IUserMessage, ulong> cache, ISocketMessageChannel channel, SocketReaction reaction)
-        {            
-            IUserMessage msg = await cache.GetOrDownloadAsync();
+        {
+            Stats.ReactionCount++;
+            //IUserMessage msg = await cache.GetOrDownloadAsync();
             //await msg.ModifyAsync(x =>
             //{
             //    x.Content = "herro";
@@ -74,36 +75,35 @@ namespace RexBot2
         }
 
         private async Task MessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
-        {
-            
-            var message = await before.GetOrDownloadAsync();
-            string author = message.Author.ToString();
-            if(!message.Author.IsBot)// && message.Embeds == null)
-                await channel.SendMessageAsync($"{author} changed his/her message from ```{message}``` to ```{after}```");
+        {            
+            //var message = await before.GetOrDownloadAsync();
+            //string author = message.Author.ToString();
+            //if(!message.Author.IsBot)// && message.Embeds == null)
+            //    await channel.SendMessageAsync($"{author} changed his/her message from ```{message}``` to ```{after}```");
         }
 
         private async Task HandleMsgDel(Cacheable <Discord.IMessage, ulong> c, ISocketMessageChannel smc)
         {
-            IMessage msg = await c.GetOrDownloadAsync();
-            IUser user = msg.Author;
-            string time = msg.CreatedAt.ToString();
-            string content = msg.Content.ToString();
-            string res = string.Empty;
-            res += "**Someone deleted a message!**\n";
-            res += "```\n";
-            res += "Message Author: " + user.ToString() +"\n";
-            res += "Message Timestamp: " + time + "\n";
-            res += "Message Content: " + content + "\n```";
-            await smc.SendMessageAsync(res);
+            //IMessage msg = await c.GetOrDownloadAsync();
+            //IUser user = msg.Author;
+            //string time = msg.CreatedAt.ToString();
+            //string content = msg.Content.ToString();
+            //string res = string.Empty;
+            //res += "**Someone deleted a message!**\n";
+            //res += "```\n";
+            //res += "Message Author: " + user.ToString() +"\n";
+            //res += "Message Timestamp: " + time + "\n";
+            //res += "Message Content: " + content + "\n```";
+            //await smc.SendMessageAsync(res);
         }
         private async Task HandleUserUpdate(SocketUser userbefore,SocketUser userafter)
         {            
-            string name = userafter.Username;
-            Console.WriteLine(name);
-            var user = userafter as SocketUser;
-            Discord.IDMChannel ch =  await user.CreateDMChannelAsync();
-            await ch.SendMessageAsync("hello");
-            Console.WriteLine(user.Username);            
+            //string name = userafter.Username;
+            //Console.WriteLine(name);
+            //var user = userafter as SocketUser;
+            //Discord.IDMChannel ch =  await user.CreateDMChannelAsync();
+            //await ch.SendMessageAsync("hello");
+            //Console.WriteLine(user.Username);            
         }
 
         private async Task HandleCommandAsync(SocketMessage s)
@@ -113,8 +113,11 @@ namespace RexBot2
             
             var context = new SocketCommandContext(_client, msg);
 
-            Stats.MessagesRecieved++;
-            Stats.updateMessageUsage(msg.Author.Username);
+            if (!msg.Author.IsBot)
+            {
+                Stats.MessagesRecieved++;
+                Stats.updateMessageUsage(msg.Author.Username);
+            }
 
             if (MasterUtils.roll(12) && !msg.Author.IsBot)
             {
@@ -130,7 +133,7 @@ namespace RexBot2
             int argPos = 0;
             if (msg.HasCharPrefix('!', ref argPos))
             {
-                var result = await _service.ExecuteAsync(context, argPos);                
+                var result = await _service.ExecuteAsync(context, argPos);
 
                 if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
                 {                    
@@ -177,7 +180,6 @@ namespace RexBot2
                         string urlStr = dynObj.file;
                         await context.Channel.SendMessageAsync("DID I HEAR CAT???");
                         await context.Channel.SendMessageAsync(urlStr);
-
                     }
 
                     if (MasterUtils.ContainsAny(stz, new string[] { "eminem", "one shot", "spaghetti" }))

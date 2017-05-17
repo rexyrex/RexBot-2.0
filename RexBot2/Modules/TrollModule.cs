@@ -1,12 +1,9 @@
 ﻿using Discord.Commands;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using RexBot2.Utils;
 using System.Linq;
 using RexBot2.Timers;
-using System.Diagnostics;
 using Discord;
 using Discord.WebSocket;
 

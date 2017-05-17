@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Discord.Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,8 @@ namespace RexBot2.Utils
         public static int MessagesRecieved { get; set; } = 0;
 
         public static int CommandsRun { get; set; } = 0;
+
+        public static int ReactionCount { get; set; } = 0;
 
         public static Dictionary<string, int> commandUsage = new Dictionary<string, int>();
         public static Dictionary<string, int> messageUsage = new Dictionary<string, int>();
@@ -74,6 +77,18 @@ namespace RexBot2.Utils
                 }
                 return res;
             }
+        }
+
+        public static int getCommandCount(CommandService cs)
+        {
+            int cmdCount = 0;
+
+            foreach (CommandInfo c in cs.Commands)
+            {
+                cmdCount++;
+            }
+
+                return cmdCount;
         }
     }
 }
