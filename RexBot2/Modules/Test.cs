@@ -27,15 +27,24 @@ namespace RexBot2.Modules
         [Command("sw")]
         [Remarks("test")]
         [Summary("sw")]
-        public async Task swCmd()
+        public async Task swCmd([Remainder] string input)
         {
 
-            string elapsedTime = RexTimers.getTime(RexTimers.systemRunClock);
-            Console.WriteLine(elapsedTime);
-            await Context.Channel.SendMessageAsync(elapsedTime);
+            string res = await WebUtils.yodaOutput(input);
+
+            await Context.Channel.SendMessageAsync(res);
         }
 
+        [Command("yoda")]
+        [Remarks("test")]
+        [Summary("speak like yoda")]
+        public async Task yodaCmd([Remainder] string input)
+        {
 
+            string res = await WebUtils.yodaOutput(input);
+
+            await Context.Channel.SendMessageAsync(res);
+        }
 
     }
 }

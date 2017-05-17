@@ -1,57 +1,44 @@
-﻿using Discord;
-using Discord.Audio;
-using Discord.Commands;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
+using Discord.Commands;
+using RexBot2.Utils;
+using Discord;
 
 namespace RexBot2.Modules
 {
-    public class AudioModule : ModuleBase<SocketCommandContext>
+    public class AudioModule : ModuleBase<ICommandContext>
     {
-        [Command("join2")]
+        private readonly AudioService _service;
+
+        public AudioModule()
+        {
+            _service = DataUtils.rexAS;
+        }
+
+        [Command("join", RunMode = RunMode.Async)]
         [Remarks("audio")]
         [Summary("Join your voice channel")]
-        public async Task JoinChannelCmd(IVoiceChannel channel = null)
+        public async Task JoinCmd()
         {
-            // Get the audio channel
-            channel = channel ?? (Context.User as IGuildUser)?.VoiceChannel;
-            if (channel == null) { await Context.Channel.SendMessageAsync("User must be in a voice channel, or a voice channel must be passed as an argument."); return; }
-            
-            // For the next step with transmitting audio, you would want to pass this Audio Client in to a service.
-            var audioClient = await channel.ConnectAsync();
+            Console.WriteLine("joining!");
+            await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
         }
 
-        [Command("music")]
+        [Command("leave", RunMode = RunMode.Async)]
         [Remarks("audio")]
-        [Summary("Play sth")]
-        public async Task PlayMusicCmd(IVoiceChannel channel = null)
+        [Summary("Join your voice channel")]
+        public async Task LeaveCmd()
         {
-
-        }
-            
-        private async Task SendAsync(IAudioClient client, string path)
-        {
-            // Create FFmpeg using the previous example
-            var ffmpeg = CreateStream(path);
-            var output = ffmpeg.StandardOutput.BaseStream;
-            var discord = client.CreatePCMStream(AudioApplication.Mixed, 1920);
-            await output.CopyToAsync(discord);
-            await discord.FlushAsync();
+            await _service.LeaveAudio(Context.Guild);
         }
 
-        private Process CreateStream(string path)
+        [Command("pmusic", RunMode = RunMode.Async)]
+        [Remarks("audio")]
+        [Summary("play music")]
+        public async Task PMusicCmd()
         {
-            var ffmpeg = new ProcessStartInfo
-            {
-                FileName = "ffmpeg",
-                Arguments = $"-i {path} -ac 2 -f s16le -ar 48000 pipe:1",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-            };
-            return Process.Start(ffmpeg);
+            Console.WriteLine("music Cmd called");
+            await _service.SendAudioAsync(Context.Guild, Context.Channel, "Data/music/rsong.mp3");
         }
     }
 }

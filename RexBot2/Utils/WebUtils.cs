@@ -324,6 +324,49 @@ namespace RexBot2.Utils
             }
         }
 
+        public static async Task<string> getOneLiner()
+        {
+            string jsonStr = await httpRequest("http://api.yomomma.info/"); 
+            dynamic dynObj = JsonConvert.DeserializeObject(jsonStr);
+            string joke = dynObj.joke;
+            return joke;
+        }
+
+        public static async Task<string> yodaOutput(string input)
+        {
+            Uri uri = new Uri("https://yoda.p.mashape.com/yoda?sentence=" + processForUrl(input));
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+            string received;
+            request.Headers["X-Mashape-Key"] = "qql6g6tEyJmshPTBGESkSMU6W5TZp1auirwjsnctuLr80SN0se";
+            request.Headers["Accept"] = "text/plain";
+
+            using (var response = (HttpWebResponse)(await Task<WebResponse>.Factory.FromAsync(request.BeginGetResponse, request.EndGetResponse, null)))
+            {
+                using (var responseStream = response.GetResponseStream())
+                {
+                    using (var sr = new StreamReader(responseStream))
+                    {
+
+                        received = await sr.ReadToEndAsync();
+                    }
+                }
+            }
+
+            return received;
+        }
+
+        public static string processForUrl(string input)
+        {
+            string res = string.Empty;
+            res = input.Replace(" ", "+");
+            res = res.Replace("?", "%3F");
+            res = res.Replace("^", "%5E");
+            res = res.Replace("#", "%23");
+            //res = res.Replace("#", "~h");
+            //res = res.Replace("/", "~s");
+            return res;
+        }
+
         public static async Task<string> httpRequest(string url)
         {
             Uri uri = new Uri(url);

@@ -27,6 +27,7 @@ namespace RexBot2
             {
                 MessageCacheSize = 12,
                 AlwaysDownloadUsers = true,
+                LogLevel = LogSeverity.Info
             });
             
             new CommandHandler();
@@ -35,6 +36,11 @@ namespace RexBot2
             new EmojiUtils();
 
             WebUtils.updateBingAuthToken();
+
+            Logger.Log(LogSeverity.Info, "StartAsync()", "Connected in " + sw.Elapsed.TotalSeconds.ToString("F2") + " seconds");
+            Logger.NewLine();
+
+            
 
             await _client.LoginAsync(TokenType.Bot, "MzEyNzM5MzQ3MzYxNDMxNTYy.C_fcug.4MF5L2T8z0yz5Y5SH8KqNWV5uNs");
 
@@ -46,7 +52,7 @@ namespace RexBot2
             await _handler.InitializeAsync(_client);
             sw.Stop();
 
-            Console.WriteLine("Connected in " + sw.Elapsed.TotalSeconds.ToString("F2") + " seconds");
+
             
             await Task.Delay(-1);
             

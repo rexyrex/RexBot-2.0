@@ -46,7 +46,7 @@ namespace RexBot2.Utils
         public async Task SendAudioAsync(IGuild guild, IMessageChannel channel, string path)
         {
             Console.WriteLine("enetered!");
-            // Your task: Get a full path to the file if the value of 'path' is only a filename.
+
             if (!File.Exists(path))
             {
                 Console.WriteLine("cant find file!");

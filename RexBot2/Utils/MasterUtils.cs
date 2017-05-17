@@ -13,7 +13,7 @@ namespace RexBot2.Utils
 
             foreach (KeyValuePair<string, RexMode> kv in DataUtils.modes)
             {
-                res += getModeInfo(kv.Value) + "\n";
+                res += "`" + getModeInfo(kv.Value) + "`\n";
             }
 
             return res;
@@ -113,6 +113,7 @@ namespace RexBot2.Utils
             return false;
         }
 
+
         public static bool isMode(string reqMode)
         {
             string check = reqMode.ToLower();
@@ -134,7 +135,6 @@ namespace RexBot2.Utils
                 res += str[str.Length - i - 1];
             }
             return res;
-
         }
 
         public static string getMemeHelp()

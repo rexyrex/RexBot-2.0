@@ -48,11 +48,11 @@ namespace RexBot2.Modules
                 }
                 foreach (string s in cmdDict.Keys)
                 {
-                    res += "\n***-- " + s + " --***\n";
+                    res += "\n**" + DataUtils.getHelpEmojiBind(s) + "  **";
                     //res += "***----------***\n";
                     foreach (string stmp in cmdDict[s])
                     {
-                        res += "!" + stmp + ", ";
+                        res += "`!" + stmp + "`, ";
                     }
                     res += "\n";
                 }
@@ -61,7 +61,7 @@ namespace RexBot2.Modules
                 efb.IconUrl = "http://clipartall.com/subimg/get-help-clipart-help-clip-art-300_300.png";
                 emb.Footer = efb;
                 //emb.ImageUrl = "https://blogs-images.forbes.com/markhughes/files/2016/01/Terminator-2-1200x873.jpg?width=960";
-                emb.ThumbnailUrl = "http://clipartall.com/subimg/get-help-clipart-help-clip-art-300_300.png";
+                //emb.ThumbnailUrl = "http://clipartall.com/subimg/get-help-clipart-help-clip-art-300_300.png";
                 
                 //EmbedAuthorBuilder embAuth = new EmbedAuthorBuilder();
                 //embAuth.Name = "Rexyrex";
@@ -90,7 +90,7 @@ namespace RexBot2.Modules
                 //emb.AddField(efb4);
 
             }
-            else if (cmdName.Contains("meme"))
+            else if (cmdName.Trim('!') == "meme")
             {
                 res = MasterUtils.getMemeHelp();
             } else // SIngle command info
@@ -105,7 +105,8 @@ namespace RexBot2.Modules
                         ali[count] = alia;
                         count++;
                     }
-                    if (cmdName.Contains(c.Name) || (c.Aliases.Count>0 && MasterUtils.ContainsAny(cmdName,ali)))
+
+                    if (cmdName.Trim('!') == c.Name || (c.Aliases.Count>0 && Array.IndexOf(ali,cmdName.Trim('!')) > -1))
                     {
                         string aliasesStr = string.Empty;
                         string parametersStr = string.Empty;
@@ -130,7 +131,71 @@ namespace RexBot2.Modules
 
         }
 
+        [Command("stats")]
+        [Alias("stat")]
+        [Remarks("info")]
+        [Summary("Display bot stats")]
+        public async Task statsCmd()
+        {
+            DateTime dateTime = new DateTime(2017, 5, 13);
+            EmbedBuilder emb = new EmbedBuilder();
+            emb.Color = new Color(0, 255, 0);
+            //emb.ThumbnailUrl = "http://pngimages.net/sites/default/files/bar-chart-png-image-892.png";            
+
+            emb.Timestamp = new DateTimeOffset(DateTime.Now);
+            emb.Title = "**📈 Stats 📉**\n";
+            emb.Url = "https://www.youtube.com/watch?v=4YpTLy6dn5c";
+            emb.Description = "Stats of this Sesh";
+
+            EmbedFieldBuilder topReportsField = new EmbedFieldBuilder();
+            topReportsField.Name = "Most Reported";
+            topReportsField.Value = DataUtils.getReportTopList();
+            topReportsField.IsInline = false;
+
+            EmbedFieldBuilder commandsRunField = new EmbedFieldBuilder();
+            commandsRunField.Name = "Commands Run";
+            commandsRunField.Value = Stats.CommandsRun;
+            commandsRunField.IsInline = true;
+            EmbedFieldBuilder mostUsedCommandsField = new EmbedFieldBuilder();
+            mostUsedCommandsField.Name = "Top3 Commands";
+            mostUsedCommandsField.Value = Stats.getTop3Commands();
+            mostUsedCommandsField.IsInline = true;
+
+            EmbedFieldBuilder mostMsgUserField = new EmbedFieldBuilder();
+            mostMsgUserField.Name = "Top3 Active Users";
+            mostMsgUserField.Value = Stats.getTop3Messagers();
+            mostMsgUserField.IsInline = true;
+            EmbedFieldBuilder messagesSinceLogin = new EmbedFieldBuilder();
+            messagesSinceLogin.Name = "Messages Received";
+            messagesSinceLogin.Value = Stats.MessagesRecieved;
+            messagesSinceLogin.IsInline = true;
+            EmbedFieldBuilder upTimeField = new EmbedFieldBuilder();
+            upTimeField.Name = "UpTime";
+            upTimeField.Value = RexTimers.getTime(RexTimers.systemRunClock);
+            upTimeField.IsInline = false;
+
+            EmbedFieldBuilder newLineField = new EmbedFieldBuilder();
+            newLineField.Name = " ";
+            newLineField.Value = " ";
+            upTimeField.IsInline = false;
+
+            emb.AddField(upTimeField);
+
+            emb.AddField(topReportsField);
+
+            emb.AddField(commandsRunField);
+           
+            //emb.AddField(newLineField);
+            emb.AddField(messagesSinceLogin);            
+            emb.AddField(mostMsgUserField);
+            emb.AddField(mostUsedCommandsField);
+
+
+            await Context.Channel.SendMessageAsync("", false, emb);
+        }
+
         [Command("status")]
+        [Alias("info")]
         [Remarks("info")]
         [Summary("Display bot status")]
         public async Task statusCmd()
@@ -138,46 +203,45 @@ namespace RexBot2.Modules
             DateTime dateTime = new DateTime(2017, 5, 13);
             EmbedBuilder emb = new EmbedBuilder();
             emb.Color = new Color(196, 09, 155);
-            //emb.Title = "`HELP!`";
             emb.ThumbnailUrl = "http://silhouettesfree.com/machines/robots/robot-silhouette-image.png";
-            emb.Timestamp = new DateTimeOffset(DateTime.Now);
-            emb.Title = "**-- Status --**";
 
-            EmbedFooterBuilder efb = new EmbedFooterBuilder();
-            efb.Text = "RexBot 2.0";
-            emb.Footer = efb;
+            emb.Title = "**🤜 RexBot 2.0 🤛**\n";
+            emb.Url = "https://www.youtube.com/watch?v=4YpTLy6dn5c";
+            try
+            {
+                string joke = await WebUtils.getOneLiner();
+                emb.Description = "\"" + joke + "\"";
+            } catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }     
 
-            EmbedFieldBuilder efb1 = new EmbedFieldBuilder();
-            efb1.Name = "➺Mode";
-            efb1.Value = DataUtils.mode;
-            efb1.IsInline = true;
-            EmbedFieldBuilder efb2 = new EmbedFieldBuilder();
-            efb2.Name = "➺Age";
-            efb2.Value = Math.Round((DateTime.Now - dateTime).TotalDays, 2) + " days" + "\n";
-            efb2.IsInline = true;
-            EmbedFieldBuilder efb4 = new EmbedFieldBuilder();
-            efb4.Name = "➺Channel";
-            efb4.Value = Context.Channel.Name;
-            efb4.IsInline = true;
-            EmbedFieldBuilder efb5 = new EmbedFieldBuilder();
-            efb5.Name = "➺UpTime";
-            efb5.Value = RexTimers.getTime(RexTimers.systemRunClock);
-            efb5.IsInline = true;
-            EmbedFieldBuilder efb3 = new EmbedFieldBuilder();
-            efb3.Name = "➺GitHub";
-            efb3.Value = "https://github.com/rexyrex/RexBot-2.0";
-            efb3.IsInline = false;
+            EmbedFieldBuilder modeField = new EmbedFieldBuilder();
+            modeField.Name = "Mode";
+            modeField.Value = DataUtils.mode;
+            modeField.IsInline = true;
+            EmbedFieldBuilder ageField = new EmbedFieldBuilder();
+            ageField.Name = "Age";
+            ageField.Value = Math.Round((DateTime.Now - dateTime).TotalDays, 2) + " days" + "\n";
+            ageField.IsInline = true;
+            EmbedFieldBuilder upTimeField = new EmbedFieldBuilder();
+            upTimeField.Name = "UpTime";
+            upTimeField.Value = RexTimers.getTime(RexTimers.systemRunClock);
+            upTimeField.IsInline = true;            
+            EmbedFieldBuilder githubLinkField = new EmbedFieldBuilder();
+            githubLinkField.Name = "GitHub";
+            githubLinkField.Value = "https://github.com/rexyrex/RexBot-2.0";
+            githubLinkField.IsInline = false;
 
             EmbedFieldBuilder efb6 = new EmbedFieldBuilder();
-            efb6.Name = "➺Special Thanks To";
-            efb6.Value = "GeoffDB";
+            efb6.Name = "❤️ Special Thanks To ❤️";
+            efb6.Value = "Geoff - DB\nEm - Utils\nNick - W Testing";
             efb6.IsInline = false;
 
-            emb.AddField(efb1);
-            emb.AddField(efb2);
-            emb.AddField(efb4);
-            emb.AddField(efb5);
-            emb.AddField(efb3);
+            emb.AddField(modeField);
+            emb.AddField(ageField);
+            emb.AddField(upTimeField);
+            emb.AddField(githubLinkField);
             emb.AddField(efb6);
             await Context.Channel.SendMessageAsync("",false,emb);
         }

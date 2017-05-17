@@ -30,17 +30,46 @@ namespace RexBot2
             _client.MessageDeleted += HandleMsgDel;
             _client.MessageUpdated += MessageUpdated;
             _client.ReactionAdded += ReactionUpdated;
-            
+            _client.Disconnected += _client_Disconnected;
+            _client.Connected += _client_Connected;
+            _client.Ready += _client_Ready;
+            _client.Log += _client_Log;
 
-            // _client.
-            Console.WriteLine("latency:" + _client.Latency);
+            //Console.WriteLine("latency:" + _client.Latency);
+        }
+
+        private async Task _client_Ready()
+        {
+            Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Client Ready");
+        }
+
+        private async Task _client_Log(LogMessage arg)
+        {
+            Logger.Log(arg.Severity,arg.Source,arg.Message);
+        }
+
+        private async Task _client_Connected()
+        {
+            Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Can Confirm connected! YAY!");
+        }
+
+        private async Task _client_Disconnected(Exception arg)
+        {
+            await ErrorHandler.HandleLog(new LogMessage(LogSeverity.Error, "Disconnect Detected", "NOOOO", arg));
         }
 
         private async Task ReactionUpdated(Cacheable<IUserMessage, ulong> cache, ISocketMessageChannel channel, SocketReaction reaction)
-        {
+        {            
             IUserMessage msg = await cache.GetOrDownloadAsync();
-            await msg.AddReactionAsync(reaction.Emote);
+            //await msg.ModifyAsync(x =>
+            //{
+            //    x.Content = "herro";
+            //}                
+            //);
+            //Console.WriteLine("Triggered!");
+            //await msg.AddReactionAsync(reaction.Emote);
             //await channel.SendMessageAsync("REACTED");
+            //await channel.SendMessageAsync("I also want to react");
         }
 
         private async Task MessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
@@ -73,8 +102,7 @@ namespace RexBot2
             var user = userafter as SocketUser;
             Discord.IDMChannel ch =  await user.CreateDMChannelAsync();
             await ch.SendMessageAsync("hello");
-            Console.WriteLine(user.Username);
-            
+            Console.WriteLine(user.Username);            
         }
 
         private async Task HandleCommandAsync(SocketMessage s)
@@ -84,27 +112,32 @@ namespace RexBot2
             
             var context = new SocketCommandContext(_client, msg);
 
+            Stats.MessagesRecieved++;
+            Stats.updateMessageUsage(msg.Author.Username);
+
             if (MasterUtils.roll(12) && !msg.Author.IsBot)
-            {                
+            {
                 await msg.AddReactionAsync(EmojiUtils.getEmoji());
             }
 
-            if (MasterUtils.roll(27) && RexTimers.gameChangeClock.Elapsed.TotalSeconds>47)
+            if (MasterUtils.roll(27) && RexTimers.gameChangeClock.Elapsed.TotalSeconds > 127)
             {
                 RexTimers.gameChangeClock.Restart();
-                await _client.SetGameAsync(MasterUtils.getWord(DataUtils.games), "https://www.twitch.tv/ryannoob", StreamType.NotStreaming);
+                await _client.SetGameAsync(MasterUtils.getWord(DataUtils.games), "https://www.twitch.tv/ALL_ABOARD_THE_FEED_TRAIN", StreamType.Twitch);
             }
 
             int argPos = 0;
             if (msg.HasCharPrefix('!', ref argPos))
             {
-                var result = await _service.ExecuteAsync(context, argPos);
-
-                
+                var result = await _service.ExecuteAsync(context, argPos);                
 
                 if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
+                {                    
+                    
+                } else if (result.IsSuccess)
                 {
-
+                    Stats.CommandsRun++;
+                    Stats.updateCommandUsage(msg.Content);
                 }
             } else
             {               

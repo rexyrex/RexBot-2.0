@@ -36,11 +36,13 @@ namespace RexBot2.Utils
         public static Dictionary<string, string[]> responses;
         public static Dictionary<string, RexMode> modes;
 
+
+
         public static Dictionary<string, Dictionary<string, string>> rexDB;
 
         public static Dictionary<string, int> reports;
-        public static string[] games = { "Dota 2","Alien Swarm : Reactive Drop", "GTA V", "Stellaris", "The W Spam Game", "Maplestory","The Binding of Isaac: Rebirth",
-        "Dota 3","League of Losers"};
+        public static string[] games = { "Dota 2","Alien Swarm : Reactive Drop", "GTA W", "Stellaris", "The W Spam Game", "Maplestory","The Binding of Isaac: Rebirth",
+        "WODOTA","League of Losers"};
 
         //public static VideoSearch youtubeSearcher;
 
@@ -49,6 +51,8 @@ namespace RexBot2.Utils
         public static AudioService rexAS;
 
         public static Random rnd;
+
+        public static Dictionary<string, string> helpEmojiBinds;
 
         public DataUtils()
         {
@@ -84,8 +88,10 @@ namespace RexBot2.Utils
             modes = new Dictionary<string, RexMode>();
             rexDB = new Dictionary<string, Dictionary<string, string>>();
             reports = new Dictionary<string, int>();
+            helpEmojiBinds = new Dictionary<string, string>();
+            
 
-            modes.Add("jamie", new RexMode("quiet", "No auto triggers. No status updates. All functions online.", new string[] { "functions" }));
+            modes.Add("quiet", new RexMode("quiet", "No auto triggers. No status updates. All functions online.", new string[] { "functions" }));
             modes.Add("active", new RexMode("active", "Occasional auto triggers.", new string[] { "functions", "trigger 30" }));
             modes.Add("loud", new RexMode("loud", "Many auto triggers. Status changes.", new string[] { "functions", "trigger 60", "status" }));
             modes.Add("tooloud", new RexMode("tooloud", "RexBot on Steroids", new string[] { "functions", "trigger 100", "status" }));
@@ -106,9 +112,55 @@ namespace RexBot2.Utils
             populate(trainPhrases3, "trainphrases3.txt");
             populateResponses();
             populatePicFileNames();
+            populateHelpEmojiBinds();
             AliasUtils.ParseAliases();
             loadRexDB();
             Console.WriteLine("Done Loading!");
+        }
+
+
+
+        public static string getReportTopList()
+        {
+            if (reports.Count == 0)
+            {
+                return "No reports";
+            } else
+            {
+                var top3 = reports.OrderByDescending(pair => pair.Value).Take(3);
+                string res = string.Empty;
+                foreach(KeyValuePair<string,int> kvp in top3)
+                {
+                    res += kvp.Key + " - " + kvp.Value + "\n";
+                }
+                return res;
+            }
+        }
+
+        private void populateHelpEmojiBinds()
+        {
+            helpEmojiBinds.Add("admin", "🤖");
+            helpEmojiBinds.Add("music", "🎵");
+            helpEmojiBinds.Add("audio", "🎵");
+            helpEmojiBinds.Add("info", "📊");
+            helpEmojiBinds.Add("meme builder", "🐱");
+            helpEmojiBinds.Add("pic", "📸");
+            helpEmojiBinds.Add("rexdb", "💾");
+            helpEmojiBinds.Add("test", "🛠");
+            helpEmojiBinds.Add("text", "📋");
+            helpEmojiBinds.Add("troll", "⁉️");
+            helpEmojiBinds.Add("web", "🌐");
+        }
+
+        public static string getHelpEmojiBind(string category)
+        {
+            if (helpEmojiBinds.ContainsKey(category))
+            {
+                return helpEmojiBinds[category];
+            } else
+            {
+                return "🤜";
+            }
         }
 
         private void populateResponses()

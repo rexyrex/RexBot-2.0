@@ -67,7 +67,7 @@ namespace RexBot2.Modules
                 }
                 else
                 {
-                    await Context.Channel.SendMessageAsync("***You input an invalid mode!***\n\n*Available modes*:\n" + MasterUtils.getAllModesInfo());
+                    await Context.Channel.SendMessageAsync("***You input an invalid mode!***\n\n__Available modes__:\n" + MasterUtils.getAllModesInfo());
                 }
             }
             else

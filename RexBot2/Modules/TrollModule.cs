@@ -105,18 +105,18 @@ namespace RexBot2.Modules
 
         [Command("emoji")]
         [Remarks("troll")]
-        [Summary("add an emote to many msgs")]
+        [Summary("React to the last message with a random Emoji")]
         public async Task emoteCmd()
         {
             
-            var messages = await Context.Channel.GetMessagesAsync((2)).Flatten();
+            var messages = await Context.Channel.GetMessagesAsync((1)).Flatten();
             foreach(SocketUserMessage msg in messages)
             {
-                int count = DataUtils.rnd.Next(1, 4);
-                for(int i=0; i < count; i++)
-                {
-                    await msg.AddReactionAsync(EmojiUtils.getEmoji());
-                }                
+                //int count = DataUtils.rnd.Next(1, 4);
+                //for(int i=0; i < count; i++)
+                //{
+                await msg.AddReactionAsync(EmojiUtils.getEmoji());
+                //}                
             }
         }
 
