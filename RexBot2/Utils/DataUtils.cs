@@ -227,6 +227,7 @@ namespace RexBot2.Utils
             }
         }
 
+
         public static string listRexDB(string username)
         {
             string res = string.Empty;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using RexBot2.Objects;
+
 
 namespace RexBot2.Utils
 {
@@ -79,6 +79,47 @@ namespace RexBot2.Utils
 
             res += getWord(DataUtils.nounList);
             return res;
+        }
+
+        public static string getAnnoyingTTSString()
+        {
+            string res = string.Empty;
+            string consonants = "bcdfghjklmnpqrstvwxyz";
+            string vowels = "aeiou";
+            int index = DataUtils.rnd.Next(1, consonants.Length);
+            int index2 = DataUtils.rnd.Next(1, vowels.Length);
+            int index3 = DataUtils.rnd.Next(1, consonants.Length);
+            string repeat = consonants[index].ToString() + vowels[index2].ToString();
+            for (int i=0; i<92; i++)
+            {
+                
+                res += repeat;
+            }
+
+            string[] words = {"She sells seashells by the seashore",
+            "Fuzzy Wuzzy was a bear. Fuzzy Wuzzy had no hair. Fuzzy Wuzzy wasn’t fuzzy, was he?","If a dog chews shoes, whose shoes does he choose?",
+            "I wish to wash my Irish wristwatch", "Wayne went to wales to watch walruses", "Six sticky skeletons", "Snap crackle pop ",
+            "Flash message", "Stupid superstition","Eleven benevolent elephants", "Two tried and true tridents", "Big black back bat","Pre-shrunk silk shirts",
+            "Ed had edited it","We surely shall see the sun shine soon", "Which wristwatches are Swiss wristwatches","Lesser leather never weathered wetter weather better" };
+            string word = words[DataUtils.rnd.Next(0, words.Length)];
+            string wres = string.Empty;
+            int limit = 184 - (int)(184 / word.Length);
+            for (int i=0; i<limit; i++)
+            {
+                wres += word[i % word.Length];
+                if(i%word.Length == word.Length-1)
+                {
+                    wres += " ";
+                }
+            }
+            switch(DataUtils.rnd.Next(1, 5))
+            {
+                case 4: return wres; 
+                case 1: return "MACHINE GUN MOTHER FUCKERS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+                case 2: return "IM A RAP GOD nenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenen";
+                case 3: return "CONGRATZ DOUCHE BAG HERE'S YOUR PRESENT w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w, w";
+                default: return res;
+            }
         }
 
         public static Boolean roll(int chance)

@@ -40,10 +40,10 @@ namespace RexBot2.Modules
         [Summary("speak like yoda")]
         public async Task yodaCmd([Remainder] string input)
         {
+            await Context.Channel.SendMessageAsync(MasterUtils.getAnnoyingTTSString(), true);
+            //string res = await WebUtils.yodaOutput(input);
 
-            string res = await WebUtils.yodaOutput(input);
-
-            await Context.Channel.SendMessageAsync(res);
+            //await Context.Channel.SendMessageAsync(res);
         }
 
     }

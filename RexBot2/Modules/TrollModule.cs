@@ -15,14 +15,21 @@ namespace RexBot2.Modules
     public class TrollModule : ModuleBase<SocketCommandContext>
     {
         private string picPath = "Data/pics/";
-
         [Command("eminem")]
         [Remarks("troll")]
         [Summary("Rap God")]
         public async Task eminemCmd()
         {
-            await Context.Channel.SendFileAsync(picPath + "eminem.jpg");
-            await Context.Channel.SendMessageAsync("PALMS SPAGHETTI KNEAS WEAK ARM SPAGHETTI THERES SPAGHETTI ON HIS SPAGHETTI ALREADY, MOMS SPAGHETTI", true);
+            string username = Context.User.ToString();
+            if (RexTimers.canRunCmd(username, "eminem"))
+            {
+                await Context.Channel.SendFileAsync(picPath + "eminem.jpg");
+                await Context.Channel.SendMessageAsync("PALMS SPAGHETTI KNEAS WEAK ARM SPAGHETTI THERES SPAGHETTI ON HIS SPAGHETTI ALREADY, MOMS SPAGHETTI", true);
+                RexTimers.resetTimer(username, "eminem");
+            } else
+            {
+                await Context.Channel.SendMessageAsync("`" + RexTimers.getWaitMsg(username, "eminem") + "`");
+            }
         }
 
         [Command("w")]
@@ -43,7 +50,7 @@ namespace RexBot2.Modules
                 }
                 else
                 {                    
-                    await Context.Channel.SendMessageAsync("W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W W, W", true);
+                    await Context.Channel.SendMessageAsync(MasterUtils.getAnnoyingTTSString(), true);
                 }
                 RexTimers.resetTimer(username, "w");
             } else
@@ -80,8 +87,7 @@ namespace RexBot2.Modules
                 }
             } else
             {
-                Console.WriteLine("should be on cd");
-                await Context.Channel.SendMessageAsync(RexTimers.getWaitMsg(username,"report"));
+                await Context.Channel.SendMessageAsync("`" + RexTimers.getWaitMsg(username, "report") + "`");
             }
         }
 
@@ -107,8 +113,7 @@ namespace RexBot2.Modules
         [Remarks("troll")]
         [Summary("React to the last message with a random Emoji")]
         public async Task emoteCmd()
-        {
-            
+        {            
             var messages = await Context.Channel.GetMessagesAsync((1)).Flatten();
             foreach(SocketUserMessage msg in messages)
             {

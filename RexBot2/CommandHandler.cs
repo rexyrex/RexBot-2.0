@@ -34,13 +34,14 @@ namespace RexBot2
             _client.Connected += _client_Connected;
             _client.Ready += _client_Ready;
             _client.Log += _client_Log;
-
+            
             //Console.WriteLine("latency:" + _client.Latency);
         }
 
         private async Task _client_Ready()
         {
             Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Client Ready");
+            await _client.SetStatusAsync(UserStatus.DoNotDisturb);
         }
 
         private async Task _client_Log(LogMessage arg)
