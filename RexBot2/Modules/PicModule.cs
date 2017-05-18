@@ -62,7 +62,7 @@ namespace RexBot2.Modules
 
         [Command("sup")]
         [Remarks("pic")]
-        [Alias("pic")]
+        [Alias("pic", "reprot")]
         [Summary("Get a pic with an appropriate description")]
         public async Task supCmd()
         {

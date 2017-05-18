@@ -16,81 +16,79 @@ namespace RexBot2.Utils
         public static int MsgEditCount { get; set; } = 0;
         public static int MsgDeleteCount { get; set; } = 0;
 
-        public static Dictionary<string, int> commandUsage = new Dictionary<string, int>();
-        public static Dictionary<string, int> messageUsage = new Dictionary<string, int>();
+        public static Dictionary<string, int> commandUsageDict = new Dictionary<string, int>();
+        public static Dictionary<string, int> messageUsageDict = new Dictionary<string, int>();
+        public static Dictionary<string, int> mostMentionedUsersDict = new Dictionary<string, int>();
 
 
-
-        public static void updateCommandUsage(string cmd)
+        public static void incDictVal(Dictionary<string,int> dict, string key)
         {
-            if (commandUsage.ContainsKey(cmd))
+            if (dict.ContainsKey(key))
             {
-                commandUsage[cmd]++;
+                dict[key]++;
             }
             else
             {
-                commandUsage.Add(cmd, 1);
+                dict.Add(key, 1);
             }
+        }
+
+        public static void updateMentionedUsers(string user)
+        {
+            incDictVal(mostMentionedUsersDict, user);
+        }
+
+        public static void updateCommandUsage(string cmd)
+        {
+            incDictVal(commandUsageDict, cmd);
         }
 
         public static void updateMessageUsage(string user)
         {
-            if (messageUsage.ContainsKey(user))
+            incDictVal(messageUsageDict, user);
+        }
+
+        public static string getTop3(Dictionary<string,int> dict)
+        {
+            if (dict.Count == 0)
             {
-                messageUsage[user]++;
+                return "None";
             }
             else
             {
-                messageUsage.Add(user, 1);
+                var top3 = dict.OrderByDescending(pair => pair.Value).Take(3);
+                string res = string.Empty;
+                foreach (KeyValuePair<string, int> kvp in top3)
+                {
+                    res += kvp.Key + " - " + kvp.Value + "\n";
+                }
+                return res;
             }
+        }
+
+        public static string getTop3MentionedUsers()
+        {
+            return getTop3(mostMentionedUsersDict);
         }
 
         public static string getTop3Messagers()
         {
-            if (messageUsage.Count == 0)
-            {   
-                return "No reports";
-            }
-            else
-            {
-                var top3 = messageUsage.OrderByDescending(pair => pair.Value).Take(3);
-                string res = string.Empty;
-                foreach (KeyValuePair<string, int> kvp in top3)
-                {
-                    res += kvp.Key + " - " + kvp.Value + "\n";
-                }
-                return res;
-            }
+            return getTop3(messageUsageDict);
         }
 
         public static string getTop3Commands()
         {
-            if (commandUsage.Count == 0)
-            {
-                return "0 Commands Invoked";
-            }
-            else
-            {
-                var top3 = commandUsage.OrderByDescending(pair => pair.Value).Take(3);
-                string res = string.Empty;
-                foreach (KeyValuePair<string, int> kvp in top3)
-                {
-                    res += kvp.Key + " - " + kvp.Value + "\n";
-                }
-                return res;
-            }
+            return getTop3(commandUsageDict);
         }
 
         public static int getCommandCount(CommandService cs)
         {
             int cmdCount = 0;
-
             foreach (CommandInfo c in cs.Commands)
             {
                 cmdCount++;
             }
-
-                return cmdCount;
+            return cmdCount;
         }
     }
 }

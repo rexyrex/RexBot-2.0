@@ -265,7 +265,7 @@ namespace RexBot2.Utils
 
             var searchListRequest = youtubeService.Search.List("snippet");
             searchListRequest.Q = term;
-            searchListRequest.MaxResults = 5;
+            searchListRequest.MaxResults = 1;
 
             // Call the search.list method to retrieve results matching the specified query term.
             var searchListResponse = await searchListRequest.ExecuteAsync();

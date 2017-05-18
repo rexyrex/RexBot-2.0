@@ -33,27 +33,27 @@ namespace RexBot2
 
             _client.MessageReceived += HandleCommandAsync;
             _client.UserUpdated += HandleUserUpdate;
-            //_client.MessageDeleted += HandleMsgDel;
+            _client.MessageDeleted += HandleMsgDel;
             _client.MessageUpdated += MessageUpdated;
             _client.ReactionAdded += ReactionUpdated;
             _client.Disconnected += _client_Disconnected;
             _client.Connected += _client_Connected;
             _client.Ready += _client_Ready;
             _client.Log += _client_Log;
-            
-
             //Console.WriteLine("latency:" + _client.Latency);
         }
 
         private async Task _client_Ready()
         {
             Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Client Ready");
-            await _client.SetStatusAsync(UserStatus.DoNotDisturb);
+
+            //await _client.SetStatusAsync(UserStatus.DoNotDisturb);
+            await _client.SetGameAsync(MasterUtils.getWord(DataUtils.games), "https://www.twitch.tv/ALL_ABOARD_THE_FEED_TRAIN", StreamType.Twitch);
 
             //Initialize stopwatches
             userCollection = _client.GetGuild(200017396281507840).Users;
             new RexTimers(_client,userCollection);
-            Console.WriteLine("Timer Initialization Complete!");
+            Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Timer Initialization Complete! Ready");
         }
 
         private async Task _client_Log(LogMessage arg)
@@ -138,13 +138,30 @@ namespace RexBot2
                 var tk = Task.Run(async () =>
                 {
                     await msg.AddReactionAsync(EmojiUtils.getEmoji());
-                });                    
+                });
             }
 
-            if (MasterUtils.roll(27) && RexTimers.gameChangeClock.Elapsed.TotalSeconds > 127)
+            if (MasterUtils.roll(27) && RexTimers.gameChangeClock.Elapsed.TotalSeconds > 300)
             {
                 RexTimers.gameChangeClock.Restart();
                 await _client.SetGameAsync(MasterUtils.getWord(DataUtils.games), "https://www.twitch.tv/ALL_ABOARD_THE_FEED_TRAIN", StreamType.Twitch);
+            }
+
+            if (!msg.Author.IsBot && msg.IsTTS)
+            {
+                await context.Channel.SendMessageAsync("!report " + msg.Author);
+            }
+
+            foreach (KeyValuePair<string[], string> entry in DataUtils.aliases)
+            {
+                foreach (string entS in entry.Key)
+                {
+                    if (msg.Content.ToLower().Contains(entS.ToLower()))
+                    {
+                        Stats.updateMentionedUsers(DataUtils.aliases[entry.Key]);
+                        //Console.WriteLine("mentioned:" + DataUtils.aliases[entry.Key]);
+                    }
+                }
             }
 
             int argPos = 0;
@@ -152,44 +169,37 @@ namespace RexBot2
             {
                 var result = await _service.ExecuteAsync(context, argPos);
 
-                if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
-                {
-                    
-                } else if (result.IsSuccess)
+                if (result.IsSuccess)
                 {
                     Stats.CommandsRun++;
-                    Stats.updateCommandUsage(msg.Content);
+                    Stats.updateCommandUsage(msg.Content.Split()[0]);
+                } else
+                {
+                    string errorStr = string.Empty;
+                    switch (result.Error)
+                    {
+                        case CommandError.UnknownCommand: errorStr = "unknown command"; break;
+                        case CommandError.BadArgCount: errorStr = "check your arguments"; break;
+                        case CommandError.MultipleMatches: errorStr = "Multiple Matches for given cmd"; break;
+                        case CommandError.ParseFailed: errorStr = "Parse failed"; break;
+                        case CommandError.ObjectNotFound: errorStr = "Object Not Found"; break;
+                        case CommandError.UnmetPrecondition: errorStr = "You don't have permission to use this command"; break;
+                        case CommandError.Exception: errorStr = "Unknown exception occured (plz notify Rexyrex)"; break;
+                        default: errorStr = "Critical Error!!! Notify Rexyrex ASAP";  break;
+                    }
+                    await context.Channel.SendMessageAsync("```\nCommand Error : " + errorStr + "```");
+                    await context.Channel.SendMessageAsync("!help " + msg.Content.Split()[0]);
                 }
             } else
             {
-                
+                //Not a command
             }
 
             if (MasterUtils.roll(DataUtils.modes[DataUtils.mode].getTriggerChance()))
             {
                 if (!msg.Author.IsBot)
                 {
-                    string stz = msg.Content;
-                    int wcount = stz.Count(x => x == 'w');
-                    int acount = stz.Count(x => x == '@');
-
-                    if (msg.IsTTS && ((wcount > 0.4 * stz.Length && !stz.Contains('a')) || acount > 0.4 * stz.Length || stz.Contains("tata")) && stz.Length >= 3)
-                    {
-                        await context.Channel.SendMessageAsync("TTS ABUSER DETECTED");
-                    }
-
-                    foreach (KeyValuePair<string[], string> entry in DataUtils.aliases)
-                    {
-                        foreach (string entS in entry.Key)
-                        {
-                            if (stz.Contains(entS))
-                            {
-                                //await e.Channel.SendMessage(user + " mentioned something about " + aliases[entry.Key] + "...");
-                                //await e.Channel.SendTTSMessage("Here is a recent tweet related to " + aliases[entry.Key] + " : " + getTweet(aliases[entry.Key]));
-                            }
-                        }
-                    }
-
+                    string stz = msg.Content;    
                     if (MasterUtils.ContainsAny(stz, new string[] { "cat", "kitty", "kitten", "caat", "caaat", "caaaat", "caaaaat", "meow" }) || DataUtils.modes[DataUtils.mode].hasPermission("cat"))
                     {
                         string jsonStr = await WebUtils.httpRequest("http://random.cat/meow");
@@ -204,7 +214,7 @@ namespace RexBot2
                         await context.Channel.SendFileAsync("pics/" + "eminem.jpg");
                         await context.Channel.SendMessageAsync("PALMS SPAGHETTI KNEAS WEAK ARM SPAGHETTI THERES SPAGHETTI ON HIS SPAGHETTI ALREADY, MOMS SPAGHETTI",true);
                     }
-
+                    //response triggers
                     foreach (KeyValuePair<string, string[]> trigger in DataUtils.responses)
                     {
                         if (stz.Contains(trigger.Key))

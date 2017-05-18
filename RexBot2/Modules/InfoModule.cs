@@ -138,10 +138,6 @@ namespace RexBot2.Modules
             topReportsField.Value = DataUtils.getReportTopList();
             topReportsField.IsInline = true;
 
-            EmbedFieldBuilder commandsRunField = new EmbedFieldBuilder();
-            commandsRunField.Name = "Commands Run";
-            commandsRunField.Value = Stats.CommandsRun;
-            commandsRunField.IsInline = true;
             EmbedFieldBuilder mostUsedCommandsField = new EmbedFieldBuilder();
             mostUsedCommandsField.Name = "Commands";
             mostUsedCommandsField.Value = Stats.getTop3Commands();
@@ -151,31 +147,16 @@ namespace RexBot2.Modules
             mostMsgUserField.Name = "Messages";
             mostMsgUserField.Value = Stats.getTop3Messagers();
             mostMsgUserField.IsInline = true;
-            EmbedFieldBuilder messagesSinceLogin = new EmbedFieldBuilder();
-            messagesSinceLogin.Name = "Messages Received";
-            messagesSinceLogin.Value = Stats.MessagesRecieved;
-            messagesSinceLogin.IsInline = true;
-            EmbedFieldBuilder upTimeField = new EmbedFieldBuilder();
-            upTimeField.Name = "UpTime";
-            upTimeField.Value = RexTimers.getTime(RexTimers.systemRunClock);
-            upTimeField.IsInline = false;
 
-            EmbedFieldBuilder newLineField = new EmbedFieldBuilder();
-            newLineField.Name = " ";
-            newLineField.Value = " ";
-            upTimeField.IsInline = false;
+            EmbedFieldBuilder mostMentionedUserField = new EmbedFieldBuilder();
+            mostMentionedUserField.Name = "Mentioned";
+            mostMentionedUserField.Value = Stats.getTop3MentionedUsers();
+            mostMentionedUserField.IsInline = true;
 
-            //emb.AddField(upTimeField);
-
-            emb.AddField(topReportsField);
-
-            //emb.AddField(commandsRunField);
-           
-            //emb.AddField(newLineField);
-            //emb.AddField(messagesSinceLogin);            
+            emb.AddField(topReportsField);          
             emb.AddField(mostMsgUserField);
             emb.AddField(mostUsedCommandsField);
-
+            emb.AddField(mostMentionedUserField);
 
             await Context.Channel.SendMessageAsync("", false, emb);
         }
@@ -222,10 +203,6 @@ namespace RexBot2.Modules
             cmdCountField.Name = "Command Count";
             cmdCountField.Value = cmdCountStr;
             cmdCountField.IsInline = true;
-            //EmbedFieldBuilder cmdRunField = new EmbedFieldBuilder();
-            //cmdRunField.Name = "Commands Run";
-            //cmdRunField.Value = Stats.CommandsRun;
-            //cmdRunField.IsInline = true;
 
             EmbedFieldBuilder efb6 = new EmbedFieldBuilder();
             efb6.Name = "❤️ Special Thanks To ❤️";

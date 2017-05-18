@@ -1,11 +1,16 @@
 ﻿RexBot 2.0 Update - May 18 2017
 
 - All cooldowns are now initialized at bot startup
+- Rexbot now reports you if you use tts
+- High reports will soon have consequences
 
 - Reorganized and added new stats to the !stats command
 - Commands leaderboard now only keeps track of the command 
 (Now does not include the parameter)
 - Load Command can now be activated with !l and save !s
+
+- Nick Request : !reprot command that is the same as !sup and !pic granted
+- Youtube command now returns top result only
 
 - Fixed Issue where Yoda command existed
 - Fixed GeoffDB Link in !status command

@@ -38,29 +38,18 @@ namespace RexBot2
 
             Logger.Log(LogSeverity.Info, "StartAsync()", "Connected in " + sw.Elapsed.TotalSeconds.ToString("F2") + " seconds");
             Logger.NewLine();
-
             
-
             await _client.LoginAsync(TokenType.Bot, "MzEyNzM5MzQ3MzYxNDMxNTYy.C_fcug.4MF5L2T8z0yz5Y5SH8KqNWV5uNs");
 
             await _client.StartAsync();
             
             _handler = new MasterHandler();
-            
 
             await _handler.InitializeAsync(_client);
             sw.Stop();
-
-
             
             await Task.Delay(-1);
             
-        }
-
-        private Task Log(LogMessage msg)
-        {
-            Console.WriteLine(msg.ToString());
-            return Task.CompletedTask;
         }
     }
 }
