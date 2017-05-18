@@ -1,10 +1,6 @@
 ﻿using Discord.Commands;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using RexBot2.Utils;
-using RexBot2.Timers;
 
 namespace RexBot2.Modules
 {
@@ -35,16 +31,12 @@ namespace RexBot2.Modules
             await Context.Channel.SendMessageAsync(res);
         }
 
-        [Command("yoda")]
+        [Command("test")]
         [Remarks("test")]
-        [Summary("speak like yoda")]
-        public async Task yodaCmd([Remainder] string input)
+        [Summary("Temporary function which should not be invoked by anyone else than Rexyrex")]
+        public async Task devtestCmd()
         {
-            await Context.Channel.SendMessageAsync(MasterUtils.getAnnoyingTTSString(), true);
-            //string res = await WebUtils.yodaOutput(input);
-
-            //await Context.Channel.SendMessageAsync(res);
+            await Context.Channel.SendMessageAsync("NOT IMPLEMENTED MADAFAKA");
         }
-
     }
 }

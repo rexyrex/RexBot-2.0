@@ -37,16 +37,49 @@ namespace RexBot2.Modules
         [Summary("Delete Messages")]
         public async Task purgeCmd(int msgToDel = 1)
         {
-            string userName = Context.User.ToString();
-            if (userName == "Rexyrex#5838")
+            try
             {
-                var messages = await Context.Channel.GetMessagesAsync(((int)msgToDel+1)).Flatten();
-                await Context.Channel.DeleteMessagesAsync(messages);
-            }
-            else
+                string userName = Context.User.ToString();
+                if (userName == "Rexyrex#5838")
+                {
+                    
+                    var messages = await Context.Channel.GetMessagesAsync(((int)msgToDel + 1)).Flatten();
+                    await Context.Channel.DeleteMessagesAsync(messages);
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync("Not implemented");
+                }
+            } catch (Exception e)
             {
-                await Context.Channel.SendMessageAsync("Not implemented");
+                Console.WriteLine(e.ToString());
             }
+            
+        }
+
+        [Command("purgeid")]
+        [Remarks("admin")]
+        [Summary("Delete Message with id")]
+        public async Task purgeidCmd(ulong id)
+        {
+            try
+            {
+                string userName = Context.User.ToString();
+                if (userName == "Rexyrex#5838")
+                {
+                    IMessage messages = await Context.Channel.GetMessageAsync(id);
+                    await messages.DeleteAsync();
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync("Not implemented");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+
         }
 
         [Command("mode")]

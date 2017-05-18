@@ -118,7 +118,28 @@ namespace RexBot2.Utils
             Console.WriteLine("Done Loading!");
         }
 
-
+        public static string getRawStringFromFile(string path)
+        {
+            string res = string.Empty;
+            string line = string.Empty;
+            try
+            {
+                FileStream fsr = new FileStream(path, FileMode.Open, FileAccess.Read);
+                using (StreamReader sr = new StreamReader(fsr))
+                {
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        res += line + "\n";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Raw string read error");
+                Console.WriteLine(e.Message);
+            }
+            return res;
+        }
 
         public static string getReportTopList()
         {

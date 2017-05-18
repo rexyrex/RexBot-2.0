@@ -13,6 +13,8 @@ namespace RexBot2.Utils
         public static int CommandsRun { get; set; } = 0;
 
         public static int ReactionCount { get; set; } = 0;
+        public static int MsgEditCount { get; set; } = 0;
+        public static int MsgDeleteCount { get; set; } = 0;
 
         public static Dictionary<string, int> commandUsage = new Dictionary<string, int>();
         public static Dictionary<string, int> messageUsage = new Dictionary<string, int>();
@@ -65,7 +67,7 @@ namespace RexBot2.Utils
         {
             if (commandUsage.Count == 0)
             {
-                return "No reports";
+                return "0 Commands Invoked";
             }
             else
             {

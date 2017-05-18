@@ -18,7 +18,7 @@ namespace RexBot2
 
         private DiscordSocketClient _client;
 
-        private CommandHandler _handler;
+        private MasterHandler _handler;
 
         public async Task StartAsync()
         {
@@ -30,9 +30,8 @@ namespace RexBot2
                 LogLevel = LogSeverity.Info
             });
             
-            new CommandHandler();
-            new DataUtils();
-            new RexTimers(_client);
+            new MasterHandler();
+            new DataUtils();            
             new EmojiUtils();
 
             WebUtils.updateBingAuthToken();
@@ -46,7 +45,7 @@ namespace RexBot2
 
             await _client.StartAsync();
             
-            _handler = new CommandHandler();
+            _handler = new MasterHandler();
             
 
             await _handler.InitializeAsync(_client);

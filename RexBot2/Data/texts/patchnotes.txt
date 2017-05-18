@@ -1,0 +1,14 @@
+﻿RexBot 2.0 Update - May 18 2017
+
+- All cooldowns are now initialized at bot startup
+
+- Reorganized and added new stats to the !stats command
+- Commands leaderboard now only keeps track of the command 
+(Now does not include the parameter)
+- Load Command can now be activated with !l and save !s
+
+- Fixed Issue where Yoda command existed
+- Fixed GeoffDB Link in !status command
+
+- Stability Issues not fixed
+- Multiple Bugs left alone

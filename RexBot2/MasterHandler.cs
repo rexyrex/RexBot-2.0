@@ -12,22 +12,28 @@ using RexBot2.Timers;
 
 namespace RexBot2
 {
-    public class CommandHandler
+    public class MasterHandler
     {
         private DiscordSocketClient _client;
 
         private CommandService _service;
+        private IReadOnlyCollection<SocketGuildUser> userCollection;
 
         public async Task InitializeAsync(DiscordSocketClient client)
         {
             _client = client;
 
-            _service = new CommandService();
+            _service = new CommandService(new CommandServiceConfig()
+            {
+                CaseSensitiveCommands = false,
+                LogLevel = LogSeverity.Error,
+                DefaultRunMode = RunMode.Async,
+            });
             await _service.AddModulesAsync(Assembly.GetEntryAssembly());
 
             _client.MessageReceived += HandleCommandAsync;
             _client.UserUpdated += HandleUserUpdate;
-            _client.MessageDeleted += HandleMsgDel;
+            //_client.MessageDeleted += HandleMsgDel;
             _client.MessageUpdated += MessageUpdated;
             _client.ReactionAdded += ReactionUpdated;
             _client.Disconnected += _client_Disconnected;
@@ -35,6 +41,7 @@ namespace RexBot2
             _client.Ready += _client_Ready;
             _client.Log += _client_Log;
             
+
             //Console.WriteLine("latency:" + _client.Latency);
         }
 
@@ -42,6 +49,11 @@ namespace RexBot2
         {
             Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Client Ready");
             await _client.SetStatusAsync(UserStatus.DoNotDisturb);
+
+            //Initialize stopwatches
+            userCollection = _client.GetGuild(200017396281507840).Users;
+            new RexTimers(_client,userCollection);
+            Console.WriteLine("Timer Initialization Complete!");
         }
 
         private async Task _client_Log(LogMessage arg)
@@ -75,7 +87,8 @@ namespace RexBot2
         }
 
         private async Task MessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
-        {            
+        {
+            Stats.MsgEditCount++;
             //var message = await before.GetOrDownloadAsync();
             //string author = message.Author.ToString();
             //if(!message.Author.IsBot)// && message.Embeds == null)
@@ -84,6 +97,7 @@ namespace RexBot2
 
         private async Task HandleMsgDel(Cacheable <Discord.IMessage, ulong> c, ISocketMessageChannel smc)
         {
+            Stats.MsgDeleteCount++;
             //IMessage msg = await c.GetOrDownloadAsync();
             //IUser user = msg.Author;
             //string time = msg.CreatedAt.ToString();
@@ -119,9 +133,12 @@ namespace RexBot2
                 Stats.updateMessageUsage(msg.Author.Username);
             }
 
-            if (MasterUtils.roll(12) && !msg.Author.IsBot)
+            if (MasterUtils.roll(-1) && !msg.Author.IsBot)
             {
-                await msg.AddReactionAsync(EmojiUtils.getEmoji());
+                var tk = Task.Run(async () =>
+                {
+                    await msg.AddReactionAsync(EmojiUtils.getEmoji());
+                });                    
             }
 
             if (MasterUtils.roll(27) && RexTimers.gameChangeClock.Elapsed.TotalSeconds > 127)
@@ -136,7 +153,7 @@ namespace RexBot2
                 var result = await _service.ExecuteAsync(context, argPos);
 
                 if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
-                {                    
+                {
                     
                 } else if (result.IsSuccess)
                 {
@@ -144,7 +161,7 @@ namespace RexBot2
                     Stats.updateCommandUsage(msg.Content);
                 }
             } else
-            {               
+            {
                 
             }
 
@@ -196,44 +213,6 @@ namespace RexBot2
                             await context.Channel.SendMessageAsync(DataUtils.responses[trigger.Key][rz]);
                         }
                     }
-                }
-            }
-
-            if (!msg.Author.IsBot && DataUtils.modes[DataUtils.mode].hasPermission("functions"))
-            {
-                string stz = msg.Content;
-                if (MasterUtils.ContainsAny(stz, new string[] { "!meme" }) && stz.Count(x => x == '(') == 3)
-                {
-                    int bracketCount = 0;
-                    string type = string.Empty;
-                    string topText = string.Empty;
-                    string botText = string.Empty;
-
-                    for (int i = 0; i < stz.Length; i++)
-                    {
-                        if (stz[i] == '(' || stz[i] == ')')
-                        {
-                            bracketCount++;
-                        }
-                        if (bracketCount == 3)
-                        {
-                            if (stz[i] != '(')
-                                topText += stz[i];
-                        }
-                        if (bracketCount == 5)
-                        {
-                            if (stz[i] != '(')
-                                botText += stz[i];
-                        }
-                        if (bracketCount == 1)
-                        {
-                            if (stz[i] != ')' && stz[i] != '(')
-                                type += stz[i];
-                        }
-                    }
-                    topText = MasterUtils.processTextForMeme(topText);
-                    botText = MasterUtils.processTextForMeme(botText);
-                    await context.Channel.SendMessageAsync("https://memegen.link/" + type + "/" + topText + "/" + botText + ".jpg");
                 }
             }
         }

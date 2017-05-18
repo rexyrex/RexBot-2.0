@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using RexBot2.Utils;
 using Discord;
 using RexBot2.Timers;
+using System.Linq;
 
 namespace RexBot2.Modules
 {
@@ -119,26 +120,35 @@ namespace RexBot2.Modules
             //emb.ThumbnailUrl = "http://pngimages.net/sites/default/files/bar-chart-png-image-892.png";            
 
             emb.Timestamp = new DateTimeOffset(DateTime.Now);
-            emb.Title = "**📈 Stats 📉**\n";
-            emb.Url = "https://www.youtube.com/watch?v=4YpTLy6dn5c";
-            emb.Description = "[title](google.com \"I hate ryan\")";
+            emb.Title = "**📈 Statistics 📉**\n";
+            //emb.Url = "https://www.youtube.com/watch?v=4YpTLy6dn5c";
+            emb.Description = "[Displaying the stats of this session!](https://en.wikipedia.org/wiki/Statistics \"I hate ryan\")\n\n"+
+                "**UpTime** : "+ RexTimers.getTime(RexTimers.systemRunClock) + "\n\n" +
+                "**Commands Run** : " + Stats.CommandsRun + "\n" +
+                "**Commands Per Minute** : " + Math.Round((double)(Stats.CommandsRun/RexTimers.systemRunClock.Elapsed.TotalMinutes),2) + "\n\n" +
+                "**Reactions** : " + Stats.ReactionCount + "\n" +
+                "**Reactions Per Minute** : " + Math.Round((double)(Stats.ReactionCount / RexTimers.systemRunClock.Elapsed.TotalMinutes), 2) + "\n\n" +
+                "**Messages Received** : " + Stats.MessagesRecieved+ "\n" +
+                "**Messages Edited** : " + Stats.MsgEditCount + "\n" +
+                "**Messages Deleted** : " + Stats.MsgDeleteCount + "\n\n" +
+                "__🥇Leaderboards🥇__";
 
             EmbedFieldBuilder topReportsField = new EmbedFieldBuilder();
-            topReportsField.Name = "Most Reported";
+            topReportsField.Name = "Reported";
             topReportsField.Value = DataUtils.getReportTopList();
-            topReportsField.IsInline = false;
+            topReportsField.IsInline = true;
 
             EmbedFieldBuilder commandsRunField = new EmbedFieldBuilder();
             commandsRunField.Name = "Commands Run";
             commandsRunField.Value = Stats.CommandsRun;
             commandsRunField.IsInline = true;
             EmbedFieldBuilder mostUsedCommandsField = new EmbedFieldBuilder();
-            mostUsedCommandsField.Name = "Top3 Commands";
+            mostUsedCommandsField.Name = "Commands";
             mostUsedCommandsField.Value = Stats.getTop3Commands();
             mostUsedCommandsField.IsInline = true;
 
             EmbedFieldBuilder mostMsgUserField = new EmbedFieldBuilder();
-            mostMsgUserField.Name = "Top3 Active Users";
+            mostMsgUserField.Name = "Messages";
             mostMsgUserField.Value = Stats.getTop3Messagers();
             mostMsgUserField.IsInline = true;
             EmbedFieldBuilder messagesSinceLogin = new EmbedFieldBuilder();
@@ -155,14 +165,14 @@ namespace RexBot2.Modules
             newLineField.Value = " ";
             upTimeField.IsInline = false;
 
-            emb.AddField(upTimeField);
+            //emb.AddField(upTimeField);
 
             emb.AddField(topReportsField);
 
-            emb.AddField(commandsRunField);
+            //emb.AddField(commandsRunField);
            
             //emb.AddField(newLineField);
-            emb.AddField(messagesSinceLogin);            
+            //emb.AddField(messagesSinceLogin);            
             emb.AddField(mostMsgUserField);
             emb.AddField(mostUsedCommandsField);
 
@@ -170,7 +180,7 @@ namespace RexBot2.Modules
             await Context.Channel.SendMessageAsync("", false, emb);
         }
 
-        [Command("status")]
+        [Command("status",RunMode = RunMode.Async)]
         [Alias("info")]
         [Remarks("info")]
         [Summary("Display bot status")]
@@ -191,8 +201,9 @@ namespace RexBot2.Modules
             {
                 Console.WriteLine(e.ToString());
             }
-            emb.Description = "**Github** : [RexBot 2.0](https://github.com/rexyrex/RexBot-2.0 \"ALL\")\n"
-                + "**Support Rexyrex** : [Newgrounds](http://rexyrex.newgrounds.com/audio/ \"ABOARD\")"
+            emb.Description = "**➺Github** : [RexBot 2.0](https://github.com/rexyrex/RexBot-2.0 \"ALL\")\n"
+                + "**➺Geoff DB** : [Google Docs](https://docs.google.com/spreadsheets/d/1EeJpyo7Rvh-WxcYoKB2qHzBR3L_0xvR9fW1COqGhljI/edit#gid=2091390326 \"ABOARD\")\n"
+                + "**➺Support Rexyrex** : [Newgrounds](http://rexyrex.newgrounds.com/audio/ \"THE FEED TRAIN\")"
                 + ", [Youtube](https://www.youtube.com/channel/UCq3yY-SCoglG8xm6Z1_udaw \"CHOO CHOO\")";
             EmbedFieldBuilder modeField = new EmbedFieldBuilder();
             modeField.Name = "Mode";
@@ -254,6 +265,15 @@ namespace RexBot2.Modules
             }            
         }
 
+        [Command("patchnotes")]
+        [Alias("pn", "patch", "patchhistaory","version")]
+        [Remarks("info")]
+        [Summary("Show the most recent updates to Rexbot 2.0")]
+        public async Task patchNotesCmd()
+        {
+            await Context.Channel.SendMessageAsync("```" + DataUtils.getRawStringFromFile("Data/texts/patchnotes.txt")+ "```");
+        }
+
         [Command("cooldowns")]
         [Alias("cds","cd")]
         [Remarks("info")]
@@ -265,18 +285,53 @@ namespace RexBot2.Modules
 
         [Command("meme")]
         [Remarks("meme builder")]
-        [Summary("!meme (<type>) (<toptext>) (<bottetxt>), type !meme help to get list of meme types")]
-        public async Task memeCmd(string help)
+        [Summary("!meme (<type>) (<toptext>) (<bottetxt>), type \"!meme help\" to get list of meme types")]
+        public async Task memeCmd([Remainder] string stz)
         {
+            Console.WriteLine("in here");
             string res = string.Empty;
-            if (MasterUtils.ContainsAny(help, new string[] {"help","list","show" }))
+            if (MasterUtils.ContainsAny(stz, new string[] {"help","list","show" }))
             {
                 res = MasterUtils.getMemeHelp();
+                await Context.Channel.SendMessageAsync(res);
+            } else if(stz.Count(x => x == '(') == 3)
+            {
+                Console.WriteLine("in the elseif");
+                int bracketCount = 0;
+                string type = string.Empty;
+                string topText = string.Empty;
+                string botText = string.Empty;
+
+                for (int i = 0; i < stz.Length; i++)
+                {
+                    if (stz[i] == '(' || stz[i] == ')')
+                    {
+                        bracketCount++;
+                    }
+                    if (bracketCount == 3)
+                    {
+                        if (stz[i] != '(')
+                            topText += stz[i];
+                    }
+                    if (bracketCount == 5)
+                    {
+                        if (stz[i] != '(')
+                            botText += stz[i];
+                    }
+                    if (bracketCount == 1)
+                    {
+                        if (stz[i] != ')' && stz[i] != '(')
+                            type += stz[i];
+                    }
+                }
+                topText = MasterUtils.processTextForMeme(topText);
+                botText = MasterUtils.processTextForMeme(botText);
+                Console.WriteLine("printing");
+                await Context.Channel.SendMessageAsync("https://memegen.link/" + type + "/" + topText + "/" + botText + ".jpg");
             } else
             {
-                res = "invalid command";
-            }            
-            await Context.Channel.SendMessageAsync(res);
+                await Context.Channel.SendMessageAsync("Invalid argument structure. Type \"!meme help\" for more info");
+            }
         }
     }
 }

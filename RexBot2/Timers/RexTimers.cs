@@ -17,7 +17,7 @@ namespace RexBot2.Timers
         public static Stopwatch gameChangeClock;
         public static Dictionary<string, Dictionary<string, Stopwatch>> userCdDict;
         public static Dictionary<string, double> cmdCdDict;
-        public RexTimers(DiscordSocketClient _client)
+        public RexTimers(DiscordSocketClient _client, IReadOnlyCollection<SocketGuildUser> userCollection)
         {
             //List<SocketGuild> ie = new List<SocketGuild>();
             //ie.Add(_client.GetGuild(34));
@@ -31,6 +31,21 @@ namespace RexBot2.Timers
             wClock = new Stopwatch();
             bingAuthClock = new Stopwatch();
             gameChangeClock = new Stopwatch();
+
+            foreach (SocketGuildUser sgu in userCollection)
+            {
+                Stopwatch sw;
+                string username = sgu.Username + "#" + sgu.Discriminator;
+
+                userCdDict[username] = new Dictionary<string, Stopwatch>();
+                foreach(string key in cmdCdDict.Keys)
+                {
+                    sw = new Stopwatch();
+                    sw.Start();
+                    userCdDict[username].Add(key, sw);
+                    Console.WriteLine("Adding : " + username + ", " + key);
+                }                
+            }
 
             gameChangeClock.Start();
             bingAuthClock.Start();
