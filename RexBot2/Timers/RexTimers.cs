@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
-
 namespace RexBot2.Timers
 {
     public class RexTimers
@@ -43,7 +42,7 @@ namespace RexBot2.Timers
                     sw = new Stopwatch();
                     sw.Start();
                     userCdDict[username].Add(key, sw);
-                    Console.WriteLine("Adding : " + username + ", " + key);
+                    //Console.WriteLine("Adding : " + username + ", " + key);
                 }                
             }
 

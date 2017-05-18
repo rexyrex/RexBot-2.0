@@ -54,6 +54,8 @@ namespace RexBot2
             userCollection = _client.GetGuild(200017396281507840).Users;
             new RexTimers(_client,userCollection);
             Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Timer Initialization Complete! Ready");
+            new AdminUtils();
+            
         }
 
         private async Task _client_Log(LogMessage arg)
@@ -80,7 +82,6 @@ namespace RexBot2
             //    x.Content = "herro";
             //}                
             //);
-            //Console.WriteLine("Triggered!");
             //await msg.AddReactionAsync(reaction.Emote);
             //await channel.SendMessageAsync("REACTED");
             //await channel.SendMessageAsync("I also want to react");
@@ -165,7 +166,17 @@ namespace RexBot2
             }
 
             int argPos = 0;
-            if (msg.HasCharPrefix('!', ref argPos))
+            //https://discordapp.com/api/webhooks/314670507578490880/yzQttIUi-yE9ZKMTZyPGENlZS3c3sjuxCpTw-LLhow24T6rSHYk9n5aDnmR9sKoBbIOz
+            //{"channel_id": "200017396281507840", "guild_id": "200017396281507840", "헬퍼id": "314670507578490880"}
+            if (msg.HasCharPrefix('ㅃ', ref argPos))
+            {
+                //메인체널메세지전달
+                var msc = _client.GetChannel(200017396281507840) as ISocketMessageChannel;
+                await msc.SendMessageAsync(msg.Content.Trim('ㅃ'));
+            }
+
+            
+            if (msg.HasCharPrefix('!', ref argPos) && ((double)msg.Content.Count(x => x == '!')/msg.Content.Length) <0.51)
             {
                 var result = await _service.ExecuteAsync(context, argPos);
 

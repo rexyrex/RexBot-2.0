@@ -26,7 +26,7 @@ namespace RexBot2.Utils
 
             foreach (var item in tweetTest)
             {
-                Console.WriteLine(item.ToString());
+                //Console.WriteLine(item.ToString());
                 if (!(item.ToString().Contains("@")))
                 {
                     finalTweet = item.ToString();
@@ -84,7 +84,7 @@ namespace RexBot2.Utils
                 StreamReader reader = new System.IO.StreamReader(strm);
                 //reading result 
                 translatedText = reader.ReadToEnd();
-                Console.Write("Converted Texts Are: " + translatedText);
+                //Console.Write("Converted Texts Are: " + translatedText);
                 return processBingOutput(translatedText);
             } catch (Exception e)
             {

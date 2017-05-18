@@ -79,7 +79,66 @@ namespace RexBot2.Modules
             {
                 Console.WriteLine(e.ToString());
             }
+        }
 
+        [Command("restrain")]
+        [Alias("r")]
+        [Remarks("admin")]
+        [Summary("Restrain this bellend")]
+        public async Task restrainCmd(string username, double timeInSeconds = 60)
+        {
+            try
+            {
+                string userName = Context.User.ToString();
+                if (userName == "Rexyrex#5838")
+                {
+                    AdminUtils.addRestriction(username, timeInSeconds);
+                    await Context.Channel.SendMessageAsync(username + " is restrained for " + timeInSeconds + "s!");
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync("\"Get Fukt Idiot\" - Nickalodeon 2017");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+        [Command("removerestrain")]
+        [Alias("rr")]
+        [Remarks("admin")]
+        [Summary("Restrain this bellend")]
+        public async Task RemoveRestrainCmd(string username)
+        {
+            try
+            {
+                string userName = Context.User.ToString();
+                if (userName == "Rexyrex#5838")
+                {
+                    AdminUtils.RemoveRestrain(username);
+                    await Context.Channel.SendMessageAsync(username + " is no longer restrained!");
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync("\"Get Fukt Idiot\" - Nickalodeon 2017");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+        [Command("restrainlist")]
+        [Alias("rl")]
+        [Remarks("admin")]
+        [Summary("Show who is restrained")]
+        public async Task restrainListCmd()
+        {
+            string res = AdminUtils.GetRestrainedList();
+            await Context.Channel.SendMessageAsync("```" + res + "```");
         }
 
         [Command("mode")]

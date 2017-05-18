@@ -2,17 +2,20 @@
 using System.Threading.Tasks;
 using RexBot2.Utils;
 using Discord.WebSocket;
+using System;
 
 namespace RexBot2.Modules
 {
     public class Test : ModuleBase<SocketCommandContext>
     {
         private CommandService _commandService;
-        private DiscordSocketClient dsc;
-        public Test(CommandService commandService, DiscordSocketClient dsc)
+        //private DiscordSocketClient adsc;
+        public Test(CommandService commandService)//, DiscordSocketClient dsc)
         {
             _commandService = commandService;
-            this.dsc = dsc;
+            Console.WriteLine("b4");
+            //adsc = dsc;
+            Console.WriteLine("b5");
         }
 
         [Command("repeat")]
@@ -28,21 +31,17 @@ namespace RexBot2.Modules
         [Summary("sw")]
         public async Task swCmd([Remainder] string input)
         {
-
+            Console.WriteLine("Herro");
             string res = await WebUtils.yodaOutput(input);
-
             await Context.Channel.SendMessageAsync(res);
         }
 
         [Command("test")]
         [Remarks("test")]
         [Summary("Temporary function which should not be invoked by anyone else than Rexyrex")]
-        public async Task devtestCmd()
+        public async Task dvtstCmd()
         {
-            
-            var msc = dsc.GetChannel(200017396281507840) as ISocketMessageChannel;
-            await msc.SendMessageAsync("test");
-            //await Context.Channel.SendMessageAsync("NOT IMPLEMENTED MADAFAKA");
+            await Context.Channel.SendMessageAsync("NOT IMPLEMENTED MADAFAKA");
         }
     }
 }

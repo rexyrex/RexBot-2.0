@@ -33,6 +33,7 @@ namespace RexBot2.Modules
         [Summary("List the strings you saved")]
         public async Task listCmd()
         {
+            Console.WriteLine("herro");
             string user = Context.User.ToString();
             await Context.Channel.SendMessageAsync("**Key Value Pairs for " + MasterUtils.stripName(user) + "...**\n" + DataUtils.listRexDB(user));
         }
