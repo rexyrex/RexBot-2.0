@@ -87,10 +87,10 @@ namespace RexBot2.Modules
         [Summary("Restrain this bellend")]
         public async Task restrainCmd(string username, double timeInSeconds = 60)
         {
-            try
-            {
-                string userName = Context.User.ToString();
-                if (userName == "Rexyrex#5838")
+            username = AliasUtils.getNameFromAlias(username);
+            if(username != "null")
+            {                
+                if (Context.User.ToString() == "Rexyrex#5838")
                 {
                     AdminUtils.addRestriction(username, timeInSeconds);
                     await Context.Channel.SendMessageAsync(username + " is restrained for " + timeInSeconds + "s!");
@@ -99,11 +99,10 @@ namespace RexBot2.Modules
                 {
                     await Context.Channel.SendMessageAsync("\"Get Fukt Idiot\" - Nickalodeon 2017");
                 }
-            }
-            catch (Exception e)
+            } else
             {
-                Console.WriteLine(e.ToString());
-            }
+                await Context.Channel.SendMessageAsync("Unregistered Username");
+            }            
         }
 
         [Command("removerestrain")]
@@ -112,7 +111,8 @@ namespace RexBot2.Modules
         [Summary("Restrain this bellend")]
         public async Task RemoveRestrainCmd(string username)
         {
-            try
+            username = AliasUtils.getNameFromAlias(username);
+            if (username != "null")
             {
                 string userName = Context.User.ToString();
                 if (userName == "Rexyrex#5838")
@@ -124,10 +124,9 @@ namespace RexBot2.Modules
                 {
                     await Context.Channel.SendMessageAsync("\"Get Fukt Idiot\" - Nickalodeon 2017");
                 }
-            }
-            catch (Exception e)
+            } else
             {
-                Console.WriteLine(e.ToString());
+                await Context.Channel.SendMessageAsync("Unregistered Username");
             }
         }
 

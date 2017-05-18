@@ -44,7 +44,7 @@ namespace RexBot2.Utils
         {
             if (functionRestrictDict.ContainsKey(username))
             {
-                return functionRestrictDict[username].Key - functionRestrictDict[username].Value.Elapsed.TotalSeconds;
+                return Math.Round(functionRestrictDict[username].Key - functionRestrictDict[username].Value.Elapsed.TotalSeconds,2);
             } else
             {
                 return -1;
@@ -59,7 +59,7 @@ namespace RexBot2.Utils
             {
                 if (isRestrained(kv.Key))
                 {
-                    res += kv.Key + " is restrained for " + GetRestrainTimeRemaining(kv.Key) + "s\n";
+                    res += kv.Key + " is restrained for " + Math.Round(GetRestrainTimeRemaining(kv.Key),2) + "s\n";
                 }
             }
             if (res == string.Empty) res = "Noone is restrained!";

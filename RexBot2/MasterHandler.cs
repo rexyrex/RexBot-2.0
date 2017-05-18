@@ -178,29 +178,37 @@ namespace RexBot2
             
             if (msg.HasCharPrefix('!', ref argPos) && ((double)msg.Content.Count(x => x == '!')/msg.Content.Length) <0.51)
             {
-                var result = await _service.ExecuteAsync(context, argPos);
-
-                if (result.IsSuccess)
+                if (!AdminUtils.isRestrained(msg.Author.ToString()))
                 {
-                    Stats.CommandsRun++;
-                    Stats.updateCommandUsage(msg.Content.Split()[0]);
+                    var result = await _service.ExecuteAsync(context, argPos);
+
+                    if (result.IsSuccess)
+                    {
+                        Stats.CommandsRun++;
+                        Stats.updateCommandUsage(msg.Content.Split()[0]);
+                    }
+                    else
+                    {
+                        string errorStr = string.Empty;
+                        switch (result.Error)
+                        {
+                            case CommandError.UnknownCommand: errorStr = "unknown command"; break;
+                            case CommandError.BadArgCount: errorStr = "check your arguments"; break;
+                            case CommandError.MultipleMatches: errorStr = "Multiple Matches for given cmd"; break;
+                            case CommandError.ParseFailed: errorStr = "Parse failed"; break;
+                            case CommandError.ObjectNotFound: errorStr = "Object Not Found"; break;
+                            case CommandError.UnmetPrecondition: errorStr = "You don't have permission to use this command"; break;
+                            case CommandError.Exception: errorStr = "Unknown exception occured (plz notify Rexyrex)"; break;
+                            default: errorStr = "Critical Error!!! Notify Rexyrex ASAP"; break;
+                        }
+                        await context.Channel.SendMessageAsync("```\nCommand Error : " + errorStr + "```");
+                        await context.Channel.SendMessageAsync("!help " + msg.Content.Split()[0]);
+                    }
                 } else
                 {
-                    string errorStr = string.Empty;
-                    switch (result.Error)
-                    {
-                        case CommandError.UnknownCommand: errorStr = "unknown command"; break;
-                        case CommandError.BadArgCount: errorStr = "check your arguments"; break;
-                        case CommandError.MultipleMatches: errorStr = "Multiple Matches for given cmd"; break;
-                        case CommandError.ParseFailed: errorStr = "Parse failed"; break;
-                        case CommandError.ObjectNotFound: errorStr = "Object Not Found"; break;
-                        case CommandError.UnmetPrecondition: errorStr = "You don't have permission to use this command"; break;
-                        case CommandError.Exception: errorStr = "Unknown exception occured (plz notify Rexyrex)"; break;
-                        default: errorStr = "Critical Error!!! Notify Rexyrex ASAP";  break;
-                    }
-                    await context.Channel.SendMessageAsync("```\nCommand Error : " + errorStr + "```");
-                    await context.Channel.SendMessageAsync("!help " + msg.Content.Split()[0]);
+                    await context.Channel.SendMessageAsync("GFI. You are currently restrained " + msg.Author.Mention + " (" + AdminUtils.GetRestrainTimeRemaining(msg.Author.ToString()) + "s remaining)");
                 }
+                
             } else
             {
                 //Not a command

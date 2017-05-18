@@ -77,6 +77,26 @@ namespace RexBot2.Utils
             return new string[] { "None" };
         }
 
+        public static string getNameFromAlias(string alias)
+        {
+            if (isUserInDB(alias))
+            {
+                return DataUtils.aliases[getAliasKey(alias)];
+            } else
+            {
+                return "null";
+            }
+        }
+
+        public static bool isUserInDB(string username)
+        {
+            if (getAliasKey(username).Contains("None"))
+            {
+                return false;
+            }
+            return true;
+        }
+
         public static void ParseAliases()
         {
             string line;
