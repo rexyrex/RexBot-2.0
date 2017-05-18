@@ -124,13 +124,13 @@ namespace RexBot2.Modules
             //emb.Url = "https://www.youtube.com/watch?v=4YpTLy6dn5c";
             emb.Description = "[Displaying the stats of this session!](https://en.wikipedia.org/wiki/Statistics \"I hate ryan\")\n\n"+
                 "**UpTime** : "+ RexTimers.getTime(RexTimers.systemRunClock) + "\n\n" +
-                "**Commands Run** : " + Stats.CommandsRun + "\n" +
-                "**Commands Per Minute** : " + Math.Round((double)(Stats.CommandsRun/RexTimers.systemRunClock.Elapsed.TotalMinutes),2) + "\n\n" +
-                "**Reactions** : " + Stats.ReactionCount + "\n" +
-                "**Reactions Per Minute** : " + Math.Round((double)(Stats.ReactionCount / RexTimers.systemRunClock.Elapsed.TotalMinutes), 2) + "\n\n" +
-                "**Messages Received** : " + Stats.MessagesRecieved+ "\n" +
-                "**Messages Edited** : " + Stats.MsgEditCount + "\n" +
-                "**Messages Deleted** : " + Stats.MsgDeleteCount + "\n\n" +
+                "**Commands Run** : " + StatsUtils.CommandsRun + "\n" +
+                "**Commands Per Minute** : " + Math.Round((double)(StatsUtils.CommandsRun/RexTimers.systemRunClock.Elapsed.TotalMinutes),2) + "\n\n" +
+                "**Reactions** : " + StatsUtils.ReactionCount + "\n" +
+                "**Reactions Per Minute** : " + Math.Round((double)(StatsUtils.ReactionCount / RexTimers.systemRunClock.Elapsed.TotalMinutes), 2) + "\n\n" +
+                "**Messages Received** : " + StatsUtils.MessagesRecieved+ "\n" +
+                "**Messages Edited** : " + StatsUtils.MsgEditCount + "\n" +
+                "**Messages Deleted** : " + StatsUtils.MsgDeleteCount + "\n\n" +
                 "__🥇Leaderboards🥇__";
 
             EmbedFieldBuilder topReportsField = new EmbedFieldBuilder();
@@ -140,17 +140,17 @@ namespace RexBot2.Modules
 
             EmbedFieldBuilder mostUsedCommandsField = new EmbedFieldBuilder();
             mostUsedCommandsField.Name = "Commands";
-            mostUsedCommandsField.Value = Stats.getTop3Commands();
+            mostUsedCommandsField.Value = StatsUtils.getTop3Commands();
             mostUsedCommandsField.IsInline = true;
 
             EmbedFieldBuilder mostMsgUserField = new EmbedFieldBuilder();
             mostMsgUserField.Name = "Messages";
-            mostMsgUserField.Value = Stats.getTop3Messagers();
+            mostMsgUserField.Value = StatsUtils.getTop3Messagers();
             mostMsgUserField.IsInline = true;
 
             EmbedFieldBuilder mostMentionedUserField = new EmbedFieldBuilder();
             mostMentionedUserField.Name = "Mentioned";
-            mostMentionedUserField.Value = Stats.getTop3MentionedUsers();
+            mostMentionedUserField.Value = StatsUtils.getTop3MentionedUsers();
             mostMentionedUserField.IsInline = true;
 
             emb.AddField(topReportsField);          
@@ -198,11 +198,19 @@ namespace RexBot2.Modules
             upTimeField.Name = "UpTime";
             upTimeField.Value = RexTimers.getTime(RexTimers.systemRunClock);
             upTimeField.IsInline = true;
-            string cmdCountStr = Stats.getCommandCount(_commandService).ToString();
+            string cmdCountStr = StatsUtils.getCommandCount(_commandService).ToString();
             EmbedFieldBuilder cmdCountField = new EmbedFieldBuilder();
-            cmdCountField.Name = "Command Count";
+            cmdCountField.Name = "Commands";
             cmdCountField.Value = cmdCountStr;
             cmdCountField.IsInline = true;
+            EmbedFieldBuilder userCountField = new EmbedFieldBuilder();
+            userCountField.Name = "Users";
+            userCountField.Value = StatsUtils.UserCount;
+            userCountField.IsInline = true;
+            EmbedFieldBuilder statusField = new EmbedFieldBuilder();
+            statusField.Name = "Status";
+            statusField.Value = "Happy";
+            statusField.IsInline = true;
 
             EmbedFieldBuilder efb6 = new EmbedFieldBuilder();
             efb6.Name = "❤️ Special Thanks To ❤️";
@@ -213,6 +221,8 @@ namespace RexBot2.Modules
             emb.AddField(cmdCountField);
             emb.AddField(ageField);
             emb.AddField(upTimeField);
+            emb.AddField(userCountField);
+            emb.AddField(statusField);
             
             emb.AddField(efb6);
             await Context.Channel.SendMessageAsync("",false,emb);
@@ -248,7 +258,7 @@ namespace RexBot2.Modules
         [Summary("Show the most recent updates to Rexbot 2.0")]
         public async Task patchNotesCmd()
         {
-            await Context.Channel.SendMessageAsync("```" + DataUtils.getRawStringFromFile("Data/texts/patchnotes.txt")+ "```");
+            await Context.Channel.SendMessageAsync(DataUtils.getRawStringFromFile("Data/texts/patchnotes.txt"));
         }
 
         [Command("cooldowns")]

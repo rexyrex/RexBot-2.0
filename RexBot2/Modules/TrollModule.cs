@@ -62,7 +62,7 @@ namespace RexBot2.Modules
         public async Task reportCmd([Remainder] string name)
         {
             string username = Context.User.ToString();
-            if (RexTimers.canRunCmd(username, "report"))
+            if (RexTimers.canRunCmd(username, "report") || MasterUtils.ContainsAny(username, Const.ADMINS))
             {
                 if (AliasUtils.getAliasKey(name).Contains("None"))
                 {
@@ -120,6 +120,18 @@ namespace RexBot2.Modules
                 await msg.AddReactionAsync(EmojiUtils.getEmoji());
                 //}                
             }
+        }
+
+        [Command("fuckyourexbot")]
+        [Remarks("troll")]
+        [Summary("Something Nick says often")]
+        public async Task fyrbCmd()
+        {
+            double duration = DataUtils.rnd.Next(20, 40);
+            AdminUtils.addRestriction(Context.User.ToString(), duration);
+            await Context.Channel.SendMessageAsync("No, fuck you " + Context.User.Mention + "\nIma restrain you for " + duration + "s\n");
+            
+
         }
 
     }

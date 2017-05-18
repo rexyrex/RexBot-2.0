@@ -35,7 +35,7 @@ namespace RexBot2.Timers
             {
                 Stopwatch sw;
                 string username = sgu.Username + "#" + sgu.Discriminator;
-
+                Utils.StatsUtils.UserCount++;
                 userCdDict[username] = new Dictionary<string, Stopwatch>();
                 foreach(string key in cmdCdDict.Keys)
                 {

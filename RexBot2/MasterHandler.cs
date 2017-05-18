@@ -51,11 +51,10 @@ namespace RexBot2
             await _client.SetGameAsync(MasterUtils.getWord(DataUtils.games), "https://www.twitch.tv/ALL_ABOARD_THE_FEED_TRAIN", StreamType.Twitch);
 
             //Initialize stopwatches
-            userCollection = _client.GetGuild(200017396281507840).Users;
+            userCollection = _client.GetGuild(Const.GUILD_ID).Users;
             new RexTimers(_client,userCollection);
             Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Timer Initialization Complete! Ready");
-            new AdminUtils();
-            
+            new AdminUtils();            
         }
 
         private async Task _client_Log(LogMessage arg)
@@ -75,7 +74,7 @@ namespace RexBot2
 
         private async Task ReactionUpdated(Cacheable<IUserMessage, ulong> cache, ISocketMessageChannel channel, SocketReaction reaction)
         {
-            Stats.ReactionCount++;
+            StatsUtils.ReactionCount++;
             //IUserMessage msg = await cache.GetOrDownloadAsync();
             //await msg.ModifyAsync(x =>
             //{
@@ -89,7 +88,7 @@ namespace RexBot2
 
         private async Task MessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
         {
-            Stats.MsgEditCount++;
+            StatsUtils.MsgEditCount++;
             //var message = await before.GetOrDownloadAsync();
             //string author = message.Author.ToString();
             //if(!message.Author.IsBot)// && message.Embeds == null)
@@ -98,7 +97,7 @@ namespace RexBot2
 
         private async Task HandleMsgDel(Cacheable <Discord.IMessage, ulong> c, ISocketMessageChannel smc)
         {
-            Stats.MsgDeleteCount++;
+            StatsUtils.MsgDeleteCount++;
             //IMessage msg = await c.GetOrDownloadAsync();
             //IUser user = msg.Author;
             //string time = msg.CreatedAt.ToString();
@@ -130,8 +129,8 @@ namespace RexBot2
 
             if (!msg.Author.IsBot)
             {
-                Stats.MessagesRecieved++;
-                Stats.updateMessageUsage(msg.Author.Username);
+                StatsUtils.MessagesRecieved++;
+                StatsUtils.updateMessageUsage(msg.Author.Username);
             }
 
             if (MasterUtils.roll(-1) && !msg.Author.IsBot)
@@ -159,7 +158,7 @@ namespace RexBot2
                 {
                     if (msg.Content.ToLower().Contains(entS.ToLower()))
                     {
-                        Stats.updateMentionedUsers(DataUtils.aliases[entry.Key]);
+                        StatsUtils.updateMentionedUsers(DataUtils.aliases[entry.Key]);
                         //Console.WriteLine("mentioned:" + DataUtils.aliases[entry.Key]);
                     }
                 }
@@ -168,15 +167,24 @@ namespace RexBot2
             int argPos = 0;
             //https://discordapp.com/api/webhooks/314670507578490880/yzQttIUi-yE9ZKMTZyPGENlZS3c3sjuxCpTw-LLhow24T6rSHYk9n5aDnmR9sKoBbIOz
             //{"channel_id": "200017396281507840", "guild_id": "200017396281507840", "헬퍼id": "314670507578490880"}
-            if (msg.HasCharPrefix('ㅃ', ref argPos))
+            if (msg.HasCharPrefix(Const.CROSS_CHANNEL_PREFIX, ref argPos))
             {
                 //메인체널메세지전달
-                var msc = _client.GetChannel(200017396281507840) as ISocketMessageChannel;
-                await msc.SendMessageAsync(msg.Content.Trim('ㅃ'));
+                var msc = _client.GetChannel(Const.CHANNEL_ID) as ISocketMessageChannel;
+                await msc.SendMessageAsync(msg.Content.Trim(Const.CROSS_CHANNEL_PREFIX));
             }
 
+            if (DataUtils.reports.ContainsKey(msg.Author.ToString()) && !AdminUtils.isRestrained(msg.Author.ToString()) && MasterUtils.roll(12))
+            {
+                if(DataUtils.reports[msg.Author.ToString()] > 1)
+                {
+                    double duration = DataUtils.rnd.Next(20, 40);
+                    AdminUtils.addRestriction(msg.Author.ToString(), duration);
+                    await context.Channel.SendMessageAsync("I feel like restraining " + msg.Author.Mention + " for " + Math.Round(duration, 0).ToString() + "s");
+                }                
+            }
             
-            if (msg.HasCharPrefix('!', ref argPos) && ((double)msg.Content.Count(x => x == '!')/msg.Content.Length) <0.51)
+            if (msg.HasCharPrefix(Const.COMMAND_PREFIX, ref argPos) && ((double)msg.Content.Count(x => x == '!')/msg.Content.Length) <0.51)
             {
                 if (!AdminUtils.isRestrained(msg.Author.ToString()))
                 {
@@ -184,8 +192,8 @@ namespace RexBot2
 
                     if (result.IsSuccess)
                     {
-                        Stats.CommandsRun++;
-                        Stats.updateCommandUsage(msg.Content.Split()[0]);
+                        StatsUtils.CommandsRun++;
+                        StatsUtils.updateCommandUsage(msg.Content.Split()[0]);
                     }
                     else
                     {
@@ -206,7 +214,8 @@ namespace RexBot2
                     }
                 } else
                 {
-                    await context.Channel.SendMessageAsync("GFI. You are currently restrained " + msg.Author.Mention + " (" + AdminUtils.GetRestrainTimeRemaining(msg.Author.ToString()) + "s remaining)");
+                    await context.Channel.SendMessageAsync(msg.Author.Mention + " " + TrollUtils.getSnarkyComment());
+                        //"\n\n You are currently restrained " + msg.Author.Mention + " (" + AdminUtils.GetRestrainTimeRemaining(msg.Author.ToString()) + "s remaining)");
                 }
                 
             } else
@@ -219,7 +228,7 @@ namespace RexBot2
                 if (!msg.Author.IsBot)
                 {
                     string stz = msg.Content;    
-                    if (MasterUtils.ContainsAny(stz, new string[] { "cat", "kitty", "kitten", "caat", "caaat", "caaaat", "caaaaat", "meow" }) || DataUtils.modes[DataUtils.mode].hasPermission("cat"))
+                    if (MasterUtils.ContainsAny(stz, Const.CAT_TRIGGERS) || DataUtils.modes[DataUtils.mode].hasPermission("cat"))
                     {
                         string jsonStr = await WebUtils.httpRequest("http://random.cat/meow");
                         dynamic dynObj = JsonConvert.DeserializeObject(jsonStr);
@@ -228,7 +237,7 @@ namespace RexBot2
                         await context.Channel.SendMessageAsync(urlStr);
                     }
 
-                    if (MasterUtils.ContainsAny(stz, new string[] { "eminem", "one shot", "spaghetti" }))
+                    if (MasterUtils.ContainsAny(stz, Const.EMINEM_TRIGGERS))
                     {
                         await context.Channel.SendFileAsync("pics/" + "eminem.jpg");
                         await context.Channel.SendMessageAsync("PALMS SPAGHETTI KNEAS WEAK ARM SPAGHETTI THERES SPAGHETTI ON HIS SPAGHETTI ALREADY, MOMS SPAGHETTI",true);

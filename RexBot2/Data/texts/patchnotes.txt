@@ -1,19 +1,25 @@
-﻿RexBot 2.0 Update - May 18 2017
+﻿**RexBot 2.0 Update - May 18 2017**
+```
+- Restraining System added -
 
+When you are restrained, you cannot access any of the bot's functions.
+RexBot will throw snarky comments at you while you are restrained.
+RexBot will restrain you for random amounts of time depending on your reports.
+
+People who are not restrained can see the restrained people list by invoking the !restrainedlist (or !rl) command
+```
+```
+New Command : !fuckyourexbot (Nick's request)
+```
 - All cooldowns are now initialized at bot startup
-- Rexbot now reports you if you use tts
-- High reports will soon have consequences
-
-- Reorganized and added new stats to the !stats command
-- Commands leaderboard now only keeps track of the command 
-(Now does not include the parameter)
-- Load Command can now be activated with !l and save !s
-
-- Nick Request : !reprot command that is the same as !sup and !pic granted
-- Youtube command now returns top result only
+- Rexbot now **reports you if you use tts**
+- Load Command can now be activated with **!l and save !s**
 
 - Fixed Issue where Yoda command existed
 - Fixed GeoffDB Link in !status command
 
-- Stability Issues not fixed
-- Multiple Bugs left alone
+- Stability issues not fixed
+- Multiple bugs created
+()()
+( ^.^)
+( (") (")

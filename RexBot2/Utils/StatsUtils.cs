@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RexBot2.Utils
 {
-    public static class Stats
+    public static class StatsUtils
     {
         public static int MessagesRecieved { get; set; } = 0;
 
@@ -15,6 +15,8 @@ namespace RexBot2.Utils
         public static int ReactionCount { get; set; } = 0;
         public static int MsgEditCount { get; set; } = 0;
         public static int MsgDeleteCount { get; set; } = 0;
+        public static int UserCount { get; set; } = 0;
+
 
         public static Dictionary<string, int> commandUsageDict = new Dictionary<string, int>();
         public static Dictionary<string, int> messageUsageDict = new Dictionary<string, int>();

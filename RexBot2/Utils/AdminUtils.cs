@@ -23,7 +23,6 @@ namespace RexBot2.Utils
             functionRestrictDict[username] = kv;           
         }
 
-
         public static bool isRestrained(string username)
         {
             if(GetRestrainTimeRemaining(username)>0)
