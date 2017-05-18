@@ -1,15 +1,18 @@
 ﻿using Discord.Commands;
 using System.Threading.Tasks;
 using RexBot2.Utils;
+using Discord.WebSocket;
 
 namespace RexBot2.Modules
 {
     public class Test : ModuleBase<SocketCommandContext>
     {
         private CommandService _commandService;
-        public Test(CommandService commandService)
+        private DiscordSocketClient dsc;
+        public Test(CommandService commandService, DiscordSocketClient dsc)
         {
             _commandService = commandService;
+            this.dsc = dsc;
         }
 
         [Command("repeat")]
@@ -36,7 +39,10 @@ namespace RexBot2.Modules
         [Summary("Temporary function which should not be invoked by anyone else than Rexyrex")]
         public async Task devtestCmd()
         {
-            await Context.Channel.SendMessageAsync("NOT IMPLEMENTED MADAFAKA");
+            
+            var msc = dsc.GetChannel(200017396281507840) as ISocketMessageChannel;
+            await msc.SendMessageAsync("test");
+            //await Context.Channel.SendMessageAsync("NOT IMPLEMENTED MADAFAKA");
         }
     }
 }

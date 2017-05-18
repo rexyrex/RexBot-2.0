@@ -206,7 +206,7 @@ namespace RexBot2.Modules
 
             EmbedFieldBuilder efb6 = new EmbedFieldBuilder();
             efb6.Name = "❤️ Special Thanks To ❤️";
-            efb6.Value = "Geoff - DB\nEm - Utils\nNick - W Testing";
+            efb6.Value = "Geoff - DB\nEm - Utils\nJamie - !calc\nNick - W Testing";
             efb6.IsInline = false;
 
             emb.AddField(modeField);

@@ -71,7 +71,7 @@ namespace RexBot2.Modules
         public async Task calcCmd(string eq)
         {
             //Expression e;
-            await Context.Channel.SendMessageAsync("Can't with NET Core atm...");            
+            await Context.Channel.SendMessageAsync(DotNetStandardCalculator.StandardCalculator.CalculateFromString(eq).ToString());            
         }        
     }
 }
