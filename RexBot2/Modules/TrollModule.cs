@@ -37,11 +37,10 @@ namespace RexBot2.Modules
             string username = Context.User.ToString();
             if (RexTimers.canRunCmd(username, "w"))
             {
-                int randInt = DataUtils.rnd.Next(1, 11);
-                int randInt2 = DataUtils.rnd.Next(1, 11);
-                string res = "`" + MasterUtils.stripName(username) + " rolled " + randInt + " when s/he should have rolled " + randInt2 + "`";
+                bool www = MasterUtils.roll(17);
+                string res = "`" + MasterUtils.stripName(username) + " had a 17% chance, but failed miserably`";
                 res += "\n`No W's for you today " + MasterUtils.stripName(Context.User.ToString()) + "!`";
-                if (randInt != randInt2)
+                if (!www)
                 {
                     await Context.Channel.SendMessageAsync(res);
                 }
@@ -62,7 +61,7 @@ namespace RexBot2.Modules
         public async Task reportCmd([Remainder] string name)
         {
             string username = Context.User.ToString();
-            if (RexTimers.canRunCmd(username, "report") || MasterUtils.ContainsAny(username, Const.ADMINS))
+            if (RexTimers.canRunCmd(username, "report") || MasterUtils.ContainsAny(username, GlobalVars.ADMINS))
             {
                 if (AliasUtils.getAliasKey(name).Contains("None"))
                 {
@@ -129,9 +128,17 @@ namespace RexBot2.Modules
         {
             double duration = DataUtils.rnd.Next(20, 40);
             AdminUtils.addRestriction(Context.User.ToString(), duration);
-            await Context.Channel.SendMessageAsync("No, fuck you " + Context.User.Mention + "\nIma restrain you for " + duration + "s\n");
-            
+            await Context.Channel.SendMessageAsync("No, fuck you " + Context.User.Mention + "\nIma restrain you for " + duration + "s\n");   
+        }
 
+        [Command("iloveyourexbot")]
+        [Remarks("troll")]
+        [Summary("Something Nick doesnt say often")]
+        public async Task iluCmd()
+        {
+            double duration = DataUtils.rnd.Next(20, 40);
+            AdminUtils.addRestriction(Context.User.ToString(), duration);
+            await Context.Channel.SendMessageAsync("Well, I dont! lol " + Context.User.Mention + "\nIma restrain you for " + duration + "s\n");
         }
 
     }

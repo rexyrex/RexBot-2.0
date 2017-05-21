@@ -23,7 +23,7 @@ namespace RexBot2.Timers
             //_client.DownloadUsersAsync(ie);
             userCdDict = new Dictionary<string, Dictionary<string, Stopwatch>>();
             cmdCdDict = new Dictionary<string, double>();
-            cmdCdDict.Add("w", 15);//in seconds
+            cmdCdDict.Add("w", 22);//in seconds
             cmdCdDict.Add("report", 15);
             cmdCdDict.Add("eminem", 15);
             systemRunClock = new Stopwatch();

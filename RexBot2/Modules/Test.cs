@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using RexBot2.Utils;
 using Discord.WebSocket;
 using System;
+using Discord;
 
 namespace RexBot2.Modules
 {
@@ -13,9 +14,9 @@ namespace RexBot2.Modules
         public Test(CommandService commandService)//, DiscordSocketClient dsc)
         {
             _commandService = commandService;
-            Console.WriteLine("b4");
+
             //adsc = dsc;
-            Console.WriteLine("b5");
+
         }
 
         [Command("repeat")]
@@ -23,7 +24,8 @@ namespace RexBot2.Modules
         [Summary("Repeats what you said")]
         public async Task rpCmd(string input)
         {
-            await Context.Channel.SendMessageAsync(input);
+            await Context.Message.AddReactionAsync(new Emoji("👎"));
+            //await Context.Channel.SendMessageAsync(input);
         }
 
         [Command("sw")]
@@ -31,7 +33,6 @@ namespace RexBot2.Modules
         [Summary("sw")]
         public async Task swCmd([Remainder] string input)
         {
-            Console.WriteLine("Herro");
             string res = await WebUtils.yodaOutput(input);
             await Context.Channel.SendMessageAsync(res);
         }

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using RexBot2.Objects;
 using System.IO;
-using Tweetinvi;
 using System.Linq;
-using RexBot2.Utils;
+using Discord.WebSocket;
+using Discord;
 
 namespace RexBot2.Utils
 {
@@ -24,6 +23,8 @@ namespace RexBot2.Utils
         public static List<string> positionList;
         public static List<string> memeTypesList;
 
+        public static Dictionary<string, string[]> usernameDict;
+
         public static List<string> trainPhrases1;
         public static List<string> trainPhrases2;
         public static List<string> trainPhrases3;
@@ -35,33 +36,33 @@ namespace RexBot2.Utils
         public static Dictionary<string[], string> aliases;
         public static Dictionary<string, string[]> responses;
         public static Dictionary<string, RexMode> modes;
-
+        public static Dictionary<string, double> wordScoresDict;
 
 
         public static Dictionary<string, Dictionary<string, string>> rexDB;
 
         public static Dictionary<string, int> reports;
-        public static string[] games = { "Dota 2 : Cyka Expansion","Starcraft", "GTA W","InterStellaris", "The W Spam Game", "Maplestory","The Binding of John: Rebirth",
-        "WODOTA","League of Losers","Feed Train Simulator"};
+        public static string[] games = GlobalVars.BOT_GAMES_LIST;
 
         //public static VideoSearch youtubeSearcher;
 
-        public static string mode = "quiet";
+        public static string mode = GlobalVars.DEFAULT_MODE;
 
         public static AudioService rexAS;
 
         public static Random rnd;
 
         public static Dictionary<string, string> helpEmojiBinds;
-
-        public DataUtils()
+        public static DiscordSocketClient _client;
+        public DataUtils(DiscordSocketClient client)
         {
+            _client = client;
             InitVars();
         }
 
         private void InitVars()
         {
-            Tweetinvi.Auth.SetUserCredentials("5JFjR7DXgDb4CQE0K1UwRO3Vt", "3i9ynzdJUhpxWkFoCXmuMjHIP19oxMbLlpcbdUUU6HhFMLI3f4", "1561997844-pZyWmSSAewcCVAV8u9IFK3j7iCPKZ7TQwXlfblO", "9faKrZDGS0FwEkJGKT3Xd90uqzVvSIattAuI5r7uVRdqI");
+            Tweetinvi.Auth.SetUserCredentials(GlobalVars.TWITTER_CONSUMER_KEY, GlobalVars.TWITTER_CONSUMER_SECRET,GlobalVars.TWITTER_USER_ACCESS_TOKEN, GlobalVars.TWITTER_USER_ACCESS_SECRET);
             var zuser = Tweetinvi.User.GetAuthenticatedUser();
             Console.WriteLine("Twitter initializing: " + zuser);
 
@@ -89,13 +90,16 @@ namespace RexBot2.Utils
             rexDB = new Dictionary<string, Dictionary<string, string>>();
             reports = new Dictionary<string, int>();
             helpEmojiBinds = new Dictionary<string, string>();
-            
+            usernameDict = new Dictionary<string, string[]>();
+            wordScoresDict = new Dictionary<string, double>();
 
-            modes.Add("quiet", new RexMode("quiet", "No auto triggers. No status updates. All functions online.", new string[] { "functions" }));
-            modes.Add("active", new RexMode("active", "Occasional auto triggers.", new string[] { "functions", "trigger 30" }));
-            modes.Add("loud", new RexMode("loud", "Many auto triggers. Status changes.", new string[] { "functions", "trigger 60", "status" }));
-            modes.Add("tooloud", new RexMode("tooloud", "RexBot on Steroids", new string[] { "functions", "trigger 100", "status" }));
-            modes.Add("cat", new RexMode("cat", "Posts a cat photo for every message, as well as a snarky comment", new string[] { "functions", "trigger 100", "status", "cat" }));
+            modes.Add("xander", new RexMode("xander", "Only few commands functional", new string[] { "functions","xander" }));
+            modes.Add("quiet", new RexMode("quiet", "No auto triggers. All functions online.", new string[] { "functions" }));
+            modes.Add("moderate", new RexMode("moderate", "Few auto triggers.All functions online.", new string[] { "functions", "trigger 7","tts","auto restrain"}));
+            modes.Add("active", new RexMode("active", "Occasional auto triggers.", new string[] { "functions", "trigger 30", "tts", "auto restrain" }));
+            modes.Add("loud", new RexMode("loud", "Many auto triggers. Status changes.", new string[] { "functions", "trigger 60", "status", "tts", "auto restrain" }));
+            modes.Add("tooloud", new RexMode("tooloud", "RexBot on Steroids", new string[] { "functions", "trigger 100", "status", "tts", "auto restrain" }));
+            modes.Add("cat", new RexMode("cat", "Posts a cat photo for every message - Use with caution", new string[] { "functions", "trigger 100", "status", "cat", "tts", "auto restrain" }));
 
             Console.WriteLine("Starting population...");
             populate(adjList, "adjective.txt");
@@ -114,8 +118,102 @@ namespace RexBot2.Utils
             populatePicFileNames();
             populateHelpEmojiBinds();
             AliasUtils.ParseAliases();
+            populateWordScoreDict();
             loadRexDB();
+            populateUsernameDict();
             Console.WriteLine("Done Loading!");
+        }
+        private void populateWordScoreDict()
+        {
+            string line;
+            try
+            {
+                FileStream fsr = new FileStream(textPath + "wordscores.txt", FileMode.Open, FileAccess.Read);
+                using (StreamReader sr = new StreamReader(fsr))
+                {
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        string[] res = line.Split('\t');
+                        wordScoresDict[res[0].ToLower()] = double.Parse(res[1]);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("populate wordscores error");
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        public static double scoreSentence(string sentence)
+        {
+            string[] divided = sentence.ToLower().Split();
+            double score = 0;
+            for (int i=0; i<divided.Length; i++)
+            {
+                if (wordScoresDict.ContainsKey(divided[i]))
+                {
+                    score += wordScoresDict[divided[i]];
+                }
+            }
+            score = score / divided.Length;
+            return score;
+        }
+
+        public static async void changeMode(string newmode)
+        {
+            mode = newmode;
+            if(mode == "xander")
+            {
+                await _client.SetStatusAsync(UserStatus.DoNotDisturb);
+                await _client.SetGameAsync("Xander Mode");
+            } else
+            {
+                await _client.SetStatusAsync(UserStatus.Online);
+                await _client.SetGameAsync(MasterUtils.getWord(games), GlobalVars.TWITCH_STREAM_URL, StreamType.Twitch);
+            }
+            
+        }
+
+        private void populateUsernameDict()
+        {
+            usernameDict.Add("Schafer#7273", new string[] { "Henry", "201292109884424193"});
+            usernameDict.Add("Rexyrex#5838", new string[] { "Adrian", "308305348643782656" });
+            usernameDict.Add("CPTOblivious#4652", new string[] { "Nick", "106222902575104000" });
+            usernameDict.Add("Geffo#1689", new string[] { "Geoff", "200019349061369856" });
+            usernameDict.Add("RayRay#4807", new string[] { "Ray", "310263594233364490" });
+            usernameDict.Add("BonoboCop#0335", new string[] { "Xander", "237170530157854732" });
+            usernameDict.Add("Wolfy#8611", new string[] { "Ryan", "244522891587223552" });
+            usernameDict.Add("Ryanne#6203", new string[] { "Guki", "206378968935301120" });
+            usernameDict.Add("Laura#7174", new string[] { "Laura", "277595678186930176" });
+            usernameDict.Add("rooster212#7948", new string[] { "Jamie", "200016915538640896" });
+            usernameDict.Add("Pash#8006", new string[] { "Pash", "231862514999099392" });
+            usernameDict.Add("Andy", new string[] { "Andy", "0" });
+            usernameDict.Add("Pink Socks#1146", new string[] { "Emily", "311668112007102464" });
+            usernameDict.Add("RexBot#4568", new string[] { "RexBot", "309908194208251904" });
+        }
+
+        public static ulong getUserIDFromUsername(string username)
+        {
+            if (usernameDict.ContainsKey(username))
+            {
+                return ulong.Parse(usernameDict[username][1]);
+            } else
+            {
+                return 0;
+            }
+        }
+
+        public static string getNameFromUsername(string username)
+        {
+            if (usernameDict.ContainsKey(username))
+            {
+                return usernameDict[username][0];
+            }
+            else
+            {
+                return username;
+            }
         }
 
         public static string getRawStringFromFile(string path)
@@ -148,11 +246,13 @@ namespace RexBot2.Utils
                 return "No reports";
             } else
             {
-                var top3 = reports.OrderByDescending(pair => pair.Value).Take(3);
+                var top3 = reports.OrderByDescending(pair => pair.Value).Take(GlobalVars.STATS_SHOW);
                 string res = string.Empty;
                 foreach(KeyValuePair<string,int> kvp in top3)
                 {
-                    res += kvp.Key + " - " + kvp.Value + "\n";
+                    SocketUser su = _client.GetUser(ulong.Parse(DataUtils.usernameDict[kvp.Key][1]));
+                    StatsUtils.updateMentionedUsers(su);
+                    res += su.Mention + " : " + kvp.Value + "\n";
                 }
                 return res;
             }

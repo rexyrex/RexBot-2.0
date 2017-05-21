@@ -31,8 +31,8 @@ namespace RexBot2.Utils
                 {
                     finalTweet = item.ToString();
                     //Search.SearchRepliesTo(item, false);
-                }                    
-            }            
+                }
+            }
             return finalTweet;
         }
 
@@ -59,7 +59,7 @@ namespace RexBot2.Utils
             //if first time calling this function or 8minutes passed since auth token update
             if(DataUtils.bingAuthStr == string.Empty || RexTimers.bingAuthClock.Elapsed.TotalMinutes > 8)
             {
-                updateBingAuthToken();
+                await updateBingAuthToken();
                 Console.WriteLine("Auth token refreshed on translate call!");
             }
 
@@ -117,7 +117,7 @@ namespace RexBot2.Utils
             return res;
         }
 
-        public static async void updateBingAuthToken()
+        public static async Task updateBingAuthToken()
         {
             DataUtils.bingAuthStr = await getAuthToken();
         }
@@ -134,7 +134,7 @@ namespace RexBot2.Utils
                     new KeyValuePair<string, string>("", ""),
                 });
             HttpResponseMessage response = await client.PostAsync(
-    "https://api.cognitive.microsoft.com/sts/v1.0/issueToken?Subscription-Key=00bd3d2150614e8594f7d5657e913189",
+    "https://api.cognitive.microsoft.com/sts/v1.0/issueToken?Subscription-Key=" + GlobalVars.MICROSOFT_SUBSCRIPTION_KEY,
     requestContent);
 
             HttpContent responseContent = response.Content;
@@ -230,7 +230,7 @@ namespace RexBot2.Utils
         {
             var service = new TranslateService(new BaseClientService.Initializer()
             {
-                ApiKey = "AIzaSyAzFClXO1_LGfU2wQBQ_Z38uoRB9BIx8SA",
+                ApiKey = GlobalVars.GOOGLE_TRANSLATE_KEY,
                 ApplicationName = "Translate API Sample"
             });
             string[] toTranslate = new string[1];
@@ -259,7 +259,7 @@ namespace RexBot2.Utils
         {
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
-                ApiKey = "AIzaSyD1zmi4hoHLA3KqH7E07Bn27GElo9Gne7g",
+                ApiKey = GlobalVars.YOUTUBE_API_KEY,
                 //ApplicationName = this.GetType().ToString()
             });
 
@@ -341,7 +341,7 @@ namespace RexBot2.Utils
             Uri uri = new Uri("https://yoda.p.mashape.com/yoda?sentence=" + processForUrl(input));
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
             string received;
-            request.Headers["X-Mashape-Key"] = "qql6g6tEyJmshPTBGESkSMU6W5TZp1auirwjsnctuLr80SN0se";
+            request.Headers["X-Mashape-Key"] = GlobalVars.XMASHAPE_KEY;
             request.Headers["Accept"] = "text/plain";
 
             using (var response = (HttpWebResponse)(await Task<WebResponse>.Factory.FromAsync(request.BeginGetResponse, request.EndGetResponse, null)))
@@ -413,7 +413,7 @@ namespace RexBot2.Utils
             Uri uri = new Uri(url);
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
             string received;
-            request.Headers["Authorization"] = "Client-ID 1a8e14c14351c3b";
+            request.Headers["Authorization"] = "Client-ID " + GlobalVars.IMGUR_CLIENT_ID;
 
             using (var response = (HttpWebResponse)(await Task<WebResponse>.Factory.FromAsync(request.BeginGetResponse, request.EndGetResponse, null)))
             {

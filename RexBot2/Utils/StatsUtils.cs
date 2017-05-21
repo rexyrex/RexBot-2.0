@@ -1,4 +1,5 @@
 ﻿using Discord.Commands;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,10 +20,12 @@ namespace RexBot2.Utils
 
 
         public static Dictionary<string, int> commandUsageDict = new Dictionary<string, int>();
-        public static Dictionary<string, int> messageUsageDict = new Dictionary<string, int>();
-        public static Dictionary<string, int> mostMentionedUsersDict = new Dictionary<string, int>();
-
-
+        public static Dictionary<SocketUser, int> messageUsageDict = new Dictionary<SocketUser, int>();
+        public static Dictionary<SocketUser, int> mostMentionedUsersDict = new Dictionary<SocketUser, int>();
+        public static Dictionary<SocketUser, double> userSentScoresDict = new Dictionary<SocketUser, double>();
+        public static Dictionary<SocketUser, double> avgUserSentScoresDict = new Dictionary<SocketUser, double>();
+        public static Dictionary<string, int> wordUsageDict = new Dictionary<string, int>();
+        
         public static void incDictVal(Dictionary<string,int> dict, string key)
         {
             if (dict.ContainsKey(key))
@@ -34,10 +37,30 @@ namespace RexBot2.Utils
                 dict.Add(key, 1);
             }
         }
-
-        public static void updateMentionedUsers(string user)
+        public static void incDictUserVal(Dictionary<SocketUser, int> dict, SocketUser key)
         {
-            incDictVal(mostMentionedUsersDict, user);
+            if (dict.ContainsKey(key))
+            {
+                dict[key]++;
+            }
+            else
+            {
+                dict.Add(key, 1);
+            }
+        }
+
+        public static void updateWordFreq(string sentence)
+        {
+            foreach(string part in sentence.Split())
+            {
+                if(part.Length > 2)
+                    incDictVal(wordUsageDict, part.ToLower());
+            }
+        }
+
+        public static void updateMentionedUsers(SocketUser user)
+        {
+            incDictUserVal(mostMentionedUsersDict, user);
         }
 
         public static void updateCommandUsage(string cmd)
@@ -45,9 +68,33 @@ namespace RexBot2.Utils
             incDictVal(commandUsageDict, cmd);
         }
 
-        public static void updateMessageUsage(string user)
+        public static void updateMessageUsage(SocketUser user)
         {
-            incDictVal(messageUsageDict, user);
+            incDictUserVal(messageUsageDict, user);
+        }
+
+        public static void updateUserSentScore(SocketUser user, double score)
+        {
+            if (userSentScoresDict.ContainsKey(user))
+            {
+                userSentScoresDict[user] += score;
+            } else
+            {
+                userSentScoresDict[user] = score;
+            }
+            
+        }
+
+        public static double getAverageUserSentScore(SocketUser user)
+        {
+            if (userSentScoresDict.ContainsKey(user))
+            {
+                return userSentScoresDict[user] / messageUsageDict[user];
+            }
+            else
+            {
+                return -100;
+            }
         }
 
         public static string getTop3(Dictionary<string,int> dict)
@@ -58,11 +105,69 @@ namespace RexBot2.Utils
             }
             else
             {
-                var top3 = dict.OrderByDescending(pair => pair.Value).Take(3);
+                var top3 = dict.OrderByDescending(pair => pair.Value).Take(GlobalVars.STATS_SHOW);
                 string res = string.Empty;
                 foreach (KeyValuePair<string, int> kvp in top3)
                 {
-                    res += kvp.Key + " - " + kvp.Value + "\n";
+                    res += kvp.Key + " : " + kvp.Value + "\n";
+                }
+                return res;
+            }
+        }
+
+        public static string getTop3Words()
+        {
+            if (wordUsageDict.Count == 0)
+            {
+                return "None";
+            }
+            else
+            {
+                var top3 = wordUsageDict.OrderByDescending(pair => pair.Value).Take(GlobalVars.STATS_SHOW);
+                string res = string.Empty;
+                foreach (KeyValuePair<string, int> kvp in top3)
+                {
+                    res += kvp.Key + " : " + kvp.Value + "\n";
+                }
+                return res;
+            }
+        }
+
+        public static string getTop3SentScoreUser()
+        {
+            foreach(SocketUser su in userSentScoresDict.Keys)
+            {
+                avgUserSentScoresDict[su] = getAverageUserSentScore(su);
+            }
+            if (avgUserSentScoresDict.Count == 0)
+            {
+                return "None";
+            }
+            else
+            {
+                var top3 = avgUserSentScoresDict.OrderByDescending(pair => pair.Value).Take(GlobalVars.STATS_SHOW);
+                string res = string.Empty;
+                foreach (KeyValuePair<SocketUser, double> kvp in top3)
+                {
+                    res += kvp.Key.Mention + " : " + Math.Round(kvp.Value,2) + "\n";
+                }
+                return res;
+            }
+        }
+
+        public static string getTop3User(Dictionary<SocketUser, int> dict)
+        {
+            if (dict.Count == 0)
+            {
+                return "None";
+            }
+            else
+            {
+                var top3 = dict.OrderByDescending(pair => pair.Value).Take(GlobalVars.STATS_SHOW);
+                string res = string.Empty;
+                foreach (KeyValuePair<SocketUser, int> kvp in top3)
+                {
+                    res += kvp.Key.Mention + " : " + kvp.Value + "\n";
                 }
                 return res;
             }
@@ -70,12 +175,12 @@ namespace RexBot2.Utils
 
         public static string getTop3MentionedUsers()
         {
-            return getTop3(mostMentionedUsersDict);
+            return getTop3User(mostMentionedUsersDict);
         }
 
         public static string getTop3Messagers()
         {
-            return getTop3(messageUsageDict);
+            return getTop3User(messageUsageDict);
         }
 
         public static string getTop3Commands()

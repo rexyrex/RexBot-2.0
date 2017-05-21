@@ -9,6 +9,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using Discord;
 using RexBot2.Timers;
+using Discord.Rest;
+using System.Text;
 
 namespace RexBot2
 {
@@ -32,7 +34,7 @@ namespace RexBot2
             await _service.AddModulesAsync(Assembly.GetEntryAssembly());
 
             _client.MessageReceived += HandleCommandAsync;
-            _client.UserUpdated += HandleUserUpdate;
+            _client.UserUpdated += _client_UserUpdated;
             _client.MessageDeleted += HandleMsgDel;
             _client.MessageUpdated += MessageUpdated;
             _client.ReactionAdded += ReactionUpdated;
@@ -40,21 +42,33 @@ namespace RexBot2
             _client.Connected += _client_Connected;
             _client.Ready += _client_Ready;
             _client.Log += _client_Log;
+            _client.UserVoiceStateUpdated += _client_UserVoiceStateUpdated;
+
             //Console.WriteLine("latency:" + _client.Latency);
+        }
+
+        private async Task _client_UserUpdated(SocketUser arg1, SocketUser arg2)
+        {
+            Console.WriteLine("user update");
+        }
+
+        private async Task _client_UserVoiceStateUpdated(SocketUser arg1, SocketVoiceState arg2, SocketVoiceState arg3)
+        {
+            Console.WriteLine("voice state updated");
         }
 
         private async Task _client_Ready()
         {
             Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Client Ready");
 
-            //await _client.SetStatusAsync(UserStatus.DoNotDisturb);
-            await _client.SetGameAsync(MasterUtils.getWord(DataUtils.games), "https://www.twitch.tv/ALL_ABOARD_THE_FEED_TRAIN", StreamType.Twitch);
-
+            await _client.SetStatusAsync(UserStatus.DoNotDisturb);
+            DataUtils.changeMode(GlobalVars.DEFAULT_MODE);
+            
             //Initialize stopwatches
-            userCollection = _client.GetGuild(Const.GUILD_ID).Users;
+            userCollection = _client.GetGuild(GlobalVars.GUILD_ID).Users;
             new RexTimers(_client,userCollection);
             Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Timer Initialization Complete! Ready");
-            new AdminUtils();            
+            new AdminUtils();
         }
 
         private async Task _client_Log(LogMessage arg)
@@ -111,7 +125,8 @@ namespace RexBot2
             //await smc.SendMessageAsync(res);
         }
         private async Task HandleUserUpdate(SocketUser userbefore,SocketUser userafter)
-        {            
+        {
+            Console.WriteLine("user update");
             //string name = userafter.Username;
             //Console.WriteLine(name);
             //var user = userafter as SocketUser;
@@ -127,13 +142,22 @@ namespace RexBot2
             
             var context = new SocketCommandContext(_client, msg);
 
-            if (!msg.Author.IsBot)
+            //ignore private msgs
+            if (context.IsPrivate && !msg.Author.IsBot)
             {
-                StatsUtils.MessagesRecieved++;
-                StatsUtils.updateMessageUsage(msg.Author.Username);
+                await msg.DeleteAsync();
+                return;
             }
 
-            if (MasterUtils.roll(-1) && !msg.Author.IsBot)
+            //del msg if restrained with %
+            if (AdminUtils.isRestrained(msg.Author.ToString()) && MasterUtils.roll(GlobalVars.MESSAGE_DELETE_RESTRAINED_CHANCE))
+            {
+                await msg.DeleteAsync();
+                return;
+            }
+
+            //random react
+            if (MasterUtils.roll(GlobalVars.ADD_REACTION_CHANCE) && !msg.Author.IsBot)
             {
                 var tk = Task.Run(async () =>
                 {
@@ -141,25 +165,33 @@ namespace RexBot2
                 });
             }
 
-            if (MasterUtils.roll(27) && RexTimers.gameChangeClock.Elapsed.TotalSeconds > 300)
+            //change bot game
+            if (RexTimers.gameChangeClock.Elapsed.TotalSeconds > 600 )
             {
-                RexTimers.gameChangeClock.Restart();
-                await _client.SetGameAsync(MasterUtils.getWord(DataUtils.games), "https://www.twitch.tv/ALL_ABOARD_THE_FEED_TRAIN", StreamType.Twitch);
+                DataUtils.changeMode(DataUtils.mode);
+                RexTimers.gameChangeClock.Restart();              
             }
 
-            if (!msg.Author.IsBot && msg.IsTTS)
+            //report tts
+            if (!msg.Author.IsBot && msg.IsTTS && DataUtils.modes[DataUtils.mode].getPermissions().Contains("tts"))
             {
                 await context.Channel.SendMessageAsync("!report " + msg.Author);
-            }
-
+                return;
+            }            
+            
+            //Check mention users
             foreach (KeyValuePair<string[], string> entry in DataUtils.aliases)
             {
                 foreach (string entS in entry.Key)
                 {
-                    if (msg.Content.ToLower().Contains(entS.ToLower()))
-                    {
-                        StatsUtils.updateMentionedUsers(DataUtils.aliases[entry.Key]);
-                        //Console.WriteLine("mentioned:" + DataUtils.aliases[entry.Key]);
+                    string[] splitStr = msg.Content.ToLower().Split();
+                    foreach (string ss in splitStr)
+                    {     
+                        if (ss == entS.ToLower() && !msg.Author.IsBot)
+                        {
+                            SocketUser su = _client.GetUser(DataUtils.getUserIDFromUsername(DataUtils.aliases[entry.Key]));
+                            StatsUtils.updateMentionedUsers(su);
+                        }
                     }
                 }
             }
@@ -167,27 +199,127 @@ namespace RexBot2
             int argPos = 0;
             //https://discordapp.com/api/webhooks/314670507578490880/yzQttIUi-yE9ZKMTZyPGENlZS3c3sjuxCpTw-LLhow24T6rSHYk9n5aDnmR9sKoBbIOz
             //{"channel_id": "200017396281507840", "guild_id": "200017396281507840", "헬퍼id": "314670507578490880"}
-            if (msg.HasCharPrefix(Const.CROSS_CHANNEL_PREFIX, ref argPos))
+            if (msg.HasStringPrefix("체널", ref argPos))
             {
                 //메인체널메세지전달
-                var msc = _client.GetChannel(Const.CHANNEL_ID) as ISocketMessageChannel;
-                await msc.SendMessageAsync(msg.Content.Trim(Const.CROSS_CHANNEL_PREFIX));
+                var msc = _client.GetChannel(GlobalVars.CHANNEL_ID) as ISocketMessageChannel;
+                await msc.SendMessageAsync(msg.Content.Replace("체널", ""));
+                return;
             }
 
-            if (DataUtils.reports.ContainsKey(msg.Author.ToString()) && !AdminUtils.isRestrained(msg.Author.ToString()) && MasterUtils.roll(12))
+            if (msg.HasStringPrefix("유저", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("유저","");
+                string un = rez.Split()[0];
+                string pmmsg = string.Empty;
+                for(int i=0; i<rez.Split().Length-1; i++)
+                {
+                    pmmsg += rez.Split()[i + 1] + " ";
+                }
+
+                SocketUser msc = _client.GetUser(DataUtils.getUserIDFromUsername(un));
+                RestDMChannel rdc = await msc.CreateDMChannelAsync(); 
+                await rdc.SendMessageAsync(pmmsg);
+                return;
+            }
+            
+            if (msg.HasStringPrefix("시크릿", ref argPos))
+            {
+                string rez = msg.Content.Replace("시크릿", "");
+                string cmdstr = rez.Split()[0];
+                string argstr = string.Empty;
+                string valstr = string.Empty;
+                if (rez.Split().Length == 2)
+                {
+                    valstr = rez.Split()[1];
+                } else if(rez.Split().Length == 3) {
+                    argstr = rez.Split()[1];
+                    valstr = rez.Split()[2];
+                }
+                
+                string res = string.Empty;
+                switch (cmdstr)
+                {
+                    case "guildcount": res=_client.Guilds.Count.ToString(); break;
+                    case "post": await context.Channel.SendFileAsync("Objects/GlobalVars.cs"); break;
+                    case "change":
+                        switch (argstr)
+                        {
+                            case "channel": GlobalVars.CHANNEL_ID = ulong.Parse(valstr); break;
+                            case "guild": GlobalVars.GUILD_ID = ulong.Parse(valstr); break;
+                            case "restrain%": GlobalVars.MESSAGE_DELETE_RESTRAINED_CHANCE = int.Parse(valstr); break;
+                            case "addreaction%": GlobalVars.ADD_REACTION_CHANCE = int.Parse(valstr); break;
+                            case "autorestrain%": GlobalVars.AUTO_RESTRAIN_CHANCE = int.Parse(valstr); break;
+                            case "statsshow": GlobalVars.STATS_SHOW = int.Parse(valstr); break;
+                            case "cmdprefix": GlobalVars.COMMAND_PREFIX = valstr[0]; break;
+                            default: res = "arg error"; break;
+                        }
+                        break;
+                    case "admins": res = MasterUtils.printStringList(GlobalVars.ADMINS); break;
+                    default: res = "not a valid command"; break;
+                }
+                if (res == string.Empty) res = "done!";
+                await context.Channel.SendMessageAsync(res);
+                return;
+            }
+
+                //restrain
+                if (DataUtils.reports.ContainsKey(msg.Author.ToString()) 
+                && !AdminUtils.isRestrained(msg.Author.ToString()) 
+                && MasterUtils.roll(GlobalVars.AUTO_RESTRAIN_CHANCE)
+                && DataUtils.modes[DataUtils.mode].getPermissions().Contains("auto restrain"))
             {
                 if(DataUtils.reports[msg.Author.ToString()] > 1)
                 {
                     double duration = DataUtils.rnd.Next(20, 40);
                     AdminUtils.addRestriction(msg.Author.ToString(), duration);
                     await context.Channel.SendMessageAsync("I feel like restraining " + msg.Author.Mention + " for " + Math.Round(duration, 0).ToString() + "s");
-                }                
+                    return;
+                }
             }
-            
-            if (msg.HasCharPrefix(Const.COMMAND_PREFIX, ref argPos) && ((double)msg.Content.Count(x => x == '!')/msg.Content.Length) <0.51)
+
+            //msg stat update
+            if (!msg.Author.IsBot)
+            {
+                //remove punc and save to sss (unused)
+                string sss = msg.Content;
+                var sb = new StringBuilder();
+
+                foreach (char c in sss)
+                {
+                    if (!char.IsPunctuation(c))
+                        sb.Append(c);
+                }
+                sss = sb.ToString();
+
+                StatsUtils.MessagesRecieved++;
+                StatsUtils.updateMessageUsage(msg.Author);
+                StatsUtils.updateWordFreq(sss);
+                double score = DataUtils.scoreSentence(msg.Content);
+                StatsUtils.updateUserSentScore(msg.Author, score);
+                //await context.Channel.SendMessageAsync("your avg: " + StatsUtils.getAverageUserSentScore(msg.Author));
+                //StatsUtils.updateMessageUsage(msg.Author.Username + "#" + msg.Author.Discriminator);
+            }
+
+            //Command handle
+            if (msg.HasCharPrefix(GlobalVars.COMMAND_PREFIX, ref argPos) && ((double)msg.Content.Count(x => x == '!')/msg.Content.Length) <0.51 
+                )
             {
                 if (!AdminUtils.isRestrained(msg.Author.ToString()))
                 {
+                    string trimmedcmd = msg.Content.ToString().ToLower().Trim('!');
+                    if (DataUtils.modes[DataUtils.mode].getPermissions().Contains("xander") 
+                        && MasterUtils.isAny(GlobalVars.XANDER_DISALLOWED_FUNCTIONS,new string[] { trimmedcmd.Split()[0] }) )
+                        //&& !trimmedcmd.Split().Contains("help"))
+                    {
+                        //await msg.DeleteAsync();
+                        RestDMChannel rdc = await msg.Author.CreateDMChannelAsync();
+                        await rdc.SendMessageAsync($"```The command you requested (\"{msg.Content.ToString()}\") may contain material that may annoy people and is disabled in Xander Mode. ```\n" +
+                            "Sorry for the inconvenience... I wish it didn't have to be this way.\nHave a great day friend.");
+                        return;
+                    }
+
                     var result = await _service.ExecuteAsync(context, argPos);
 
                     if (result.IsSuccess)
@@ -213,42 +345,45 @@ namespace RexBot2
                         await context.Channel.SendMessageAsync("!help " + msg.Content.Split()[0]);
                     }
                 } else
-                {
+                {//restrained
                     await context.Channel.SendMessageAsync(msg.Author.Mention + " " + TrollUtils.getSnarkyComment());
-                        //"\n\n You are currently restrained " + msg.Author.Mention + " (" + AdminUtils.GetRestrainTimeRemaining(msg.Author.ToString()) + "s remaining)");
+                    RestDMChannel rdc = await msg.Author.CreateDMChannelAsync();
+                    await rdc.SendMessageAsync("You are still restrained... " + AdminUtils.GetRestrainTimeRemaining(msg.Author.ToString()) + "s remaining");                    
+                    //"\n\n You are currently restrained " + msg.Author.Mention + " (" + AdminUtils.GetRestrainTimeRemaining(msg.Author.ToString()) + "s remaining)");
                 }
                 
             } else
             {
                 //Not a command
-            }
-
-            if (MasterUtils.roll(DataUtils.modes[DataUtils.mode].getTriggerChance()))
-            {
-                if (!msg.Author.IsBot)
+                if (!AdminUtils.isRestrained(msg.Author.ToString()) && MasterUtils.roll(DataUtils.modes[DataUtils.mode].getTriggerChance()))
                 {
-                    string stz = msg.Content;    
-                    if (MasterUtils.ContainsAny(stz, Const.CAT_TRIGGERS) || DataUtils.modes[DataUtils.mode].hasPermission("cat"))
+                    if (!msg.Author.IsBot)
                     {
-                        string jsonStr = await WebUtils.httpRequest("http://random.cat/meow");
-                        dynamic dynObj = JsonConvert.DeserializeObject(jsonStr);
-                        string urlStr = dynObj.file;
-                        await context.Channel.SendMessageAsync("DID I HEAR CAT???");
-                        await context.Channel.SendMessageAsync(urlStr);
-                    }
-
-                    if (MasterUtils.ContainsAny(stz, Const.EMINEM_TRIGGERS))
-                    {
-                        await context.Channel.SendFileAsync("pics/" + "eminem.jpg");
-                        await context.Channel.SendMessageAsync("PALMS SPAGHETTI KNEAS WEAK ARM SPAGHETTI THERES SPAGHETTI ON HIS SPAGHETTI ALREADY, MOMS SPAGHETTI",true);
-                    }
-                    //response triggers
-                    foreach (KeyValuePair<string, string[]> trigger in DataUtils.responses)
-                    {
-                        if (stz.Contains(trigger.Key))
+                        string stz = msg.Content;
+                        //MasterUtils.ContainsAny(stz, Const.CAT_TRIGGERS) || 
+                        if (DataUtils.modes[DataUtils.mode].hasPermission("cat")) // only trigger in cat mode
                         {
-                            int rz = DataUtils.rnd.Next(0, DataUtils.responses[trigger.Key].Length);
-                            await context.Channel.SendMessageAsync(DataUtils.responses[trigger.Key][rz]);
+                            string jsonStr = await WebUtils.httpRequest("http://random.cat/meow");
+                            dynamic dynObj = JsonConvert.DeserializeObject(jsonStr);
+                            string urlStr = dynObj.file;
+                            await context.Channel.SendMessageAsync("DID I HEAR CAT???" + urlStr);
+                            return;
+                        }
+
+                        if (MasterUtils.ContainsAny(stz, GlobalVars.EMINEM_TRIGGERS))
+                        {
+                            await context.Channel.SendFileAsync("pics/" + "eminem.jpg");
+                            await context.Channel.SendMessageAsync("PALMS SPAGHETTI KNEAS WEAK ARM SPAGHETTI THERES SPAGHETTI ON HIS SPAGHETTI ALREADY, MOMS SPAGHETTI", true);
+                        }
+                        //response triggers
+                        foreach (KeyValuePair<string, string[]> trigger in DataUtils.responses)
+                        {
+                            if (stz.Contains(trigger.Key))
+                            {
+                                int rz = DataUtils.rnd.Next(0, DataUtils.responses[trigger.Key].Length);
+                                await context.Channel.SendMessageAsync(DataUtils.responses[trigger.Key][rz]);
+                                return;
+                            }
                         }
                     }
                 }

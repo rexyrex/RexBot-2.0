@@ -21,7 +21,7 @@ namespace RexBot2.Modules
             //emb.Title = "`HELP!`";
             emb.Timestamp = new DateTimeOffset(DateTime.Now);            
 
-            if (MasterUtils.ContainsAny(Context.User.ToString(), Const.ADMINS)){
+            if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS)){
                 emb.Description = "**I am going down for maintenance! brb...**";
                 await Context.Channel.SendMessageAsync("",false,emb);
                 System.Threading.Thread.Sleep(1000);
@@ -39,7 +39,7 @@ namespace RexBot2.Modules
         {
             try
             {
-                if (MasterUtils.ContainsAny(Context.User.ToString(), Const.ADMINS))
+                if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS))
                 {                    
                     var messages = await Context.Channel.GetMessagesAsync(((int)msgToDel + 1)).Flatten();
                     await Context.Channel.DeleteMessagesAsync(messages);
@@ -63,7 +63,7 @@ namespace RexBot2.Modules
             try
             {
                 string userName = Context.User.ToString();
-                if (MasterUtils.ContainsAny(Context.User.ToString(), Const.ADMINS))
+                if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS))
                 {
                     IMessage messages = await Context.Channel.GetMessageAsync(id);
                     await messages.DeleteAsync();
@@ -88,7 +88,7 @@ namespace RexBot2.Modules
             username = AliasUtils.getNameFromAlias(username);
             if(username != "null")
             {                
-                if (MasterUtils.ContainsAny(Context.User.ToString(), Const.ADMINS))
+                if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS))
                 {
                     AdminUtils.addRestriction(username, timeInSeconds);
                     await Context.Channel.SendMessageAsync(username + " is restrained for " + timeInSeconds + "s!");
@@ -113,7 +113,7 @@ namespace RexBot2.Modules
             if (username != "null")
             {
                 string userName = Context.User.ToString();
-                if (MasterUtils.ContainsAny(Context.User.ToString(), Const.ADMINS))
+                if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS))
                 {
                     AdminUtils.RemoveRestrain(username);
                     await Context.Channel.SendMessageAsync(username + " is no longer restrained!");
@@ -143,11 +143,11 @@ namespace RexBot2.Modules
         [Summary("Change mode")]
         public async Task modeCmd(string reqMode="invalid"  )
         {
-            if (MasterUtils.ContainsAny(Context.User.ToString(), Const.ADMINS))
+            if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.MODE_ADMINS))
             {
                 if (MasterUtils.isMode(reqMode))
                 {
-                    DataUtils.mode = reqMode;
+                    DataUtils.changeMode(reqMode);
                     await Context.Channel.SendMessageAsync("RexBot mode changed to " + reqMode);
                 }
                 else if (reqMode == "help" || reqMode == "")

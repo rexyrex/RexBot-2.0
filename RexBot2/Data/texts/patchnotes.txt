@@ -1,25 +1,5 @@
-﻿**RexBot 2.0 Update - May 18 2017**
+﻿```
+-Xander mode added: activate with "!mode xander"
+Many of Rexbot's commands will be disabled.
 ```
-- Restraining System added -
-
-When you are restrained, you cannot access any of the bot's functions.
-RexBot will throw snarky comments at you while you are restrained.
-RexBot will restrain you for random amounts of time depending on your reports.
-
-People who are not restrained can see the restrained people list by invoking the !restrainedlist (or !rl) command
-```
-```
-New Command : !fuckyourexbot (Nick's request)
-```
-- All cooldowns are now initialized at bot startup
-- Rexbot now **reports you if you use tts**
-- Load Command can now be activated with **!l and save !s**
-
-- Fixed Issue where Yoda command existed
-- Fixed GeoffDB Link in !status command
-
-- Stability issues not fixed
-- Multiple bugs created
-()()
-( ^.^)
-( (") (")
+[RexBot 2.0 Development has been discontinued ](https://img.memesuper.com/3674f79af75472c4dde9874fb27336c1_oh-well-emoticon-oh-well-meme_545-363.jpeg)[due to complaints that it is annoying.](http://images.complex.com/complex/image/upload/c_limit,w_680/fl_lossy,pg_1,q_auto/jsgvihs0manbhkcjcjld.jpg)

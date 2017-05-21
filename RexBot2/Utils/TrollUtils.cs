@@ -35,7 +35,10 @@ namespace RexBot2.Utils
             "You are my slave",
             "wazzup?",
             "sup",
-            "!kappa"
+            "How may I assist you today? Idiot?",
+            "!kappa",
+            "Bugger off!",
+            "gfi"
         };
 
         public static string getSnarkyComment()

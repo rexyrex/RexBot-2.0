@@ -131,6 +131,7 @@ namespace RexBot2.Modules
                 "**Messages Received** : " + StatsUtils.MessagesRecieved+ "\n" +
                 "**Messages Edited** : " + StatsUtils.MsgEditCount + "\n" +
                 "**Messages Deleted** : " + StatsUtils.MsgDeleteCount + "\n\n" +
+                "**Unique words** : " + StatsUtils.wordUsageDict.Keys.Count + "\n\n" +
                 "__🥇Leaderboards🥇__";
 
             EmbedFieldBuilder topReportsField = new EmbedFieldBuilder();
@@ -153,10 +154,22 @@ namespace RexBot2.Modules
             mostMentionedUserField.Value = StatsUtils.getTop3MentionedUsers();
             mostMentionedUserField.IsInline = true;
 
+            EmbedFieldBuilder highestSentScoreField = new EmbedFieldBuilder();
+            highestSentScoreField.Name = "Positivity";
+            highestSentScoreField.Value = StatsUtils.getTop3SentScoreUser();
+            highestSentScoreField.IsInline = true;
+
+            EmbedFieldBuilder randomField = new EmbedFieldBuilder();
+            randomField.Name = "Most Used Words";
+            randomField.Value = StatsUtils.getTop3Words();
+            randomField.IsInline = true;
+
             emb.AddField(topReportsField);          
             emb.AddField(mostMsgUserField);
             emb.AddField(mostUsedCommandsField);
             emb.AddField(mostMentionedUserField);
+            emb.AddField(highestSentScoreField);
+            emb.AddField(randomField);
 
             await Context.Channel.SendMessageAsync("", false, emb);
         }
@@ -174,14 +187,14 @@ namespace RexBot2.Modules
 
             emb.Title = "**🤜 RexBot 2.0 by Rexyrex 🤛**\n";
 
-            try
-            {
-                string joke = await WebUtils.getOneLiner();
-                emb.Description = "\"" + joke + "\"";
-            } catch(Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+            //try
+            //{
+            //    string joke = await WebUtils.getOneLiner();
+            //    emb.Description = "\"" + joke + "\"";
+            //} catch(Exception e)
+            //{
+            //    Console.WriteLine(e.ToString());
+            //}
             emb.Description = "**➺Github** : [RexBot 2.0](https://github.com/rexyrex/RexBot-2.0 \"ALL\")\n"
                 + "**➺Geoff DB** : [Google Docs](https://docs.google.com/spreadsheets/d/1EeJpyo7Rvh-WxcYoKB2qHzBR3L_0xvR9fW1COqGhljI/edit#gid=2091390326 \"ABOARD\")\n"
                 + "**➺Support Rexyrex** : [Newgrounds](http://rexyrex.newgrounds.com/audio/ \"THE FEED TRAIN\")"
@@ -209,12 +222,12 @@ namespace RexBot2.Modules
             userCountField.IsInline = true;
             EmbedFieldBuilder statusField = new EmbedFieldBuilder();
             statusField.Name = "Status";
-            statusField.Value = "Happy";
+            statusField.Value = "Discontinued";
             statusField.IsInline = true;
 
             EmbedFieldBuilder efb6 = new EmbedFieldBuilder();
             efb6.Name = "❤️ Special Thanks To ❤️";
-            efb6.Value = "Geoff - DB\nEm - Utils\nJamie - !calc\nNick - W Testing";
+            efb6.Value = "Geoff - DB & testing\nEm - Utils & testing\nJamie - !calc\nNick - W W W W & testing";
             efb6.IsInline = false;
 
             emb.AddField(modeField);
@@ -258,7 +271,20 @@ namespace RexBot2.Modules
         [Summary("Show the most recent updates to Rexbot 2.0")]
         public async Task patchNotesCmd()
         {
-            await Context.Channel.SendMessageAsync(DataUtils.getRawStringFromFile("Data/texts/patchnotes.txt"));
+            EmbedBuilder emb = new EmbedBuilder();
+            emb.Color = new Color(255, 0, 0);
+
+            emb.Title = "**RexBot 2.0 Last Update - May 20 2017 - Officially Ded**\n";
+
+            emb.Description = DataUtils.getRawStringFromFile("Data/texts/patchnotes.txt");
+            EmbedFieldBuilder modeField = new EmbedFieldBuilder();
+            modeField.Name = "❤️SPECIAL THANKS!❤️";
+            modeField.Value = DataUtils.getRawStringFromFile("Data/texts/goodbye.txt");
+            modeField.IsInline = true;
+
+            emb.AddField(modeField);
+
+            await Context.Channel.SendMessageAsync("", false, emb);
         }
 
         [Command("cooldowns")]
@@ -275,7 +301,6 @@ namespace RexBot2.Modules
         [Summary("!meme (<type>) (<toptext>) (<bottetxt>), type \"!meme help\" to get list of meme types")]
         public async Task memeCmd([Remainder] string stz)
         {
-            Console.WriteLine("in here");
             string res = string.Empty;
             if (MasterUtils.ContainsAny(stz, new string[] {"help","list","show" }))
             {
@@ -283,7 +308,6 @@ namespace RexBot2.Modules
                 await Context.Channel.SendMessageAsync(res);
             } else if(stz.Count(x => x == '(') == 3)
             {
-                Console.WriteLine("in the elseif");
                 int bracketCount = 0;
                 string type = string.Empty;
                 string topText = string.Empty;
@@ -313,11 +337,10 @@ namespace RexBot2.Modules
                 }
                 topText = MasterUtils.processTextForMeme(topText);
                 botText = MasterUtils.processTextForMeme(botText);
-                Console.WriteLine("printing");
                 await Context.Channel.SendMessageAsync("https://memegen.link/" + type + "/" + topText + "/" + botText + ".jpg");
             } else
             {
-                await Context.Channel.SendMessageAsync("Invalid argument structure. Type \"!meme help\" for more info");
+                await Context.Channel.SendMessageAsync(Context.User.Mention + " `Invalid argument structure. Type \"!meme help\" for more info`");
             }
         }
     }

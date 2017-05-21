@@ -7,6 +7,15 @@ namespace RexBot2.Utils
 {
     public class MasterUtils
     {
+        public static string printStringList(string[] input)
+        {
+            string res = string.Empty;
+            for(int i=0; i<input.Length; i++)
+            {
+                res += input[i] + ", " ;
+            }
+            return res;
+        }
         public static string getAllModesInfo()
         {
             string res = string.Empty;
@@ -31,6 +40,18 @@ namespace RexBot2.Utils
             info += "}`";
 
             return info;
+        }
+
+        public static bool isAny(string[] solid, string[] vari)
+        {
+            foreach(string s in solid)
+            {
+                foreach(string s1 in vari)
+                {
+                    if (s1 == s) return true;
+                }
+            }
+            return false;
         }
 
         public static string processTextForMeme(string input)
@@ -96,11 +117,7 @@ namespace RexBot2.Utils
                 res += repeat;
             }
 
-            string[] words = {"She sells seashells by the seashore",
-            "Fuzzy Wuzzy was a bear. Fuzzy Wuzzy had no hair. Fuzzy Wuzzy wasn’t fuzzy, was he?","If a dog chews shoes, whose shoes does he choose?",
-            "I wish to wash my Irish wristwatch", "Wayne went to wales to watch walruses", "Six sticky skeletons", "Snap crackle pop ",
-            "Flash message", "Stupid superstition","Eleven benevolent elephants", "Two tried and true tridents", "Big black back bat","Pre-shrunk silk shirts",
-            "Ed had edited it","We surely shall see the sun shine soon", "Which wristwatches are Swiss wristwatches","Lesser leather never weathered wetter weather better" };
+            string[] words = GlobalVars.TONGUE_TWISTERS;
             string word = words[DataUtils.rnd.Next(0, words.Length)];
             string wres = string.Empty;
             int limit = 184 - (int)(184 / word.Length);
@@ -112,12 +129,12 @@ namespace RexBot2.Utils
                     wres += " ";
                 }
             }
-            switch(DataUtils.rnd.Next(1, 5))
+            switch(DataUtils.rnd.Next(1, 6))
             {
                 case 4: return wres; 
                 case 1: return "MACHINE GUN MOTHER FUCKERS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
                 case 2: return "IM A RAP GOD nenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenen";
-                case 3: return "CONGRATZ DOUCHE BAG HERE'S YOUR PRESENT w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w, w";
+                case 3: return "CONGRATZ DOUCHE BAG HERE'S YOUR PRESENT w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w, w";
                 default: return res;
             }
         }
