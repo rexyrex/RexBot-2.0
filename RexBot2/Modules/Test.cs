@@ -44,5 +44,24 @@ namespace RexBot2.Modules
         {
             await Context.Channel.SendMessageAsync("NOT IMPLEMENTED MADAFAKA");
         }
+
+        [Command("random")]
+        [Alias("rand")]
+        [Remarks("test")]
+        [Summary("Invoke a completely random function")]
+        public async Task randCmd()
+        {
+            int rand = DataUtils.rnd.Next(0, 3);
+            string randcmd = "!";
+
+            switch (rand)
+            {
+                case 0: randcmd += DataUtils.getPossibleCommand(1, "longsearch");  break;
+                case 1: randcmd += DataUtils.getPossibleCommand(1, "shortsearch"); break;
+                case 2: randcmd += DataUtils.getPossibleCommand(0); break;
+                default: randcmd += "restrain " + Context.User.ToString();  break;
+            }
+            await Context.Channel.SendMessageAsync(randcmd);
+        }
     }
 }

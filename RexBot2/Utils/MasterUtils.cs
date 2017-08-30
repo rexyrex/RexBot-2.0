@@ -7,6 +7,24 @@ namespace RexBot2.Utils
 {
     public class MasterUtils
     {
+
+        public static string getStringFromPool(string[] pool, string[] restricted)
+        {
+            List<string> list = new List<string>(pool);
+            while (list.Count>0)
+            {
+                int index = DataUtils.rnd.Next(0, pool.Length);
+                
+                if(!isAny(new string[] { pool[index] }, restricted)){
+                    return pool[index];
+                } else
+                {                    
+                    list.Remove(pool[index]);
+                    pool = list.ToArray();
+                }
+            }
+            return null;
+        }
         public static string printStringList(string[] input)
         {
             string res = string.Empty;

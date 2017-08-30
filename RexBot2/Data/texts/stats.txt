@@ -1,0 +1,13 @@
+5/23/2017 11:02:31 PM
+Total Uptime : 0d 0h 0m 14s
+Total unique word count : 6
+Total Message Count : 2
+---2
+hello : 1
+good : 1
+friend : 1
+sammuel : 1
+jackson : 1
+third : 1
+
+--- End ---

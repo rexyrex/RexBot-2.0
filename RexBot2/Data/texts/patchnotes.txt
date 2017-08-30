@@ -1,5 +1,22 @@
-﻿```
--Xander mode added: activate with "!mode xander"
-Many of Rexbot's commands will be disabled.
-```
-[RexBot 2.0 Development has been discontinued ](https://img.memesuper.com/3674f79af75472c4dde9874fb27336c1_oh-well-emoticon-oh-well-meme_545-363.jpeg)[due to complaints that it is annoying.](http://images.complex.com/complex/image/upload/c_limit,w_680/fl_lossy,pg_1,q_auto/jsgvihs0manbhkcjcjld.jpg)
+﻿Fixed Issue where Youtube link would be broken when title contained brackets
+
+**Search can now time out** if it takes too long
+
+Added ***!random*** command -> Invokes a completely random command in rexbot's arsenal.
+
+**!help** shows only available functions in current mode.
+**!help <command>** indicates if it can be used in Xander mode.
+
+Added stopwords to make most frequent word stats more interesting
+
+Can update bot vocab + aliases without restarting bot with **!reload**
+
+Get detailed stats in a txt file with **!statsprint**
+
+**Mode defaults to "quiet (all functions online)"** but automatically switches to Xander mode when Xander comes online.
+(mode can still be toggled manually by mode mods)
+
+**Mode admins updated.** (People who are online most + Xander)
+These users can change mode at any time with "!mode":
+
+{"BonoboCop#0335", "BonoboBadCop#1267", "rooster212#7948", "CPTOblivious#4652", "Geffo#1689" };

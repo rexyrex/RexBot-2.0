@@ -70,9 +70,6 @@ namespace RexBot2.Modules
             string picToString = DataUtils.picNames[r];
             await Context.Channel.SendFileAsync("Data/friendpics/" + picToString);
             await Context.Channel.SendMessageAsync(MasterUtils.commentOnPic(),true);
-
         }
-
-
     }
 }

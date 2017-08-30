@@ -30,22 +30,37 @@ namespace RexBot2.Modules
             EmbedFooterBuilder efb = new EmbedFooterBuilder();
             
             string res = string.Empty;
-
+            int disabledInXanderModeCount = 0;
             if (cmdName == "null")
             {
                 foreach (CommandInfo c in _commandService.Commands)
                 {
-                    if (cmdDict.ContainsKey(c.Remarks))
+                    bool disallowedInXanderMode = (MasterUtils.isAny(GlobalVars.XANDER_DISALLOWED_FUNCTIONS, new string[] { c.Name.ToLower() }));
+                    if ((!disallowedInXanderMode && DataUtils.mode == "xander") || DataUtils.mode != "xander")
                     {
-                        cmdDict[c.Remarks].Add(c.Name);
+                        if (cmdDict.ContainsKey(c.Remarks))
+                        {
+                            cmdDict[c.Remarks].Add(c.Name);
+                        }
+                        else
+                        {
+                            List<string> tmpList = new List<string>();
+                            tmpList.Add(c.Name);
+                            cmdDict[c.Remarks] = tmpList;
+                        }
                     }
                     else
                     {
-                        List<string> tmpList = new List<string>();
-                        tmpList.Add(c.Name);
-                        cmdDict[c.Remarks] = tmpList;
+                        disabledInXanderModeCount++;
                     }
                     //res += $"***{c.Name}*** : {c.Summary}\n";
+                }
+                if(DataUtils.mode == "xander")
+                {
+                    res += "[**☠️Xander Mode is Active!☠️**]" +
+                        "(https://1.bp.blogspot.com/-9UH0JId3P-M/VzdaJjMqIYI/AAAAAAAAStc/p34EFcGshl0jT926XSL6MMSO4w6wgtdQQCLcB/s1600/sorrowful-emoji.png)\n";
+                    res += "[**☠️" + disabledInXanderModeCount + " commands have been disabled!☠️**]" +
+                        "(https://img.memesuper.com/661e9f7742dee776350f0cf43a97f0aa_filejaw-dropjpg-jaw-drop-meme_179-187.jpeg)\n\n";
                 }
                 foreach (string s in cmdDict.Keys)
                 {
@@ -94,11 +109,17 @@ namespace RexBot2.Modules
                         {
                             parametersStr += "(" + x.Name + ", " + x.Type + ")";
                         }
+                        bool cantUseInXanderMode = (MasterUtils.isAny(GlobalVars.XANDER_DISALLOWED_FUNCTIONS, new string[] { c.Name.ToLower()}));
                         res = "**Command :** " + c.Name;
                         res += "\n**Aliases:** " + aliasesStr;
                         res += "\n**Category:** " + c.Remarks;
                         res += "\n**Description:** " + c.Summary;
                         res += "\n**Parameters:** " + parametersStr;
+                        if (cantUseInXanderMode)
+                        {
+                            res += "\n\n__DISABLED__ in Xander Mode!";
+                        }
+                        
                         //string imgurl = await WebUtils.getImgurUrl(c.Remarks);
                         //emb.ImageUrl = imgurl;
                     }                    
@@ -125,9 +146,9 @@ namespace RexBot2.Modules
             emb.Description = "[Displaying the stats of this session!](https://en.wikipedia.org/wiki/Statistics \"I hate ryan\")\n\n"+
                 "**UpTime** : "+ RexTimers.getTime(RexTimers.systemRunClock) + "\n\n" +
                 "**Commands Run** : " + StatsUtils.CommandsRun + "\n" +
-                "**Commands Per Minute** : " + Math.Round((double)(StatsUtils.CommandsRun/RexTimers.systemRunClock.Elapsed.TotalMinutes),2) + "\n\n" +
+                "**Commands Per Minute** : " + Math.Round((double)(StatsUtils.CommandsRun/RexTimers.systemRunClock.Elapsed.TotalMinutes),5) + "\n\n" +
                 "**Reactions** : " + StatsUtils.ReactionCount + "\n" +
-                "**Reactions Per Minute** : " + Math.Round((double)(StatsUtils.ReactionCount / RexTimers.systemRunClock.Elapsed.TotalMinutes), 2) + "\n\n" +
+                "**Reactions Per Minute** : " + Math.Round((double)(StatsUtils.ReactionCount / RexTimers.systemRunClock.Elapsed.TotalMinutes), 5) + "\n\n" +
                 "**Messages Received** : " + StatsUtils.MessagesRecieved+ "\n" +
                 "**Messages Edited** : " + StatsUtils.MsgEditCount + "\n" +
                 "**Messages Deleted** : " + StatsUtils.MsgDeleteCount + "\n\n" +
@@ -155,23 +176,45 @@ namespace RexBot2.Modules
             mostMentionedUserField.IsInline = true;
 
             EmbedFieldBuilder highestSentScoreField = new EmbedFieldBuilder();
-            highestSentScoreField.Name = "Positivity";
+            highestSentScoreField.Name = "Likability";
             highestSentScoreField.Value = StatsUtils.getTop3SentScoreUser();
             highestSentScoreField.IsInline = true;
 
-            EmbedFieldBuilder randomField = new EmbedFieldBuilder();
-            randomField.Name = "Most Used Words";
-            randomField.Value = StatsUtils.getTop3Words();
-            randomField.IsInline = true;
+            EmbedFieldBuilder mostUsedWordsField = new EmbedFieldBuilder();
+            mostUsedWordsField.Name = "Most Used Words";
+            mostUsedWordsField.Value = StatsUtils.getTop3Words();
+            mostUsedWordsField.IsInline = true;
 
-            emb.AddField(topReportsField);          
+            EmbedFieldBuilder leastUsedWordsField = new EmbedFieldBuilder();
+            leastUsedWordsField.Name = "Least Used Words";
+            leastUsedWordsField.Value = StatsUtils.getBottom3Words();
+            leastUsedWordsField.IsInline = true;
+
+            EmbedFieldBuilder randomWordsField = new EmbedFieldBuilder();
+            randomWordsField.Name = "Random Sample";
+            randomWordsField.Value = StatsUtils.getRandomWords();
+            randomWordsField.IsInline = true;
+
+            emb.AddField(topReportsField);
             emb.AddField(mostMsgUserField);
-            emb.AddField(mostUsedCommandsField);
+            emb.AddField(mostUsedCommandsField);            
+            emb.AddField(mostUsedWordsField);
+            emb.AddField(leastUsedWordsField);
+            emb.AddField(randomWordsField);
             emb.AddField(mostMentionedUserField);
             emb.AddField(highestSentScoreField);
-            emb.AddField(randomField);
 
             await Context.Channel.SendMessageAsync("", false, emb);
+        }
+
+        [Command("statsprint")]
+        [Alias("statprint")]
+        [Remarks("info")]
+        [Summary("get full list of stats in txt file")]
+        public async Task statsprintCmd()
+        {
+            StatsUtils.writeStatsToTxt();
+            await Context.Channel.SendFileAsync("Data/texts/stats.txt");
         }
 
         [Command("status",RunMode = RunMode.Async)]
@@ -247,16 +290,25 @@ namespace RexBot2.Modules
         [Summary("Get alias(es)")]
         public async Task akaCmd([Remainder] string name = "empty")
         {
+
             if (name == "empty")
             {
                 await Context.Channel.SendMessageAsync(AliasUtils.getAliases());
             } else
             {
+
                 EmbedBuilder emb = new EmbedBuilder();
                 emb.Color = new Color(196, 09, 155);
                 //emb.Title = "`HELP!`";
                 //emb.Timestamp = new DateTimeOffset(DateTime.Now);
-                emb.Description = "**Aliases for " + name + "**\n" + AliasUtils.getAlias(name);
+
+                try
+                {
+                    emb.Description = "**Aliases for " + name + "**\n" + AliasUtils.getAlias(name);
+                } catch(Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }                
 
                 EmbedFooterBuilder efb = new EmbedFooterBuilder();
                 efb.Text = "Powered by GeoffDB";
@@ -274,15 +326,15 @@ namespace RexBot2.Modules
             EmbedBuilder emb = new EmbedBuilder();
             emb.Color = new Color(255, 0, 0);
 
-            emb.Title = "**RexBot 2.0 Last Update - May 20 2017 - Officially Ded**\n";
+            emb.Title = "**RexBot 2.0 an unexpected Update - May 23 2017**\n";
 
             emb.Description = DataUtils.getRawStringFromFile("Data/texts/patchnotes.txt");
-            EmbedFieldBuilder modeField = new EmbedFieldBuilder();
-            modeField.Name = "❤️SPECIAL THANKS!❤️";
-            modeField.Value = DataUtils.getRawStringFromFile("Data/texts/goodbye.txt");
-            modeField.IsInline = true;
+            //EmbedFieldBuilder modeField = new EmbedFieldBuilder();
+            //modeField.Name = "❤️SPECIAL THANKS!❤️";
+            //modeField.Value = DataUtils.getRawStringFromFile("Data/texts/goodbye.txt");
+            //modeField.IsInline = true;
 
-            emb.AddField(modeField);
+            //emb.AddField(modeField);
 
             await Context.Channel.SendMessageAsync("", false, emb);
         }

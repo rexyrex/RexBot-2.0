@@ -11,6 +11,7 @@ using Discord;
 using RexBot2.Timers;
 using Discord.Rest;
 using System.Text;
+using System.Diagnostics;
 
 namespace RexBot2
 {
@@ -24,7 +25,7 @@ namespace RexBot2
         public async Task InitializeAsync(DiscordSocketClient client)
         {
             _client = client;
-
+            
             _service = new CommandService(new CommandServiceConfig()
             {
                 CaseSensitiveCommands = false,
@@ -33,42 +34,98 @@ namespace RexBot2
             });
             await _service.AddModulesAsync(Assembly.GetEntryAssembly());
 
+            
+
             _client.MessageReceived += HandleCommandAsync;
-            _client.UserUpdated += _client_UserUpdated;
+            //_client.UserUpdated += _client_UserUpdated; -> use guild member updated instead
             _client.MessageDeleted += HandleMsgDel;
             _client.MessageUpdated += MessageUpdated;
             _client.ReactionAdded += ReactionUpdated;
             _client.Disconnected += _client_Disconnected;
             _client.Connected += _client_Connected;
             _client.Ready += _client_Ready;
+            //_client.ChannelUpdated += _client_ChannelUpdated;
             _client.Log += _client_Log;
-            _client.UserVoiceStateUpdated += _client_UserVoiceStateUpdated;
-
+            //_client.UserVoiceStateUpdated += _client_UserVoiceStateUpdated;
+            //_client.CurrentUserUpdated += _client_CurrentUserUpdated;
+            _client.GuildMemberUpdated += _client_GuildMemberUpdated;
             //Console.WriteLine("latency:" + _client.Latency);
+        }
+
+        private async Task _client_GuildMemberUpdated(SocketGuildUser beforeUser, SocketGuildUser afterUser)
+        {
+            if(beforeUser.Status == UserStatus.Offline 
+                && afterUser.Status != UserStatus.Offline)
+            {
+                if((afterUser.Id == 237170530157854732||afterUser.Id == 310828842145284096))
+                {
+                    DataUtils.changeMode("xander");
+                    ISocketMessageChannel sc = _client.GetGuild(GlobalVars.GUILD_ID).GetChannel(GlobalVars.CHANNEL_ID) as ISocketMessageChannel;
+                    await sc.SendMessageAsync("Welcome back Xander! Mode set to Xander Mode!\nNote : You can always change mode with the **!mode** command :)");
+                }
+
+                if ((afterUser.Id == 308305348643782656))
+                {
+                    ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
+                    await sc.SendMessageAsync("WB Adrian");
+                }
+            }
+            if (afterUser.Status == UserStatus.Invisible)
+            {
+                ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
+                await sc.SendMessageAsync("You can't hide from me!");
+            }
+            if (afterUser.Status == UserStatus.Offline)
+            {
+                ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
+                await sc.SendMessageAsync("You went offline!");
+            }
+
+        }
+
+        private async Task _client_CurrentUserUpdated(SocketSelfUser arg1, SocketSelfUser arg2)
+        {
+            Console.WriteLine("who is currnet user");
+        }
+
+        private async Task _client_ChannelUpdated(SocketChannel arg1, SocketChannel arg2)
+        {
+            Console.WriteLine("Channel Update call");
         }
 
         private async Task _client_UserUpdated(SocketUser arg1, SocketUser arg2)
         {
-            Console.WriteLine("user update");
+            Console.WriteLine("user update doesnt work... if ur seeing this... it means they fixed it");
         }
 
         private async Task _client_UserVoiceStateUpdated(SocketUser arg1, SocketVoiceState arg2, SocketVoiceState arg3)
         {
-            Console.WriteLine("voice state updated");
+            //Console.WriteLine("voice state updated");
         }
 
         private async Task _client_Ready()
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Client Ready");
+            Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Initializing DataUtils...");
+            new DataUtils(_client,_service);
+            new EmojiUtils();
+            await WebUtils.updateBingAuthToken();
 
-            await _client.SetStatusAsync(UserStatus.DoNotDisturb);
             DataUtils.changeMode(GlobalVars.DEFAULT_MODE);
-            
-            //Initialize stopwatches
-            userCollection = _client.GetGuild(GlobalVars.GUILD_ID).Users;
-            new RexTimers(_client,userCollection);
-            Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Timer Initialization Complete! Ready");
-            new AdminUtils();
+            try
+            {
+                //populate users from given guild ID
+                userCollection = _client.GetGuild(GlobalVars.GUILD_ID).Users;
+                new RexTimers(_client, userCollection);
+                new AdminUtils();
+            } catch (Exception e)
+            {
+                Console.WriteLine("YOU NEED TO JOIN FEED TRAIN GUILD FIRST!!! OR CHANGE GUILD ID IN GLOBAL VARS... Exception : " + e.ToString());
+            }
+            sw.Stop();
+            Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Time to get Ready : " + sw.Elapsed.TotalSeconds.ToString("F2") + " seconds");
         }
 
         private async Task _client_Log(LogMessage arg)
@@ -83,6 +140,7 @@ namespace RexBot2
 
         private async Task _client_Disconnected(Exception arg)
         {
+            DataUtils.turnOffStatus();
             await ErrorHandler.HandleLog(new LogMessage(LogSeverity.Error, "Disconnect Detected", "NOOOO", arg));
         }
 
@@ -142,10 +200,19 @@ namespace RexBot2
             
             var context = new SocketCommandContext(_client, msg);
 
-            //ignore private msgs
+            //private msgs sent to private channel
             if (context.IsPrivate && !msg.Author.IsBot)
             {
-                await msg.DeleteAsync();
+                ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
+                await sc.SendMessageAsync("(PRIVATE)" + msg.Author + " : " + msg.Content);
+                try
+                {
+                    //await msg.DeleteAsync(); //no permission cuz personal channel does not have roles
+                } catch(Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
+                
                 return;
             }
 
@@ -172,29 +239,7 @@ namespace RexBot2
                 RexTimers.gameChangeClock.Restart();              
             }
 
-            //report tts
-            if (!msg.Author.IsBot && msg.IsTTS && DataUtils.modes[DataUtils.mode].getPermissions().Contains("tts"))
-            {
-                await context.Channel.SendMessageAsync("!report " + msg.Author);
-                return;
-            }            
-            
-            //Check mention users
-            foreach (KeyValuePair<string[], string> entry in DataUtils.aliases)
-            {
-                foreach (string entS in entry.Key)
-                {
-                    string[] splitStr = msg.Content.ToLower().Split();
-                    foreach (string ss in splitStr)
-                    {     
-                        if (ss == entS.ToLower() && !msg.Author.IsBot)
-                        {
-                            SocketUser su = _client.GetUser(DataUtils.getUserIDFromUsername(DataUtils.aliases[entry.Key]));
-                            StatsUtils.updateMentionedUsers(su);
-                        }
-                    }
-                }
-            }
+
 
             int argPos = 0;
             //https://discordapp.com/api/webhooks/314670507578490880/yzQttIUi-yE9ZKMTZyPGENlZS3c3sjuxCpTw-LLhow24T6rSHYk9n5aDnmR9sKoBbIOz
@@ -236,6 +281,13 @@ namespace RexBot2
                 } else if(rez.Split().Length == 3) {
                     argstr = rez.Split()[1];
                     valstr = rez.Split()[2];
+                } else
+                {
+                    for(int z = 1; z<rez.Split().Length; z++)
+                    {
+                        valstr += rez.Split()[z];
+                        if (z < rez.Split().Length - 1) valstr += " ";
+                    }
                 }
                 
                 string res = string.Empty;
@@ -253,9 +305,11 @@ namespace RexBot2
                             case "autorestrain%": GlobalVars.AUTO_RESTRAIN_CHANCE = int.Parse(valstr); break;
                             case "statsshow": GlobalVars.STATS_SHOW = int.Parse(valstr); break;
                             case "cmdprefix": GlobalVars.COMMAND_PREFIX = valstr[0]; break;
+                               
                             default: res = "arg error"; break;
                         }
                         break;
+                    case "repeat": res = argstr + valstr; break;
                     case "admins": res = MasterUtils.printStringList(GlobalVars.ADMINS); break;
                     default: res = "not a valid command"; break;
                 }
@@ -355,6 +409,31 @@ namespace RexBot2
             } else
             {
                 //Not a command
+                //report tts
+                if (!msg.Author.IsBot && msg.IsTTS && DataUtils.modes[DataUtils.mode].getPermissions().Contains("tts"))
+                {
+                    await context.Channel.SendMessageAsync("!report " + msg.Author);
+                    return;
+                }
+
+                //Check mention users
+                foreach (KeyValuePair<string[], string> entry in DataUtils.aliases)
+                {
+                    foreach (string entS in entry.Key)
+                    {
+                        string[] splitStr = msg.Content.ToLower().Split();
+                        foreach (string ss in splitStr)
+                        {
+                            //is in aliasDict && is not mentioned by bot && mentioned person is in usernameDict
+                            if (ss == entS.ToLower() && !msg.Author.IsBot && DataUtils.usernameDict.ContainsKey(DataUtils.aliases[entry.Key]))
+                            {
+                                SocketUser su = _client.GetUser(DataUtils.getUserIDFromUsername(DataUtils.aliases[entry.Key]));
+                                StatsUtils.updateMentionedUsers(su);
+                            }
+                        }
+                    }
+                }
+
                 if (!AdminUtils.isRestrained(msg.Author.ToString()) && MasterUtils.roll(DataUtils.modes[DataUtils.mode].getTriggerChance()))
                 {
                     if (!msg.Author.IsBot)

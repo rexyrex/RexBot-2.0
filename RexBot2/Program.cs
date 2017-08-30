@@ -29,11 +29,6 @@ namespace RexBot2
                 AlwaysDownloadUsers = true,
                 LogLevel = LogSeverity.Info
             });
-            
-            new DataUtils(_client);            
-            new EmojiUtils();
-
-            WebUtils.updateBingAuthToken();
 
             Logger.Log(LogSeverity.Info, "StartAsync()", "Connected in " + sw.Elapsed.TotalSeconds.ToString("F2") + " seconds");
             Logger.NewLine();

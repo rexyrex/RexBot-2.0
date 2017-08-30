@@ -49,7 +49,6 @@ namespace RexBot2.Utils
                     res += als + "\n";
                 }
             }
-
             res += "";
             if (res.Length > 2000)
             {
@@ -102,6 +101,7 @@ namespace RexBot2.Utils
             string line;
 
             string res = string.Empty;
+            DataUtils.aliases.Clear();
             try
             {
                 FileStream fsr = new FileStream(DataUtils.textPath + "alias2.txt", FileMode.Open, FileAccess.Read);
@@ -116,6 +116,7 @@ namespace RexBot2.Utils
                         {
                             aliasesString[i] = initSplit[i + 1];
                         }
+
                         DataUtils.aliases.Add(aliasesString, name);
                     }
                 }

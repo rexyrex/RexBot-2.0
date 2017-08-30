@@ -22,6 +22,7 @@ namespace RexBot2.Modules
             emb.Timestamp = new DateTimeOffset(DateTime.Now);            
 
             if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS)){
+                DataUtils.turnOffStatus();
                 emb.Description = "**I am going down for maintenance! brb...**";
                 await Context.Channel.SendMessageAsync("",false,emb);
                 System.Threading.Thread.Sleep(1000);
@@ -40,7 +41,7 @@ namespace RexBot2.Modules
             try
             {
                 if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS))
-                {                    
+                {
                     var messages = await Context.Channel.GetMessagesAsync(((int)msgToDel + 1)).Flatten();
                     await Context.Channel.DeleteMessagesAsync(messages);
                 }
@@ -138,10 +139,27 @@ namespace RexBot2.Modules
             await Context.Channel.SendMessageAsync("```" + res + "```");
         }
 
+        [Command("reload")]
+        [Alias("reloaddata")]
+        [Remarks("admin")]
+        [Summary("Reload data after txt update")]
+        public async Task reloadDataCmd()
+        {
+            if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.MODE_ADMINS))
+            {
+                DataUtils.repopulate();
+                await Context.Channel.SendMessageAsync("Repopulation complete!");
+            } else
+            {
+                await Context.Channel.SendMessageAsync("You must be a mode mod to use this command");
+            }
+            
+        }
+
         [Command("mode")]
         [Remarks("admin")]
         [Summary("Change mode")]
-        public async Task modeCmd(string reqMode="invalid"  )
+        public async Task modeCmd(string reqMode="invalid")
         {
             if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.MODE_ADMINS))
             {
@@ -156,7 +174,7 @@ namespace RexBot2.Modules
                 }
                 else
                 {
-                    await Context.Channel.SendMessageAsync("***You input an invalid mode!***\n\n__Available modes__:\n" + MasterUtils.getAllModesInfo());
+                    await Context.Channel.SendMessageAsync($"***You input an invalid mode!***\n\n```Current Mode is : {DataUtils.mode}```\n\n__Available modes__:\n\n" + MasterUtils.getAllModesInfo());
                 }
             }
             else

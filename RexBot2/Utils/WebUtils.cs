@@ -14,6 +14,7 @@ using System.Xml.Linq;
 using Newtonsoft.Json;
 using System.Net.Http;
 using RexBot2.Timers;
+using System.Diagnostics;
 
 namespace RexBot2.Utils
 {
@@ -49,10 +50,7 @@ namespace RexBot2.Utils
                 "</TranslateOptions>";
             return string.Format(body, category, contentType, reservedFlags, state, uri, user);
         }
-        //client id : rexbot2
-        //secret: xRi60OBVa+tfqDmqwDpVDmHoXwO+yci5WhbR8MSIZBg=
-        //scope: http://api.microsofttranslator.com
-        // grant_type = client_credentials
+
         public static async Task<string> TranslateText(string input, string inlang, string outlang)
         {
             //First check if auth token is valid
@@ -69,7 +67,7 @@ namespace RexBot2.Utils
             string translatedText = "";//collect result here
             string texttotranslate = processed;//what to be translated?
             string tolanguage = outlang;//in which language?
-                                                                   //preparing url with all four parameter
+                                                                   
             string uri = "http://api.microsofttranslator.com/v2/Http.svc/Translate?" + "text=" + texttotranslate + "&from=" + fromlanguage + "&to=" + tolanguage;
             //making web request to url
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
@@ -122,12 +120,10 @@ namespace RexBot2.Utils
             DataUtils.bingAuthStr = await getAuthToken();
         }
 
-        //key: 00bd3d2150614e8594f7d5657e913189
         //Use httpclient instead of legacy httpwebrequest
         //we need to generate a new auth token every 10 mins (cuz microsoft)
         public static async Task<string> getAuthToken()
         {
-            string data = "";
             HttpClient client = new HttpClient();
 
             var requestContent = new FormUrlEncodedContent(new[] {
@@ -139,64 +135,21 @@ namespace RexBot2.Utils
 
             HttpContent responseContent = response.Content;
 
-            // Get the stream of the content.
             using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
             {
-                // Write the output.
-                //Console.WriteLine(await reader.ReadToEndAsync());
                 string res = await reader.ReadToEndAsync();
                 return res;
             }
-
-
-            //var response = client.PostAsync("https://api.cognitive.microsoft.com/sts/v1.0/issueToken?Subscription-Key=00bd3d2150614e8594f7d5657e913189", data);
-            //UTF8Encoding enc = new UTF8Encoding();
-            //var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://api.cognitive.microsoft.com/sts/v1.0/issueToken?Subscription-Key=00bd3d2150614e8594f7d5657e913189");
-            ////httpWebRequest.Headers["Ocp-Apim-Subscription-Key"] = "00bd3d2150614e8594f7d5657e913189";
-            //Console.WriteLine("here!1");
-            
-            //try
-            //{
-            //    System.IO.Stream wr = await httpWebRequest.GetRequestStreamAsync();
-            //    wr.Write(enc.GetBytes(data), 0, data.Length);
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine("error : " + e.ToString());
-            //}
-            
-            //try
-            //{
-            //    WebResponse httpResponse = (await Task<WebResponse>.Factory.FromAsync(httpWebRequest.BeginGetResponse, httpWebRequest.EndGetResponse, null));
-            //    var responseStream = httpResponse.GetResponseStream();
-
-            //    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            //    {
-            //        string answer = JsonConvert.DeserializeObject<string>(streamReader.ReadToEnd());
-            //        return answer;
-            //    }
-            //} catch (Exception e)
-            //{
-            //    Console.WriteLine("error : " + e.ToString());
-            //}
-            
-            //Console.WriteLine("here!2");
-            //return "fail";
-
-        }
-
-
-       
+        }       
 
         public static async void RexTranslate2()
         {
-            string authToken = "05fadf6df12e4d958d45ce5140db56fc";
             string text = "una importante contribución a la rentabilidad de la empresa";
             string uri = "https://api.microsofttranslator.com/v2/Http.svc/GetTranslations?text=" + text + "&from=" + "es" + "&to=" + "en" + "&maxTranslations=5";
             string requestBody = GenerateTranslateOptionsRequestBody("general", "text/plain", "", "", "", "TestUserId");
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            request.Headers["Authorization"] = authToken;
+            request.Headers["Authorization"] = GlobalVars.TRANSLATE2_AUTH_TOKEN;
             request.ContentType = "text/xml";
             request.Method = "POST";
             using (var stream = await Task.Factory.FromAsync<System.IO.Stream>(request.BeginGetRequestStream, request.EndGetRequestStream, null))
@@ -244,25 +197,20 @@ namespace RexBot2.Utils
                 Console.WriteLine("translation :" + translation.TranslatedText);
             }
 
-            // Translate the text (back) to English.
-            //Console.WriteLine("Translating to English ...");
-            //response = service.Translations.List(translations, "en").Execute();
-            //foreach (TranslationsResource translation in response.Translations)
-            //{
-            //    Console.WriteLine("translation :" + translation.TranslatedText);
-            //}
-
             return translations.ElementAt<string>(0);
         }
 
         public static async Task<string> YoutubeTest(string term)
         {
+            List<string> videos = new List<string>();
+            List<string> channels = new List<string>();
+            List<string> playlists = new List<string>();
+
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
                 ApiKey = GlobalVars.YOUTUBE_API_KEY,
-                //ApplicationName = this.GetType().ToString()
             });
-
+ 
             var searchListRequest = youtubeService.Search.List("snippet");
             searchListRequest.Q = term;
             searchListRequest.MaxResults = 1;
@@ -270,41 +218,56 @@ namespace RexBot2.Utils
             // Call the search.list method to retrieve results matching the specified query term.
             var searchListResponse = await searchListRequest.ExecuteAsync();
 
-            List<string> videos = new List<string>();
-            List<string> channels = new List<string>();
-            List<string> playlists = new List<string>();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
 
-            foreach (var searchResult in searchListResponse.Items)
+            // search takes on avg 0.2 - 0.3 seconds
+            while (videos.Count <= 0 && sw.Elapsed.TotalSeconds < GlobalVars.YOUTUBE_MAX_SEARCH_TIME)
             {
-                switch (searchResult.Id.Kind)
+                searchListRequest.MaxResults++;
+                searchListResponse = await searchListRequest.ExecuteAsync();
+                foreach (var searchResult in searchListResponse.Items)
                 {
-                    case "youtube#video":
-                        videos.Add(String.Format("{0} ({1})", searchResult.Snippet.Title, searchResult.Id.VideoId));
-                        break;
+                    switch (searchResult.Id.Kind)
+                    {
+                        case "youtube#video":
+                            videos.Add(String.Format("{0} ({1})", searchResult.Snippet.Title, searchResult.Id.VideoId));
+                            sw.Stop();
+                            //Console.WriteLine("took : " + sw.Elapsed.TotalSeconds);
+                            break;
 
-                    //case "youtube#channel":
-                    //    channels.Add(String.Format("{0} ({1})", searchResult.Snippet.Title, searchResult.Id.ChannelId));
-                    //    break;
+                            //case "youtube#channel":
+                            //    channels.Add(String.Format("{0} ({1})", searchResult.Snippet.Title, searchResult.Id.ChannelId));
+                            //    break;
 
-                    //case "youtube#playlist":
-                    //    playlists.Add(String.Format("{0} ({1})", searchResult.Snippet.Title, searchResult.Id.PlaylistId));
-                    //    break;
+                            //case "youtube#playlist":
+                            //    playlists.Add(String.Format("{0} ({1})", searchResult.Snippet.Title, searchResult.Id.PlaylistId));
+                            //    break;
+                    }
                 }
             }
+
 
             //Console.WriteLine(String.Format("Videos:\n{0}\n", string.Join("\n", videos)));
             //Console.WriteLine(String.Format("Channels:\n{0}\n", string.Join("\n", channels)));
             //Console.WriteLine(String.Format("Playlists:\n{0}\n", string.Join("\n", playlists)));
+            if (videos.Count <= 0)
+            {
+                return "Cannot find the video that you requested! (Or youtube api is being too slow and your request has been cancelled)";
+            }
             string vidurl = MasterUtils.getWord(videos);
+            //Console.WriteLine("before processing: " + vidurl);
             string vidID = MasterUtils.reverse(extractVideoID(MasterUtils.reverse(vidurl)));
             //Console.WriteLine(vids);
             //Console.WriteLine(vidID);
+
             return $"https://www.youtube.com/watch?v={vidID}";
         }
 
         public static string extractVideoID(string title)
         {
-            if(title.Count(x => x == '(') == 1 && title.Count(x => x == ')') == 1)
+            //if(title.Count(x => x == '(') == 1 && title.Count(x => x == ')') == 1)
+            try
             {
                 string res = string.Empty;
                 bool isID = true;
@@ -317,14 +280,16 @@ namespace RexBot2.Utils
                     }
                     if(title[i] == '(')
                     {
-                            isID = false;
+                        isID = false;
+                        return res; // return early in case title contains brackets
                     }
                 }
                 return res;
             }
-            else
+            catch(Exception e)
             {
-                return "Not a valid video";
+                Logger.Log(Discord.LogSeverity.Error, "WebUtils", "extract video id error!");
+                return null;
             }
         }
 
@@ -336,6 +301,7 @@ namespace RexBot2.Utils
             return joke;
         }
 
+        //API call is too slow...
         public static async Task<string> yodaOutput(string input)
         {
             Uri uri = new Uri("https://yoda.p.mashape.com/yoda?sentence=" + processForUrl(input));
@@ -408,6 +374,7 @@ namespace RexBot2.Utils
             return received;
         }
 
+        //override for imgur
         public static async Task<string> httpRequest(string url, bool forImgur)
         {
             Uri uri = new Uri(url);

@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using Discord.WebSocket;
 using Discord;
+using Discord.Commands;
+using System.Diagnostics;
 
 namespace RexBot2.Utils
 {
@@ -22,12 +24,16 @@ namespace RexBot2.Utils
         public static List<string> heroList;
         public static List<string> positionList;
         public static List<string> memeTypesList;
+        public static List<string> stopWordsList;
 
         public static Dictionary<string, string[]> usernameDict;
 
         public static List<string> trainPhrases1;
         public static List<string> trainPhrases2;
         public static List<string> trainPhrases3;
+
+        //Only stores commands suitable for !random command
+        public static List<string> commands;
 
         public static string bingAuthStr = "";
 
@@ -54,20 +60,25 @@ namespace RexBot2.Utils
 
         public static Dictionary<string, string> helpEmojiBinds;
         public static DiscordSocketClient _client;
-        public DataUtils(DiscordSocketClient client)
+        private static CommandService _cs;
+        public DataUtils(DiscordSocketClient client, CommandService cs)
         {
             _client = client;
+            _cs = cs;
+            InitTwitter();
             InitVars();
+        }
+        private void InitTwitter()
+        {
+            Tweetinvi.Auth.SetUserCredentials(GlobalVars.TWITTER_CONSUMER_KEY, GlobalVars.TWITTER_CONSUMER_SECRET, GlobalVars.TWITTER_USER_ACCESS_TOKEN, GlobalVars.TWITTER_USER_ACCESS_SECRET);
+            var zuser = Tweetinvi.User.GetAuthenticatedUser();
+            Logger.NewLine();
+            Logger.Log(LogSeverity.Info, "DataUtils", "Twitter initializing: " + zuser);
         }
 
         private void InitVars()
-        {
-            Tweetinvi.Auth.SetUserCredentials(GlobalVars.TWITTER_CONSUMER_KEY, GlobalVars.TWITTER_CONSUMER_SECRET,GlobalVars.TWITTER_USER_ACCESS_TOKEN, GlobalVars.TWITTER_USER_ACCESS_SECRET);
-            var zuser = Tweetinvi.User.GetAuthenticatedUser();
-            Console.WriteLine("Twitter initializing: " + zuser);
-
+        {            
             rexAS = new AudioService();
-
             rnd = new Random();
             picNames = new List<string>();
             adjList = new List<string>();
@@ -80,9 +91,13 @@ namespace RexBot2.Utils
             positionList = new List<string>();
             memeTypesList = new List<string>();
 
+            stopWordsList = new List<string>();
+
             trainPhrases1 = new List<string>();
             trainPhrases2 = new List<string>();
             trainPhrases3 = new List<string>();
+
+            commands = new List<string>();
 
             aliases = new Dictionary<string[], string>();
             responses = new Dictionary<string, string[]>();
@@ -101,7 +116,21 @@ namespace RexBot2.Utils
             modes.Add("tooloud", new RexMode("tooloud", "RexBot on Steroids", new string[] { "functions", "trigger 100", "status", "tts", "auto restrain" }));
             modes.Add("cat", new RexMode("cat", "Posts a cat photo for every message - Use with caution", new string[] { "functions", "trigger 100", "status", "cat", "tts", "auto restrain" }));
 
-            Console.WriteLine("Starting population...");
+            Logger.Log(LogSeverity.Info, "DataUtils", "Starting Data Population...");
+            repopulate();
+            
+            
+            populateHelpEmojiBinds(); // no need to reload
+            
+            
+            loadRexDB(); // no need to reload
+            populateUsernameDict(); // can't cuz internal load
+            Logger.Log(LogSeverity.Info, "DataUtils", "Done Loading Data!");
+            Logger.NewLine();
+        }
+
+        public static void repopulate()
+        {
             populate(adjList, "adjective.txt");
             populate(nounList, "noun.txt");
             populate(verbList, "verb.txt");
@@ -114,17 +143,55 @@ namespace RexBot2.Utils
             populate(trainPhrases1, "trainphrases1.txt");
             populate(trainPhrases2, "trainphrases2.txt");
             populate(trainPhrases3, "trainphrases3.txt");
+            populate(stopWordsList, "stopwords.txt");
             populateResponses();
+            populateCommands();
             populatePicFileNames();
-            populateHelpEmojiBinds();
-            AliasUtils.ParseAliases();
             populateWordScoreDict();
-            loadRexDB();
-            populateUsernameDict();
-            Console.WriteLine("Done Loading!");
+            AliasUtils.ParseAliases(); //cant reload due to array key design
         }
-        private void populateWordScoreDict()
+
+        private static void populateCommands()
         {
+            foreach(CommandInfo c in _cs.Commands)
+            {
+                if(!commands.Contains(c.Name))
+                    commands.Add(c.Name);
+            }
+
+            //remove commands not suitable for random
+            //foreach(string dis in GlobalVars.DISABLED_FROM_RANDOM)
+            //{
+            //    commands.Remove(dis);
+            //}
+        }
+
+        public static string getPossibleCommand(int argCount, string argType = "username")
+        {
+            if (argCount == 0)
+            {
+                return MasterUtils.getWord(GlobalVars.POSSIBLE_TO_RANDOM_0ARG);
+            } else if(argCount ==1 && argType == "username")
+            {
+                return MasterUtils.getWord(GlobalVars.POSSIBLE_TO_RANDOM_1ARG_USERNAME) + " " + getRandomName();
+            } else if(argCount == 1 && argType == "shortsearch")
+            {
+                return MasterUtils.getWord(GlobalVars.POSSIBLE_TO_RANDOM_1ARG_SHORTSEARCH) + " " + MasterUtils.getWord(GlobalVars.RANDOM_SHORTSEARCH_TERMS);
+            } else if (argCount == 1 && argType == "longsearch")
+            {
+                return MasterUtils.getWord(GlobalVars.POSSIBLE_TO_RANDOM_1ARG_LONGSEARCH) + " " + MasterUtils.getWord(GlobalVars.RANDOM_LONGSEARCH_TERMS) + " " + MasterUtils.sillyName();
+            }
+                return "error";
+        }
+
+        public static string getRandomName()
+        {
+            return usernameDict.ElementAt(rnd.Next(0, usernameDict.Count)).Value[0];
+        }
+
+        private static void populateWordScoreDict()
+        {
+            wordScoresDict.Clear();
             string line;
             try
             {
@@ -170,9 +237,14 @@ namespace RexBot2.Utils
             } else
             {
                 await _client.SetStatusAsync(UserStatus.Online);
-                await _client.SetGameAsync(MasterUtils.getWord(games), GlobalVars.TWITCH_STREAM_URL, StreamType.Twitch);
+                await _client.SetGameAsync(newmode + " mode");
             }
-            
+        }
+
+        public static async void turnOffStatus()
+        {
+            await _client.SetStatusAsync(UserStatus.DoNotDisturb);
+            await _client.SetGameAsync("Shutting down...");
         }
 
         private void populateUsernameDict()
@@ -196,7 +268,7 @@ namespace RexBot2.Utils
         public static ulong getUserIDFromUsername(string username)
         {
             if (usernameDict.ContainsKey(username))
-            {
+            {         
                 return ulong.Parse(usernameDict[username][1]);
             } else
             {
@@ -284,9 +356,10 @@ namespace RexBot2.Utils
             }
         }
 
-        private void populateResponses()
+        private static void populateResponses()
         {
             string line;
+            responses.Clear();
             try
             {
                 FileStream fsr = new FileStream(textPath + "responses.txt", FileMode.Open, FileAccess.Read);
@@ -317,7 +390,7 @@ namespace RexBot2.Utils
             }
         }
 
-        private void populate(List<string> l, string filename)
+        private static void populate(List<string> l, string filename)
         {
             string line;
             string inputFilePath = textPath + filename;
@@ -326,7 +399,7 @@ namespace RexBot2.Utils
                 FileStream fsr = new FileStream(inputFilePath, FileMode.Open, FileAccess.Read);
                 using (StreamReader sr = new StreamReader(fsr))
                 {
-                    while ((line = sr.ReadLine()) != null)
+                    while ((line = sr.ReadLine()) != null && !l.Contains(line))
                     {
                         l.Add(line);
                     }
@@ -338,13 +411,14 @@ namespace RexBot2.Utils
                 Console.WriteLine(e.Message);
             }
         }
-        public void populatePicFileNames()
+        public static void populatePicFileNames()
         {
             DirectoryInfo d = new DirectoryInfo("Data/friendpics/");
             FileInfo[] Files = d.GetFiles("*.*");
             foreach (FileInfo file in Files)
             {
-                picNames.Add(file.Name);
+                if(!picNames.Contains(file.Name))
+                    picNames.Add(file.Name);
             }
         }
 

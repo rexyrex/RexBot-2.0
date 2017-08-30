@@ -125,7 +125,7 @@ namespace RexBot2.Modules
         {
             string res = await WebUtils.YoutubeTest(query);
 
-            Console.WriteLine(res);
+            //Console.WriteLine(res);
             await Context.Channel.SendMessageAsync(res);
         }
 
