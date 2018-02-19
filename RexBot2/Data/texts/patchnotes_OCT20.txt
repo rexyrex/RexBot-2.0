@@ -1,0 +1,27 @@
+﻿Huge Update!!
+
+Bot now uses a deep learning model to come up with (hopefully) comprehensible responses to your messages.
+
+There can be significant delays for responses as it tries to come up with accurate answers rather than the first response it can think of.
+
+Model has been trained on reddit forums, youtube comments, and our discord history. 
+
+I used an LSTM (Long short-term memory recurrent neural network) with some convolution.
+
+Bot will go offline from time to time to retrain itself on discord chat data.
+
+Please report any bugs as I haven't been able to test everything thoroughly :)
+
+Additional Updates:
+
+1. Bot will now act differently towards different people depending on the language they use, the functions they call, and their name.
+
+2. !w now boasts a wider variety of annoying tts messages.
+
+3. Bot will occasionally send pm's that are 100% helpful. Please don't respond to pm's unless the bot asks you to do so.
+
+Future updates:
+
+1. Working on fixing the semi-bug where bot will shutdown when geoff or nick activates cat mode.
+
+NOTE: Catmode has been temporarily deactivated

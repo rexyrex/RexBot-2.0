@@ -14,6 +14,14 @@ namespace RexBot2.Timers
         public static Stopwatch systemRunClock;
         public static Stopwatch bingAuthClock;
         public static Stopwatch gameChangeClock;
+
+        public static Stopwatch catModeClock;
+        public static Stopwatch ttsClock;
+
+        public static Dictionary<string, Stopwatch> ttsClockDict;
+        public static Dictionary<string, Stopwatch> annoyClockDict;
+        public static Dictionary<string, Stopwatch> confuseClockDict;
+
         public static Dictionary<string, Dictionary<string, Stopwatch>> userCdDict;
         public static Dictionary<string, double> cmdCdDict;
         public RexTimers(DiscordSocketClient _client, IReadOnlyCollection<SocketGuildUser> userCollection)
@@ -23,13 +31,24 @@ namespace RexBot2.Timers
             //_client.DownloadUsersAsync(ie);
             userCdDict = new Dictionary<string, Dictionary<string, Stopwatch>>();
             cmdCdDict = new Dictionary<string, double>();
+            annoyClockDict = new Dictionary<string, Stopwatch>();
+            ttsClockDict = new Dictionary<string, Stopwatch>();
+            confuseClockDict = new Dictionary<string, Stopwatch>();
             cmdCdDict.Add("w", 22);//in seconds
             cmdCdDict.Add("report", 15);
-            cmdCdDict.Add("eminem", 15);
+            cmdCdDict.Add("eminem", 30);
+            cmdCdDict.Add("beg", 60);
+            cmdCdDict.Add("forgive", 15);
+            cmdCdDict.Add("buy", 60);
+            cmdCdDict.Add("gift", 3600);
+            cmdCdDict.Add("email", 600);
+            
             systemRunClock = new Stopwatch();
             wClock = new Stopwatch();
             bingAuthClock = new Stopwatch();
             gameChangeClock = new Stopwatch();
+            catModeClock = new Stopwatch();
+            ttsClock = new Stopwatch();
 
             foreach (SocketGuildUser sgu in userCollection)
             {
@@ -49,6 +68,24 @@ namespace RexBot2.Timers
             gameChangeClock.Start();
             bingAuthClock.Start();
             systemRunClock.Start();
+        }
+
+        public static void addPersonToAnnoy(string username)
+        {
+            annoyClockDict.Add(username, new Stopwatch());
+            annoyClockDict[username].Start();
+        }
+
+        public static void addPersonToConfuse(string username)
+        {
+            confuseClockDict.Add(username, new Stopwatch());
+            confuseClockDict[username].Start();
+        }
+
+        public static void addPersonToTTS(string username)
+        {
+            ttsClockDict.Add(username, new Stopwatch());
+            ttsClockDict[username].Start();
         }
 
         public static string getTime(Stopwatch sw)

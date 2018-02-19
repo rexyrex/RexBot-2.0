@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using RexBot2.Utils;
 using Newtonsoft.Json;
 using Discord;
-using Google.Apis.Translate;
+//using Google.Apis.Translate;
 
 namespace RexBot2.Modules
 {
@@ -154,10 +154,11 @@ namespace RexBot2.Modules
         [Summary("Translate given text from English to Korean")]
         public async Task translateCmd([Remainder] string input)
         {
-            //Console.WriteLine("translate call");
-            string res = await WebUtils.TranslateText(input,"en","ko");
-            //Console.WriteLine("done translate");
-            await Context.Channel.SendMessageAsync(res);
+
+            //string res = await WebUtils.TranslateText(input,"en","ko");
+
+            //await Context.Channel.SendMessageAsync(res);
+            await Context.Channel.SendMessageAsync("DISABLED");
         }
 
         [Command("sillyt")]
@@ -166,11 +167,13 @@ namespace RexBot2.Modules
         [Summary("Translate given text from English to Korean then back to English. Results in silly text.")]
         public async Task stranslateCmd([Remainder] string input)
         {
-            //Console.WriteLine("translate call");
-            string res = await WebUtils.TranslateText(input,"en","ko");
-            res = await WebUtils.TranslateText(res,"ko","en");
-            //Console.WriteLine("done translate");
-            await Context.Channel.SendMessageAsync(res);
+
+            //string res = await WebUtils.TranslateText(input,"en","ko");
+            //res = await WebUtils.TranslateText(res,"ko","en");
+            //await Context.Channel.SendMessageAsync(res);
+            await Context.Channel.SendMessageAsync("DISABLED");
+
+
         }
 
         [Command("auth")]
@@ -178,10 +181,11 @@ namespace RexBot2.Modules
         [Summary("Generate auth token for bing translate")]
         public async Task authCmd()
         {
-            Console.WriteLine("auth call");
-            string res = await WebUtils.getAuthToken();
-            Console.WriteLine("auth done");
-            await Context.Channel.SendMessageAsync("Success! Token:" + res);
+            //Console.WriteLine("auth call");
+            //string res = await WebUtils.getAuthToken();
+            //Console.WriteLine("auth done");
+            //await Context.Channel.SendMessageAsync("Success! Token:" + res);
+            await Context.Channel.SendMessageAsync("This is for bing translate but is DISABLED for now");
         }
 
     }

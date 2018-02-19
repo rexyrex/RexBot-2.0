@@ -42,7 +42,14 @@ namespace RexBot2.Modules
         [Summary("Temporary function which should not be invoked by anyone else than Rexyrex")]
         public async Task dvtstCmd()
         {
-            await Context.Channel.SendMessageAsync("NOT IMPLEMENTED MADAFAKA");
+            EmbedBuilder emb = new EmbedBuilder();
+            emb.Color = new Color(177, 44, 33);
+            emb.Title = "** Company name / Coins Invested / Risk / Time left **\n";
+            string desc = "This is a test";
+
+            emb.Description = desc;
+            await Context.Channel.SendMessageAsync("This is a test 1");
+            await Context.Channel.SendMessageAsync("", false, emb);
         }
 
         [Command("random")]

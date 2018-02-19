@@ -12,6 +12,7 @@ using RexBot2.Timers;
 using Discord.Rest;
 using System.Text;
 using System.Diagnostics;
+using System.IO;
 
 namespace RexBot2
 {
@@ -49,7 +50,7 @@ namespace RexBot2
             //_client.UserVoiceStateUpdated += _client_UserVoiceStateUpdated;
             //_client.CurrentUserUpdated += _client_CurrentUserUpdated;
             _client.GuildMemberUpdated += _client_GuildMemberUpdated;
-            //Console.WriteLine("latency:" + _client.Latency);
+            Console.WriteLine("latency:" + _client.Latency);
         }
 
         private async Task _client_GuildMemberUpdated(SocketGuildUser beforeUser, SocketGuildUser afterUser)
@@ -64,22 +65,46 @@ namespace RexBot2
                     await sc.SendMessageAsync("Welcome back Xander! Mode set to Xander Mode!\nNote : You can always change mode with the **!mode** command :)");
                 }
 
-                if ((afterUser.Id == 308305348643782656))
-                {
-                    ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
-                    await sc.SendMessageAsync("WB Adrian");
-                }
+                //if ((afterUser.Id == 308305348643782656))
+                //{
+                //    ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
+                //    await sc.SendMessageAsync("WB Adrian");
+                //}
             }
-            if (afterUser.Status == UserStatus.Invisible)
+            ISocketMessageChannel scz = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
+            if(afterUser.Status == beforeUser.Status)
             {
-                ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
-                await sc.SendMessageAsync("You can't hide from me!");
-            }
-            if (afterUser.Status == UserStatus.Offline)
+                await scz.SendMessageAsync(afterUser + " " + beforeUser.Game + " -> " + afterUser.Game + " at " + DateTime.Now.ToLongTimeString());
+            } else
             {
-                ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
-                await sc.SendMessageAsync("You went offline!");
+                await scz.SendMessageAsync(afterUser + " " + beforeUser.Status + " -> " + afterUser.Status + " at " + DateTime.Now.ToLongTimeString());
             }
+
+            if (DataUtils.hasEmail(afterUser.ToString()))
+            {
+                SocketUser msc = _client.GetUser(DataUtils.getUserIDFromUsername(afterUser.ToString()));
+                //RestDMChannel rdc = await msc.CreateDMChannelAsync(); 
+                //await rdc.SendMessageAsync(pmmsg);
+                await msc.SendMessageAsync("You have unread emails! Check them with !inbox");
+            }
+            
+
+            //if (afterUser.Status == UserStatus.Invisible)
+            //{
+            //    ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
+            //    await sc.SendMessageAsync("You can't hide from me!");
+            //}
+            //if (afterUser.Status == UserStatus.Offline)
+            //{
+            //    ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
+            //    await sc.SendMessageAsync(afterUser.ToString() + " went offline!");
+            //}
+
+            //if (afterUser.Status == UserStatus.Online)
+            //{
+            //    ISocketMessageChannel sc = _client.GetGuild(GlobalVars.PRIVATE_GUILD_ID).GetChannel(GlobalVars.PRIVATE_CHANNEL_ID) as ISocketMessageChannel;
+            //    await sc.SendMessageAsync(afterUser.ToString() + " came online!");
+            //}
 
         }
 
@@ -126,6 +151,11 @@ namespace RexBot2
             }
             sw.Stop();
             Logger.Log(LogSeverity.Info, "Rex CMD Handler", "Time to get Ready : " + sw.Elapsed.TotalSeconds.ToString("F2") + " seconds");
+            ISocketMessageChannel sc = _client.GetGuild(GlobalVars.GUILD_ID).GetChannel(GlobalVars.CHANNEL_ID) as ISocketMessageChannel;
+            //await sc.SendMessageAsync("Rexbot2.0 has been initialized at : " + DateTime.Now.ToString());
+            string picPath = "Data/pics/";
+            //await sc.SendFileAsync(picPath + "geoff.jpg");
+            //await sc.SendMessageAsync("Geoff confirms that rexbot has finished initialization");
         }
 
         private async Task _client_Log(LogMessage arg)
@@ -200,6 +230,8 @@ namespace RexBot2
             
             var context = new SocketCommandContext(_client, msg);
 
+            
+
             //private msgs sent to private channel
             if (context.IsPrivate && !msg.Author.IsBot)
             {
@@ -216,6 +248,14 @@ namespace RexBot2
                 return;
             }
 
+            //super hate list delete msg
+            if (DataUtils.superHateList.Contains(msg.Author.ToString()))
+            {
+                await msg.DeleteAsync();
+                await msg.Author.SendMessageAsync("You are currently on the super hate list. Please wait until the bot decides you have been punished enough.");
+                return;
+            }
+
             //del msg if restrained with %
             if (AdminUtils.isRestrained(msg.Author.ToString()) && MasterUtils.roll(GlobalVars.MESSAGE_DELETE_RESTRAINED_CHANCE))
             {
@@ -228,7 +268,7 @@ namespace RexBot2
             {
                 var tk = Task.Run(async () =>
                 {
-                    await msg.AddReactionAsync(EmojiUtils.getEmoji());
+                    await msg.AddReactionAsync(EmojiUtils.getRandEmoji());
                 });
             }
 
@@ -252,7 +292,210 @@ namespace RexBot2
                 return;
             }
 
-            if (msg.HasStringPrefix("유저", ref argPos))
+            if (msg.HasStringPrefix("상태", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("상태", "");
+                var msc = _client.GetChannel(GlobalVars.CHANNEL_ID) as ISocketMessageChannel;
+                //Logger.NewLine(rezlong.ToString());                
+                await _client.SetGameAsync(rez);
+                RexTimers.gameChangeClock.Restart();
+                return;
+            }
+
+            if (msg.HasStringPrefix("상색", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("상색", "");
+                var msc = _client.GetChannel(GlobalVars.CHANNEL_ID) as ISocketMessageChannel;
+                //Logger.NewLine(rezlong.ToString());           
+                int rezint = int.Parse(rez);
+                switch (rezint)
+                {
+                    case 1: await _client.SetStatusAsync(UserStatus.Online); break;
+                    case 2: await _client.SetStatusAsync(UserStatus.Idle); break;
+                    case 3: await _client.SetStatusAsync(UserStatus.Invisible); break;
+                    default: await _client.SetStatusAsync(UserStatus.DoNotDisturb); break;
+                    
+                }              
+                
+                return;
+            }
+
+            if (msg.HasStringPrefix("지워", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("지워", "");
+                var msc = _client.GetChannel(GlobalVars.CHANNEL_ID) as ISocketMessageChannel;
+                ulong rezlong = ulong.Parse(rez);
+                //Logger.NewLine(rezlong.ToString());                
+
+                IMessage messages = await msc.GetMessageAsync(rezlong);
+                await messages.DeleteAsync();
+
+                return;
+            }
+
+            if (msg.HasStringPrefix("퍼지", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("퍼지", "");
+                var msc = _client.GetChannel(GlobalVars.CHANNEL_ID) as ISocketMessageChannel;
+                int msgToDel = int.Parse(rez);
+                //Logger.NewLine(rezlong.ToString());                
+
+                var messages = await msc.GetMessagesAsync(((int)msgToDel)).Flatten();
+                await msc.DeleteMessagesAsync(messages);
+
+                return;
+            }
+
+            if (msg.HasStringPrefix("퍼제", ref argPos))
+            {
+                //username, numbertocheck
+                string rez = msg.Content.Replace("퍼제", "");
+                string username = rez.Split()[0];
+                int nmsgs = int.Parse(rez.Split()[1]);
+
+                var msc = _client.GetChannel(GlobalVars.CHANNEL_ID) as ISocketMessageChannel;
+                
+             
+
+                var messages = await msc.GetMessagesAsync(((int)nmsgs)).Flatten();
+                foreach(IMessage im in messages)
+                {
+                    if (im.Author.ToString() == username)
+                    {
+                        await im.DeleteAsync();
+                    }
+                }
+                return;
+            }
+
+            if (msg.HasStringPrefix("이모지", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("이모지", "");
+                ulong msgid = ulong.Parse(rez.Split()[0]);
+                string emoji = rez.Split()[1];
+                var msc = _client.GetChannel(GlobalVars.CHANNEL_ID) as ISocketMessageChannel;
+                Logger.NewLine(msgid.ToString());
+                Logger.NewLine(emoji);
+                IMessage messages = await msc.GetMessageAsync(msgid);
+
+
+                var tk = Task.Run(async () =>
+                {
+                    SocketUserMessage sum = (SocketUserMessage)messages;
+                    await sum.AddReactionAsync(EmojiUtils.getEmoji(emoji));
+                    
+                });
+
+                return;
+            }
+
+            if (msg.HasStringPrefix("대답", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("대답", "");
+                ulong msgid = ulong.Parse(rez.Split()[0]);
+                //string response = rez.Split()[1];
+
+                string pmmsg = string.Empty;
+                for (int i = 0; i < rez.Split().Length - 1; i++)
+                {
+                    pmmsg += rez.Split()[i + 1] + " ";
+                }
+
+
+                //Logger.NewLine(response);
+                var msc = _client.GetChannel(GlobalVars.CHANNEL_ID) as ISocketMessageChannel;
+
+                IMessage messages = await msc.GetMessageAsync(msgid);
+                await msc.SendMessageAsync(messages.Author.ToString() + "said:\n```" + messages.Content + "```\nBot Response:\n```" + pmmsg + "```");
+
+                return;
+            }
+
+            if(msg.HasStringPrefix("시작", ref argPos))            
+            {
+                string rez = msg.Content.Replace("시작", "");
+                EmbedBuilder emb = new EmbedBuilder();
+                emb.Color = new Color(1, 255, 1);
+                emb.Timestamp = new DateTimeOffset(DateTime.Now);
+
+                    MasterUtils.toggleActivation();
+                    emb.Description = "**Rexbot activation = " + DataUtils.activation + "**";
+
+                    await context.Channel.SendMessageAsync("", false, emb);
+            }
+
+            if (msg.HasStringPrefix("리포트", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("리포트", "");
+                string username = rez.Split()[0];
+                int reportsToSet = int.Parse(rez.Split()[1]);
+                DataUtils.setReports(username, reportsToSet);
+                
+                return;
+            }
+
+            if (msg.HasStringPrefix("더블유", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("더블유", "");
+                string username = rez.Split()[0];
+                int wsToSet = int.Parse(rez.Split()[1]);
+                DataUtils.setWAddChance(username, wsToSet);
+                return;
+            }
+
+            if (msg.HasStringPrefix("슈퍼헤이트", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("슈퍼헤이트", "");
+                string username = rez.Split()[0];
+
+                DataUtils.superHateList.Add(username);
+
+                return;
+            }
+
+            if (msg.HasStringPrefix("슈퍼라이크", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("슈퍼라이크", "");
+                string username = rez.Split()[0];
+
+                DataUtils.superHateList.Clear();
+
+                return;
+            }
+
+            if (msg.HasStringPrefix("이메일", ref argPos))
+            {
+                //메인체널메세지전달
+                string rez = msg.Content.Replace("이메일", "");
+                string un = rez.Split()[0];
+                string pmmsg = string.Empty;
+                for (int i = 0; i < rez.Split().Length - 1; i++)
+                {
+                    pmmsg += rez.Split()[i + 1] + " ";
+                }
+
+                DataUtils.sendEmail("RexBot2.0", un, pmmsg);
+
+                SocketUser msc = _client.GetUser(DataUtils.getUserIDFromUsername(un));
+                //RestDMChannel rdc = await msc.CreateDMChannelAsync(); 
+                //await rdc.SendMessageAsync(pmmsg);
+                await msc.SendMessageAsync("`You got an email from Rexbot! Check it out with !inbox`");
+
+                return;
+
+            }
+
+                if (msg.HasStringPrefix("유저", ref argPos))
             {
                 //메인체널메세지전달
                 string rez = msg.Content.Replace("유저","");
@@ -264,11 +507,49 @@ namespace RexBot2
                 }
 
                 SocketUser msc = _client.GetUser(DataUtils.getUserIDFromUsername(un));
-                RestDMChannel rdc = await msc.CreateDMChannelAsync(); 
-                await rdc.SendMessageAsync(pmmsg);
+                //RestDMChannel rdc = await msc.CreateDMChannelAsync(); 
+                //await rdc.SendMessageAsync(pmmsg);
+                await msc.SendMessageAsync(pmmsg);
                 return;
             }
+
+            if (msg.HasStringPrefix("그라운드코인", ref argPos))
+            {
+                string rez = msg.Content.Replace("그라운드코인", "");
+                string coinstring = rez.Split()[0];
+                DataUtils.coinsOnGround = int.Parse(coinstring);
+                return;
+            }
+
+            if (msg.HasStringPrefix("컴파니", ref argPos))
+            {
+                string rez = msg.Content.Replace("컴파니", "");
+                DataUtils.repopulateCompanies();
+                return;
+            }
+
+            if (msg.HasStringPrefix("코인", ref argPos))
+            {
+                string rez = msg.Content.Replace("코인", "");
+                string username = rez.Split()[0];
+                string coinstring = rez.Split()[1];
+                DataUtils.setCoins(username, int.Parse(coinstring));
+                return;
+            }
+
+            if (msg.HasStringPrefix("끝내버려", ref argPos))
+            {
+                //메인체널메세지전달
+                using (StreamWriter sw = File.AppendText("Data/texts/role.txt"))
+                {
+                    sw.WriteLine("z");
+                }
+                System.Environment.Exit(1);
+                return;
+            }
+
             
+
             if (msg.HasStringPrefix("시크릿", ref argPos))
             {
                 string rez = msg.Content.Replace("시크릿", "");
@@ -356,10 +637,134 @@ namespace RexBot2
                 //StatsUtils.updateMessageUsage(msg.Author.Username + "#" + msg.Author.Discriminator);
             }
 
+            if (DataUtils.activation == false && !MasterUtils.ContainsAny(msg.Author.ToString(), GlobalVars.ADMINS))
+            {
+                return;
+            }
+
+            if (DataUtils.getRawStringFromFile("Data/texts/role.txt").Length!=2)
+            {
+                await context.Channel.SendMessageAsync("I am die. Upgrade to new version. Shutting down.");
+                System.Environment.Exit(1);
+                return;
+            }            
+
+            ////Check cat timer and update
+            //if (RexTimers.ttsClock.IsRunning && !msg.Author.IsBot)
+            //{
+            //    if (RexTimers.ttsClock.Elapsed.TotalSeconds > GlobalVars.TMP_TTSMODE_DURATION)
+            //    {
+            //        RexTimers.ttsClock.Reset();
+            //        RexTimers.ttsClock.Stop();
+            //    }
+            //    else
+            //    {
+            //        await context.Channel.SendMessageAsync("Here is your annoying string you " + MasterUtils.sillyName() + ". \nYou have "+ Math.Round((GlobalVars.TMP_TTSMODE_DURATION - RexTimers.ttsClock.Elapsed.TotalSeconds), 2) + " seconds remaining of this annoying tts mode",true);
+            //        return;
+            //    }
+            //}
+
+            //Check cat timer and update
+            if (RexTimers.catModeClock.IsRunning && !msg.Author.IsBot)
+            {
+                if (RexTimers.catModeClock.Elapsed.TotalSeconds > GlobalVars.TMP_CATMODE_DURATION)
+                {
+                    RexTimers.catModeClock.Reset();
+                    RexTimers.catModeClock.Stop();
+                }
+                else
+                {
+                    string jsonStr = await WebUtils.httpRequest("http://random.cat/meow");
+                    dynamic dynObj = JsonConvert.DeserializeObject(jsonStr);
+                    string urlStr = dynObj.file;
+                    await context.Channel.SendMessageAsync("DID I HEAR CAT???" + urlStr + " \nYou have " + Math.Round((GlobalVars.TMP_CATMODE_DURATION - RexTimers.catModeClock.Elapsed.TotalSeconds),2) + " seconds remaining of cat mode",true);
+                    return;
+                }
+            }
+
+            //tts spam person
+            if (RexTimers.ttsClockDict.ContainsKey(msg.Author.ToString()))
+            {
+                if (RexTimers.ttsClockDict[msg.Author.ToString()].Elapsed.TotalSeconds > GlobalVars.TMP_TTSMODE_DURATION)
+                {
+                    RexTimers.ttsClockDict.Remove(msg.Author.ToString());
+                }
+                else
+                {
+                    //tts
+                    await context.Channel.SendMessageAsync("You are currently being tts'ed you " + MasterUtils.sillyName() + ". \nYou have " + Math.Round((GlobalVars.TMP_TTSMODE_DURATION - RexTimers.ttsClockDict[msg.Author.ToString()].Elapsed.TotalSeconds), 2) + " seconds remaining of this annoying tts mode", true);
+                    return;
+                }
+            }
+
+            //annoy person
+            if (RexTimers.annoyClockDict.ContainsKey(msg.Author.ToString()))
+            {
+                if(RexTimers.annoyClockDict[msg.Author.ToString()].Elapsed.TotalSeconds > GlobalVars.ANNOY_DURATION)
+                {
+                    RexTimers.annoyClockDict.Remove(msg.Author.ToString());
+                } else
+                {
+                    //annoy
+                    int randnum = DataUtils.rnd.Next(0, 4);
+                    switch (randnum)
+                    {
+                        case 0:
+                            DataUtils.gainCoins(msg.Author.ToString(), -1);
+                            await context.Channel.SendMessageAsync("You just lost a rex coin you " + MasterUtils.sillyName() + ". \nYou have " + Math.Round((GlobalVars.ANNOY_DURATION - RexTimers.annoyClockDict[msg.Author.ToString()].Elapsed.TotalSeconds), 2) + " seconds remaining of being annoyed", true);
+                            break;
+                        case 1:
+                            await msg.DeleteAsync();
+                            await context.Channel.SendMessageAsync("`I decided to delete your last message " + msg.Author.ToString() + ".` \nYou have " + Math.Round((GlobalVars.ANNOY_DURATION - RexTimers.annoyClockDict[msg.Author.ToString()].Elapsed.TotalSeconds), 2) + " seconds remaining of being annoyed", true);
+                            break;
+                        case 2:
+                            DataUtils.gainReports(msg.Author.ToString(), -10);
+                            await context.Channel.SendMessageAsync("I remove 10 reports " + msg.Author.ToString() + ". \nYou have " + Math.Round((GlobalVars.ANNOY_DURATION - RexTimers.annoyClockDict[msg.Author.ToString()].Elapsed.TotalSeconds), 2) + " seconds remaining of being annoyed", true);
+                            break;
+                        case 3:
+                            await context.Channel.SendMessageAsync("Im gonna try and annoy you with this tts string cuz you are a " + MasterUtils.sillyName() + ". \nYou have " + Math.Round((GlobalVars.ANNOY_DURATION - RexTimers.annoyClockDict[msg.Author.ToString()].Elapsed.TotalSeconds), 2) + " seconds remaining of being annoyed", true);
+                            break;
+                        default: break;
+                    }
+                    return;
+                }
+            }
+
+            //confuse person
+            if (RexTimers.confuseClockDict.ContainsKey(msg.Author.ToString()))
+            {
+                if (RexTimers.confuseClockDict[msg.Author.ToString()].Elapsed.TotalSeconds > GlobalVars.CONFUSE_DURATION)
+                {
+                    RexTimers.confuseClockDict.Remove(msg.Author.ToString());
+                }
+                else
+                {
+                    //confuse
+                    string content = msg.Content;
+                    await msg.DeleteAsync();
+                    await context.Channel.SendMessageAsync(msg.Author + " says " + MasterUtils.mixSentence(content),true);
+                    //await context.Channel.SendMessageAsync("You are currently being confused. " + RexTimers.confuseClockDict[msg.Author.ToString()].Elapsed.TotalSeconds + " seconds passed");
+                    return;
+                }
+            }
+
             //Command handle
             if (msg.HasCharPrefix(GlobalVars.COMMAND_PREFIX, ref argPos) && ((double)msg.Content.Count(x => x == '!')/msg.Content.Length) <0.51 
                 )
             {
+                if (DataUtils.reports.ContainsKey(msg.Author.ToString()))
+                {
+                    int rand = DataUtils.rnd.Next(1, 1001);
+                    if (rand < DataUtils.reports[msg.Author.ToString()])
+                    {
+                        double duration = DataUtils.rnd.Next(10, 20);
+                        AdminUtils.addRestriction(msg.Author.ToString(), duration);
+                        await context.Channel.SendMessageAsync("I see you've been reported quite a bit " + msg.Author.Mention + " so ur getting restrained for " + Math.Round(duration, 0).ToString() + "s");
+                        return;
+                    }
+                    
+                }
+
                 if (!AdminUtils.isRestrained(msg.Author.ToString()))
                 {
                     string trimmedcmd = msg.Content.ToString().ToLower().Trim('!');
@@ -368,8 +773,10 @@ namespace RexBot2
                         //&& !trimmedcmd.Split().Contains("help"))
                     {
                         //await msg.DeleteAsync();
-                        RestDMChannel rdc = await msg.Author.CreateDMChannelAsync();
-                        await rdc.SendMessageAsync($"```The command you requested (\"{msg.Content.ToString()}\") may contain material that may annoy people and is disabled in Xander Mode. ```\n" +
+                        //RestDMChannel rdc = await msg.Author.CreateDMChannelAsync();
+                        //await rdc.SendMessageAsync($"```The command you requested (\"{msg.Content.ToString()}\") may contain material that may annoy people and is disabled in Xander Mode. ```\n" +
+                        //    "Sorry for the inconvenience... I wish it didn't have to be this way.\nHave a great day friend.");
+                        await msg.Author.SendMessageAsync($"```The command you requested (\"{msg.Content.ToString()}\") may contain material that may annoy people and is disabled in Xander Mode. ```\n" +
                             "Sorry for the inconvenience... I wish it didn't have to be this way.\nHave a great day friend.");
                         return;
                     }
@@ -401,8 +808,9 @@ namespace RexBot2
                 } else
                 {//restrained
                     await context.Channel.SendMessageAsync(msg.Author.Mention + " " + TrollUtils.getSnarkyComment());
-                    RestDMChannel rdc = await msg.Author.CreateDMChannelAsync();
-                    await rdc.SendMessageAsync("You are still restrained... " + AdminUtils.GetRestrainTimeRemaining(msg.Author.ToString()) + "s remaining");                    
+                    //RestDMChannel rdc = await msg.Author.CreateDMChannelAsync();
+                    await msg.Author.SendMessageAsync("You are currently restrained you " + MasterUtils.sillyName());
+                    //await rdc.SendMessageAsync("You are still restrained... " + AdminUtils.GetRestrainTimeRemaining(msg.Author.ToString()) + "s remaining");                    
                     //"\n\n You are currently restrained " + msg.Author.Mention + " (" + AdminUtils.GetRestrainTimeRemaining(msg.Author.ToString()) + "s remaining)");
                 }
                 
@@ -412,7 +820,7 @@ namespace RexBot2
                 //report tts
                 if (!msg.Author.IsBot && msg.IsTTS && DataUtils.modes[DataUtils.mode].getPermissions().Contains("tts"))
                 {
-                    await context.Channel.SendMessageAsync("!report " + msg.Author);
+                    await context.Channel.SendMessageAsync("!restrain " + msg.Author);
                     return;
                 }
 

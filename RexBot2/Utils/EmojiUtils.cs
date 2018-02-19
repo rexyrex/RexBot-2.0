@@ -29,9 +29,15 @@ namespace RexBot2.Utils
             return tmpEmojisList[i];
         }
 
-        public static Emoji getEmoji()
+        public static Emoji getRandEmoji()
         {
             Emoji ej = new Emoji(rand());
+            return ej;
+        }
+
+        public static Emoji getEmoji(string c)
+        {
+            Emoji ej = new Emoji(c);
             return ej;
         }
     }

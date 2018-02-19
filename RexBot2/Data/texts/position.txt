@@ -5,3 +5,6 @@ Hardcore support
 Mid
 Offensive jungling
 Jungle
+Fountain Diving
+Bounty Rune Camping
+Blue Number Farming

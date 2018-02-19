@@ -1,0 +1,13 @@
+﻿The reports update.
+
+You cannot save or load !report anymore. (i'm looking at you geoff)
+
+Rexbot can report you internally based on how much it hates you. (your reports can jump from 10 to 30 if it hates you enough)
+
+Rexbot will randomly pm you to annoy you the more reports you have.
+
+Rexbot will start to ignore your requests as you are reported more. (higher reports = higher ignore chance)
+
+Reports will be reset from time to time so you are not doomed forever.
+
+Some EXTREMELY annoying tts phrases added to !w. (Very low chance of activation but it lasts over a minute)

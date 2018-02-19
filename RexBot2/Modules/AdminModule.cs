@@ -10,6 +10,71 @@ namespace RexBot2.Modules
 {
     public class AdminModule : ModuleBase<SocketCommandContext>
     {
+
+        [Command("activate")]
+        [Remarks("admin")]
+        [Summary("Activate rexbot so people can use its functions")]
+        public async Task activateCmd()
+        {
+            EmbedBuilder emb = new EmbedBuilder();
+            emb.Color = new Color(1, 255, 1);
+            emb.Timestamp = new DateTimeOffset(DateTime.Now);
+
+            if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS))
+            {
+                MasterUtils.toggleActivation();
+                emb.Description = "**Rexbot activation = "+ DataUtils.activation +"**";
+
+                await Context.Channel.SendMessageAsync("", false, emb);
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync("Nice try " + MasterUtils.stripName(Context.User.ToString()));
+            }
+        }
+
+        [Command("data")]
+        [Remarks("admin")]
+        [Alias("thed")]
+        [Summary("Post usernamedict, rexdb, and responses as text files")]
+        public async Task datapostCmd()
+        {
+            if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS))
+            {
+                await Context.Channel.SendFileAsync("Data/texts/usernamedict.txt");
+                await Context.Channel.SendFileAsync("Data/texts/rexdb.txt");
+                await Context.Channel.SendFileAsync("Data/texts/responses.txt");
+                await Context.Channel.SendFileAsync("Data/texts/alias2.txt");
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync("Nice try " + MasterUtils.stripName(Context.User.ToString()));
+            }
+        }
+
+        [Command("adduser")]
+        [Remarks("admin")]
+        [Alias("addu")]
+        [Summary("Adds user to usernamedict")]
+        public async Task adduserCmd(string username, string actualname, string userid)
+        {
+            EmbedBuilder emb = new EmbedBuilder();
+            emb.Color = new Color(196, 09, 155);
+            //emb.Title = "`HELP!`";
+            emb.Timestamp = new DateTimeOffset(DateTime.Now);
+
+            if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS))
+            {
+                emb.Description = "**User added!**";
+                DataUtils.addUserToUserDict(username, actualname, userid);
+                await Context.Channel.SendMessageAsync("", false, emb);
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync("Nice try " + MasterUtils.stripName(Context.User.ToString()));
+            }
+        }
+
         [Command("off")]
         [Remarks("admin")]
         [Alias("exit","quit")]
@@ -23,7 +88,8 @@ namespace RexBot2.Modules
 
             if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.ADMINS)){
                 DataUtils.turnOffStatus();
-                emb.Description = "**I am going down for maintenance! brb...**";
+                DataUtils.returnInvestedCoins();
+                emb.Description = "**I am going down for maintenance! brb...**\n\nAll Invested Coins have been returned!";
                 await Context.Channel.SendMessageAsync("",false,emb);
                 System.Threading.Thread.Sleep(1000);
                 System.Environment.Exit(1);
@@ -163,7 +229,7 @@ namespace RexBot2.Modules
         {
             if (MasterUtils.ContainsAny(Context.User.ToString(), GlobalVars.MODE_ADMINS))
             {
-                if (MasterUtils.isMode(reqMode))
+                if (MasterUtils.isMode(reqMode) && reqMode!="cat")
                 {
                     DataUtils.changeMode(reqMode);
                     await Context.Channel.SendMessageAsync("RexBot mode changed to " + reqMode);

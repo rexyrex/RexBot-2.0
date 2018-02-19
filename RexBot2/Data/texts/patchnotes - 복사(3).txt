@@ -1,0 +1,11 @@
+﻿The reports update 2
+
+If you have many reports, instead of ignoring you, rexbot will restrain you.
+
+!forgive <username> - Help a brother out with this command
+
+!beg - Try to gamble your way out of your bad situation by begging rexbot
+
+Reports are a big deal now as they can hinder you from using rexbot's arsenal of functions.
+
+Make use of the above functions and make most of RexBot2.0

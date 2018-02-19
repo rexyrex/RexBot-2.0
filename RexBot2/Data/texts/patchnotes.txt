@@ -1,22 +1,3 @@
-﻿Fixed Issue where Youtube link would be broken when title contained brackets
+﻿New commands : !email, !inbox
 
-**Search can now time out** if it takes too long
-
-Added ***!random*** command -> Invokes a completely random command in rexbot's arsenal.
-
-**!help** shows only available functions in current mode.
-**!help <command>** indicates if it can be used in Xander mode.
-
-Added stopwords to make most frequent word stats more interesting
-
-Can update bot vocab + aliases without restarting bot with **!reload**
-
-Get detailed stats in a txt file with **!statsprint**
-
-**Mode defaults to "quiet (all functions online)"** but automatically switches to Xander mode when Xander comes online.
-(mode can still be toggled manually by mode mods)
-
-**Mode admins updated.** (People who are online most + Xander)
-These users can change mode at any time with "!mode":
-
-{"BonoboCop#0335", "BonoboBadCop#1267", "rooster212#7948", "CPTOblivious#4652", "Geffo#1689" };
+Send emails. Rexbot will read them outloud for you.

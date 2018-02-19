@@ -1,0 +1,37 @@
+﻿The Shop Update
+
+New commands: !shop, !buy, !mystats, !exchange, !exchangerate, !pickup, !gift, !oldbeg, !newbeg
+
+Rex Coin System added.
+
+Use !exchange to exchange reports to rex coins
+
+Exchange rate changes every couple of hours or days. Check with !exchangerate
+
+If you exceed max reports, you will automatically exchange reports to coins 
+
+
+!shop shows all the items you can buy in the shop
+
+!buy to buy items from the shop with rexcoins
+
+!mystats shows your stats
+
+Use !pickup when rexbot announces that there are coins on the ground. The first person to use !pickup gains all of those coins!
+
+!gift gives you a random amount of reports for free! CD is long but dont forget to use it!
+
+!beg has been removed.
+
+!oldbeg and !newbeg have been added.
+Both begs share the same cooldowns.
+
+COMING SOON!
+------------
+You can invest rex coins in companies of your choice! Are you a Rexy business man?
+
+Make Rexbot hate people by paying it! Rexbot is more likely to forgive people who it hates!
+
+Put your money in the Rex Bank which has fair interest rates! Keep in mind banks can be robbed from time to time!
+
+Rexbot will comment on your personal progress. Check with !mystats

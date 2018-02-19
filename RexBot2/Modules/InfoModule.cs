@@ -129,6 +129,44 @@ namespace RexBot2.Modules
             await Context.Channel.SendMessageAsync("", false, emb);
         }
 
+        [Command("mystats")]
+        [Remarks("info")]
+        [Summary("Display my stats")]
+        public async Task mystatsCmd()
+        {
+            string username = Context.User.ToString();
+            EmbedBuilder emb = new EmbedBuilder();
+            emb.Color = new Color(0, 0, 255);
+            emb.Timestamp = new DateTimeOffset(DateTime.Now);
+            emb.Title = "**📈 My Stats 📉**\n";
+            string desc = "";
+            desc += "**Username:** " + username + "\n";
+            desc += "**Reports:** " + DataUtils.getReportCount(username) + "\n";
+            desc += "**Rex Coins:** " + DataUtils.getCoinCount(username) + "\n";
+            desc += "**Bot Comment:** " + "no comment"+ "\n";
+
+            emb.Description = desc;
+            await Context.Channel.SendMessageAsync("", false, emb);
+        }
+
+        [Command("savestate")]
+        [Remarks("info")]
+        [Summary("Serialize Test")]
+        public async Task stestCmd()
+        {
+            DataUtils.serializeAll();
+            await Context.Channel.SendMessageAsync("done");
+        }
+
+        [Command("loadstate")]
+        [Remarks("info")]
+        [Summary("Serialize Test2")]
+        public async Task stest2Cmd()
+        {
+            //DataUtils.serializeLoadTest();
+            await Context.Channel.SendMessageAsync("done");
+        }
+
         [Command("stats")]
         [Alias("stat")]
         [Remarks("info")]
@@ -159,6 +197,11 @@ namespace RexBot2.Modules
             topReportsField.Name = "Reported";
             topReportsField.Value = DataUtils.getReportTopList();
             topReportsField.IsInline = true;
+
+            EmbedFieldBuilder topWField = new EmbedFieldBuilder();
+            topWField.Name = "!W LEVEL";
+            topWField.Value = DataUtils.getWaddChancesTopList();
+            topWField.IsInline = true;
 
             EmbedFieldBuilder mostUsedCommandsField = new EmbedFieldBuilder();
             mostUsedCommandsField.Name = "Commands";
@@ -196,6 +239,7 @@ namespace RexBot2.Modules
             randomWordsField.IsInline = true;
 
             emb.AddField(topReportsField);
+            emb.AddField(topWField);
             emb.AddField(mostMsgUserField);
             emb.AddField(mostUsedCommandsField);            
             emb.AddField(mostUsedWordsField);
@@ -265,7 +309,7 @@ namespace RexBot2.Modules
             userCountField.IsInline = true;
             EmbedFieldBuilder statusField = new EmbedFieldBuilder();
             statusField.Name = "Status";
-            statusField.Value = "Discontinued";
+            statusField.Value = "YOLO";
             statusField.IsInline = true;
 
             EmbedFieldBuilder efb6 = new EmbedFieldBuilder();
@@ -326,7 +370,7 @@ namespace RexBot2.Modules
             EmbedBuilder emb = new EmbedBuilder();
             emb.Color = new Color(255, 0, 0);
 
-            emb.Title = "**RexBot 2.0 an unexpected Update - May 23 2017**\n";
+            emb.Title = "**RexBot 2.0 Money Update**\n";
 
             emb.Description = DataUtils.getRawStringFromFile("Data/texts/patchnotes.txt");
             //EmbedFieldBuilder modeField = new EmbedFieldBuilder();

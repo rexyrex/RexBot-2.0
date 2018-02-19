@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Tweetinvi;
 using System.Linq;
-using Google.Apis.Translate.v2;
-using TranslationsResource = Google.Apis.Translate.v2.Data.TranslationsResource;
+//using Google.Apis.Translate.v2;
+//using TranslationsResource = Google.Apis.Translate.v2.Data.TranslationsResource;
 using System.Text;
 using System.Xml.Linq;
 using Newtonsoft.Json;
@@ -179,26 +179,26 @@ namespace RexBot2.Utils
         }
 
             //Discontinued... THIS IS PAYED SERVICE WITH NO FREE QUOTA WTF (smh google)
-            public static async Task<string> RexTranslate(string originalStr)
-        {
-            var service = new TranslateService(new BaseClientService.Initializer()
-            {
-                ApiKey = GlobalVars.GOOGLE_TRANSLATE_KEY,
-                ApplicationName = "Translate API Sample"
-            });
-            string[] toTranslate = new string[1];
-            toTranslate[0] = originalStr;
-            var response = await service.Translations.List(toTranslate, "ko").ExecuteAsync();
-            var translations = new List<string>();
+        //    public static async Task<string> RexTranslate(string originalStr)
+        //{
+        //    var service = new TranslateService(new BaseClientService.Initializer()
+        //    {
+        //        ApiKey = GlobalVars.GOOGLE_TRANSLATE_KEY,
+        //        ApplicationName = "Translate API Sample"
+        //    });
+        //    string[] toTranslate = new string[1];
+        //    toTranslate[0] = originalStr;
+        //    var response = await service.Translations.List(toTranslate, "ko").ExecuteAsync();
+        //    var translations = new List<string>();
 
-            foreach (TranslationsResource translation in response.Translations)
-            {
-                translations.Add(translation.TranslatedText);
-                Console.WriteLine("translation :" + translation.TranslatedText);
-            }
+        //    foreach (TranslationsResource translation in response.Translations)
+        //    {
+        //        translations.Add(translation.TranslatedText);
+        //        Console.WriteLine("translation :" + translation.TranslatedText);
+        //    }
 
-            return translations.ElementAt<string>(0);
-        }
+        //    return translations.ElementAt<string>(0);
+        //}
 
         public static async Task<string> YoutubeTest(string term)
         {

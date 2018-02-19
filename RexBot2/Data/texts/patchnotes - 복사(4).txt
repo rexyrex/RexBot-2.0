@@ -1,0 +1,11 @@
+﻿The Beg Update 2.0
+
+Max reports increased from 100 -> 1000
+
+Rexbot will restrain you with a chance of (report/10)% chance.
+
+!Beg has been altered significantly.
+
+If you reach or exceed the max report limit, you will gain an additional 1% chance when running !w.
+
+Multiple internal bug fixes

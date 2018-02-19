@@ -1,0 +1,9 @@
+﻿New commands: !shop, !buy, !mystats, !convert, !exchange(rate), !pickup, !gift, !oldbeg, !newbeg
+
+!exchange -> Shows exchange rates
+
+!convert -> Converts your reports to coins
+
+!beg has been removed.
+!oldbeg and !newbeg have been added.
+Both begs share the same cooldowns.

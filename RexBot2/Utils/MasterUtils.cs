@@ -8,6 +8,17 @@ namespace RexBot2.Utils
     public class MasterUtils
     {
 
+        public static void toggleActivation()
+        {
+            if (DataUtils.activation == false)
+            {
+                DataUtils.activation = true;
+            } else
+            {
+                DataUtils.activation = false;
+            }
+        }
+
         public static string getStringFromPool(string[] pool, string[] restricted)
         {
             List<string> list = new List<string>(pool);
@@ -120,6 +131,51 @@ namespace RexBot2.Utils
             return res;
         }
 
+        public static string capitalizeFirstChar(string input)
+        {
+            string outputstring = "";
+            for(int i=0; i<input.Length; i++)
+            {
+                if (i == 0) outputstring += char.ToUpper(input[i]);
+                else outputstring += input[i];
+            }
+            return outputstring;
+        }
+
+        public static string mixSentence(string inputsentence)
+        {
+            string outputsentence = "";
+            List<string> words = new List<string>();
+            string word = "";
+            for (int i=0; i<inputsentence.Length; i++)
+            {
+                if (inputsentence[i] == ' ' || i == inputsentence.Length-1)
+                {
+                    word += inputsentence[i];
+                    if (i == inputsentence.Length - 1)
+                    {
+                        word += ' ';
+                    }
+                    words.Add(word);
+                    word = "";
+                } else
+                {
+                    word += inputsentence[i];
+                }
+            }
+
+            while (words.Count > 0)
+            {
+                int index = DataUtils.rnd.Next(0, words.Count);
+                outputsentence += words[index];
+                Logger.NewLine(words[index]);
+                Logger.NewLine(words.Count.ToString());
+                words.RemoveAt(index);
+            }
+
+            return outputsentence;
+        }
+
         public static string getAnnoyingTTSString()
         {
             string res = string.Empty;
@@ -147,13 +203,16 @@ namespace RexBot2.Utils
                     wres += " ";
                 }
             }
-            switch(DataUtils.rnd.Next(1, 6))
+            switch(DataUtils.rnd.Next(1, 9))
             {
-                case 4: return wres; 
+                case 4: return res; 
                 case 1: return "MACHINE GUN MOTHER FUCKERS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
                 case 2: return "IM A RAP GOD nenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenenen";
                 case 3: return "CONGRATZ DOUCHE BAG HERE'S YOUR PRESENT w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w, w";
-                default: return res;
+                case 5: return "nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. nm. mn. ";
+                case 6: return ":b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b: :b:";
+                case 7: return ":a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a: :a:";
+                default: return wres;
             }
         }
 
